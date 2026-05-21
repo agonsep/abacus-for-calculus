@@ -237,7 +237,7 @@ function Scene({ values, runId, calcId }: { values: number[]; runId: number; cal
 }
 
 export default function CalculusAbacus() {
-  const [formula, setFormula] = useState("2x + 3");
+  const [formula, setFormula] = useState("(x^2 + x) / 2");
   const [values, setValues] = useState<number[]>(Array(COLUMNS).fill(0));
   const [runId, setRunId] = useState(0);
   const [calcId, setCalcId] = useState(0);
