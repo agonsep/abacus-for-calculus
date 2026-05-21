@@ -118,22 +118,41 @@ function Board() {
   );
 }
 
+const ORANGE = "#d98b4a";
+const RED = "#c8332a";
+
 function Stacks({ values, runId }: { values: number[]; runId: number }) {
   return (
     <>
       {values.map((v, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
-        const count = Math.max(0, Math.min(MAX_PIECES, Math.round(v)));
-        const pieces = [];
-        for (let k = 0; k < count; k++) {
+        const yCount = Math.max(0, Math.min(MAX_PIECES, Math.round(v)));
+        // Discrete differential: delta y from previous column. First column has no previous, so 0.
+        const prev = i === 0 ? 0 : values[i - 1];
+        const delta = Math.round(values[i] - prev);
+        const dCount = Math.max(0, Math.min(MAX_PIECES - yCount, Math.abs(delta)));
+        const pieces: JSX.Element[] = [];
+        for (let k = 0; k < yCount; k++) {
           const y = PIECE_HEIGHT / 2 + k * PIECE_HEIGHT + 0.05;
           pieces.push(
             <Piece
-              key={`${runId}-${i}-${k}`}
+              key={`y-${runId}-${i}-${k}`}
               x={x}
               targetY={y}
-              delay={i * 0.08 + k * 0.05}
-              hue={(i / COLUMNS) * 0.8}
+              delay={i * 0.08 + k * 0.04}
+              color={ORANGE}
+            />
+          );
+        }
+        for (let k = 0; k < dCount; k++) {
+          const y = PIECE_HEIGHT / 2 + (yCount + k) * PIECE_HEIGHT + 0.05;
+          pieces.push(
+            <Piece
+              key={`d-${runId}-${i}-${k}`}
+              x={x}
+              targetY={y}
+              delay={0.6 + i * 0.08 + k * 0.05}
+              color={RED}
             />
           );
         }
