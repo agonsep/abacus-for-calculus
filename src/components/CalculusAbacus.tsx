@@ -12,13 +12,17 @@ const MAX_PIECES = 60;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 function Piece({
   x,
+function Piece({
+  x,
   targetY,
   delay,
-  hue,
+  color,
 }: {
   x: number;
   targetY: number;
   delay: number;
+  color: string;
+}) {
   hue: number;
 }) {
   const ref = useRef<THREE.Group>(null);
