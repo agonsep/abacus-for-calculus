@@ -237,8 +237,8 @@ export default function CalculusAbacus() {
             Calculus
           </h1>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Type a formula. Each column is <span className="text-primary">x</span>, the stack height is{" "}
-            <span className="text-primary">y</span>.
+            Orange stones are <span className="text-primary">y</span>. Red stones on top are the
+            discrete differential <span className="text-primary">Δy = y(x) − y(x−1)</span>.
           </p>
         </div>
       </div>
