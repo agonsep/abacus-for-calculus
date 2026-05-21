@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Environment, Text, RoundedBox } from "@react-three/drei";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluate } from "mathjs";
 import * as THREE from "three";
 
@@ -14,12 +14,12 @@ function Piece({
   x,
   targetY,
   delay,
-  hue,
+  color,
 }: {
   x: number;
   targetY: number;
   delay: number;
-  hue: number;
+  color: string;
 }) {
   const ref = useRef<THREE.Group>(null);
   const start = useRef(performance.now() / 1000 + delay);
@@ -33,24 +33,22 @@ function Piece({
       ref.current.scale.setScalar(0);
       return;
     }
-    // Ease-out bounce-ish
     const p = Math.min(1, t / 0.55);
     const ease = 1 - Math.pow(1 - p, 3);
     const y = dropFrom + (targetY - dropFrom) * ease;
-    // small bounce
     const bounce = p === 1 ? Math.sin(Math.min((t - 0.55) * 12, Math.PI)) * 0.06 * Math.exp(-(t - 0.55) * 4) : 0;
     ref.current.position.set(x, y + bounce, 0);
     const s = Math.min(1, t / 0.2);
     ref.current.scale.setScalar(s);
   });
 
-  const color = useMemo(() => new THREE.Color("#d98b4a"), [hue]);
+  const c = useMemo(() => new THREE.Color(color), [color]);
 
   return (
     <group ref={ref}>
       <RoundedBox args={PIECE_SIZE} radius={0.08} smoothness={4} castShadow receiveShadow>
         <meshPhysicalMaterial
-          color={color}
+          color={c}
           roughness={0.35}
           metalness={0.15}
           clearcoat={0.6}
@@ -120,22 +118,41 @@ function Board() {
   );
 }
 
+const ORANGE = "#d98b4a";
+const RED = "#c8332a";
+
 function Stacks({ values, runId }: { values: number[]; runId: number }) {
   return (
     <>
       {values.map((v, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
-        const count = Math.max(0, Math.min(MAX_PIECES, Math.round(v)));
-        const pieces = [];
-        for (let k = 0; k < count; k++) {
+        const yCount = Math.max(0, Math.min(MAX_PIECES, Math.round(v)));
+        // Discrete differential: delta y from previous column. First column has no previous, so 0.
+        const prev = i === 0 ? 0 : values[i - 1];
+        const delta = Math.round(values[i] - prev);
+        const dCount = Math.max(0, Math.min(MAX_PIECES - yCount, Math.abs(delta)));
+        const pieces: ReactNode[] = [];
+        for (let k = 0; k < yCount; k++) {
           const y = PIECE_HEIGHT / 2 + k * PIECE_HEIGHT + 0.05;
           pieces.push(
             <Piece
-              key={`${runId}-${i}-${k}`}
+              key={`y-${runId}-${i}-${k}`}
               x={x}
               targetY={y}
-              delay={i * 0.08 + k * 0.05}
-              hue={(i / COLUMNS) * 0.8}
+              delay={i * 0.08 + k * 0.04}
+              color={ORANGE}
+            />
+          );
+        }
+        for (let k = 0; k < dCount; k++) {
+          const y = PIECE_HEIGHT / 2 + (yCount + k) * PIECE_HEIGHT + 0.05;
+          pieces.push(
+            <Piece
+              key={`d-${runId}-${i}-${k}`}
+              x={x}
+              targetY={y}
+              delay={0.6 + i * 0.08 + k * 0.05}
+              color={RED}
             />
           );
         }
@@ -220,8 +237,8 @@ export default function CalculusAbacus() {
             Calculus
           </h1>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Type a formula. Each column is <span className="text-primary">x</span>, the stack height is{" "}
-            <span className="text-primary">y</span>.
+            Orange stones are <span className="text-primary">y</span>. Red stones on top are the
+            discrete differential <span className="text-primary">Δy = y(x) − y(x−1)</span>.
           </p>
         </div>
       </div>
