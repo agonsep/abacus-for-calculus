@@ -44,7 +44,7 @@ function Piece({
     ref.current.scale.setScalar(s);
   });
 
-  const color = useMemo(() => new THREE.Color().setHSL(hue, 0.7, 0.58), [hue]);
+  const color = useMemo(() => new THREE.Color("#d98b4a"), [hue]);
 
   return (
     <group ref={ref}>
