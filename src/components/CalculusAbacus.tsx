@@ -7,7 +7,7 @@ import * as THREE from "three";
 const COLUMNS = 10;
 const COL_SPACING = 1.1;
 const PIECE_HEIGHT = 0.18;
-const PIECE_SIZE: [number, number, number] = [0.9, PIECE_HEIGHT, 0.9];
+const PIECE_SIZE: [number, number, number] = [0.95, PIECE_HEIGHT, 0.95 / 1.618];
 const MAX_PIECES = 60;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 function Piece({
