@@ -169,9 +169,9 @@ function Scene({ values, runId }: { values: number[]; runId: number }) {
       <OrbitControls
         enablePan={false}
         minDistance={8}
-        maxDistance={22}
+        maxDistance={40}
         maxPolarAngle={Math.PI / 2.1}
-        target={[0, 1, 0]}
+        target={[0, 5, 0]}
       />
     </>
   );
