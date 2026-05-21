@@ -131,7 +131,7 @@ function Stacks({ values, runId }: { values: number[]; runId: number }) {
         const prev = i === 0 ? 0 : values[i - 1];
         const delta = Math.round(values[i] - prev);
         const dCount = Math.max(0, Math.min(MAX_PIECES - yCount, Math.abs(delta)));
-        const pieces: JSX.Element[] = [];
+        const pieces: React.ReactNode[] = [];
         for (let k = 0; k < yCount; k++) {
           const y = PIECE_HEIGHT / 2 + k * PIECE_HEIGHT + 0.05;
           pieces.push(
