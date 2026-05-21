@@ -8,7 +8,7 @@ const COLUMNS = 10;
 const COL_SPACING = 1.1;
 const PIECE_HEIGHT = 0.18;
 const PIECE_SIZE: [number, number, number] = [0.95, PIECE_HEIGHT, 0.95 / 1.618];
-const MAX_PIECES = 60;
+const MAX_PIECES = 80;
 const RED_STOCK = 15;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
@@ -228,9 +228,9 @@ function Scene({ values, runId, calcId }: { values: number[]; runId: number; cal
       <OrbitControls
         enablePan={false}
         minDistance={8}
-        maxDistance={40}
+        maxDistance={50}
         maxPolarAngle={Math.PI / 2.1}
-        target={[0, 5, 0]}
+        target={[0, 7, 0]}
       />
     </>
   );
@@ -269,7 +269,8 @@ export default function CalculusAbacus() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
-      <Canvas shadows camera={{ position: [0, 10, 22], fov: 45 }} dpr={[1, 2]}>
+      <Canvas shadows camera={{ position: [0, 12, 26], fov: 45 }} dpr={[1, 2]}>
+
         <Scene values={values} runId={runId} calcId={calcId} />
       </Canvas>
 
