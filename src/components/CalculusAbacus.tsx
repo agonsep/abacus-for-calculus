@@ -12,8 +12,6 @@ const MAX_PIECES = 60;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 function Piece({
   x,
-function Piece({
-  x,
   targetY,
   delay,
   color,
@@ -22,8 +20,6 @@ function Piece({
   targetY: number;
   delay: number;
   color: string;
-}) {
-  hue: number;
 }) {
   const ref = useRef<THREE.Group>(null);
   const start = useRef(performance.now() / 1000 + delay);
@@ -37,24 +33,22 @@ function Piece({
       ref.current.scale.setScalar(0);
       return;
     }
-    // Ease-out bounce-ish
     const p = Math.min(1, t / 0.55);
     const ease = 1 - Math.pow(1 - p, 3);
     const y = dropFrom + (targetY - dropFrom) * ease;
-    // small bounce
     const bounce = p === 1 ? Math.sin(Math.min((t - 0.55) * 12, Math.PI)) * 0.06 * Math.exp(-(t - 0.55) * 4) : 0;
     ref.current.position.set(x, y + bounce, 0);
     const s = Math.min(1, t / 0.2);
     ref.current.scale.setScalar(s);
   });
 
-  const color = useMemo(() => new THREE.Color("#d98b4a"), [hue]);
+  const c = useMemo(() => new THREE.Color(color), [color]);
 
   return (
     <group ref={ref}>
       <RoundedBox args={PIECE_SIZE} radius={0.08} smoothness={4} castShadow receiveShadow>
         <meshPhysicalMaterial
-          color={color}
+          color={c}
           roughness={0.35}
           metalness={0.15}
           clearcoat={0.6}
