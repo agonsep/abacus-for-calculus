@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, Text, RoundedBox } from "@react-three/drei";
+import { OrbitControls, Environment, Text, RoundedBox, Line } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluate } from "mathjs";
 import * as THREE from "three";
@@ -7,12 +7,14 @@ import * as THREE from "three";
 const COLUMNS = 11;
 const COL_SPACING = 1.1;
 const PIECE_HEIGHT = 0.18;
-const PIECE_SIZE: [number, number, number] = [0.95, PIECE_HEIGHT, 0.95 / 1.618];
+const PIECE_WIDTH = 0.95;
+const PIECE_DEPTH = 0.95 / 1.618;
 const MAX_PIECES = 80;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
 const ORANGE = "#d98b4a";
 const RED = "#c8332a";
+const LINE_COLOR = "#7dd3fc";
 
 function slotY(slot: number) {
   return PIECE_HEIGHT / 2 + slot * PIECE_HEIGHT + 0.05;
@@ -33,12 +35,14 @@ function Piece({
   targetY,
   delay,
   color,
+  heightScale = 1,
 }: {
   x: number;
   fromY: number;
   targetY: number;
   delay: number;
   color: string;
+  heightScale?: number;
 }) {
   const ref = useRef<THREE.Group>(null);
   const start = useRef(performance.now() / 1000 + delay);
@@ -48,7 +52,7 @@ function Piece({
     const t = performance.now() / 1000 - start.current;
     if (t < 0) {
       ref.current.position.set(x, fromY, 0);
-      ref.current.scale.setScalar(0);
+      ref.current.scale.set(0, 0, 0);
       return;
     }
     const duration = 0.45;
@@ -61,14 +65,14 @@ function Piece({
         : 0;
     ref.current.position.set(x, y + bounce, 0);
     const s = Math.min(1, t / 0.18);
-    ref.current.scale.setScalar(s);
+    ref.current.scale.set(s, s * heightScale, s);
   });
 
   const c = useMemo(() => new THREE.Color(color), [color]);
 
   return (
     <group ref={ref}>
-      <RoundedBox args={PIECE_SIZE} radius={0.08} smoothness={4} castShadow receiveShadow>
+      <RoundedBox args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_DEPTH]} radius={0.08} smoothness={4} castShadow receiveShadow>
         <meshPhysicalMaterial
           color={c}
           roughness={0.35}
@@ -158,12 +162,14 @@ function Stacks({
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
-      {orange.map((yCount, i) => {
+      {orange.map((yVal, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const off = shift[i] ?? 0;
         const pieces: ReactNode[] = [];
 
-        for (let k = 0; k < yCount; k++) {
+        const yFull = Math.floor(yVal);
+        const yFrac = yVal - yFull;
+        for (let k = 0; k < yFull; k++) {
           pieces.push(
             <Piece
               key={`y-${runId}-${i}-${k}`}
@@ -175,16 +181,50 @@ function Stacks({
             />,
           );
         }
-        const rCount = red[i] ?? 0;
-        for (let k = 0; k < rCount; k++) {
+        if (yFrac > 0.01) {
+          const baseY = slotY(yFull + off) - PIECE_HEIGHT / 2;
+          const targetY = baseY + (PIECE_HEIGHT * yFrac) / 2;
+          pieces.push(
+            <Piece
+              key={`yf-${runId}-${i}`}
+              x={x}
+              fromY={skyY}
+              targetY={targetY}
+              delay={i * 0.04 + yFull * 0.02}
+              color={ORANGE}
+              heightScale={yFrac}
+            />,
+          );
+        }
+
+        const rVal = red[i] ?? 0;
+        const rFull = Math.floor(rVal);
+        const rFrac = rVal - rFull;
+        const redBase = yFull + (yFrac > 0.01 ? 1 : 0);
+        for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
               key={`r-${runId}-${i}-${k}`}
               x={x}
               fromY={skyY + 2}
-              targetY={slotY(yCount + k + off)}
-              delay={i * 0.04 + (yCount + k) * 0.02}
+              targetY={slotY(redBase + k + off)}
+              delay={i * 0.04 + (redBase + k) * 0.02}
               color={RED}
+            />,
+          );
+        }
+        if (rFrac > 0.01) {
+          const baseY = slotY(redBase + rFull + off) - PIECE_HEIGHT / 2;
+          const targetY = baseY + (PIECE_HEIGHT * rFrac) / 2;
+          pieces.push(
+            <Piece
+              key={`rf-${runId}-${i}`}
+              x={x}
+              fromY={skyY + 2}
+              targetY={targetY}
+              delay={i * 0.04 + (redBase + rFull) * 0.02}
+              color={RED}
+              heightScale={rFrac}
             />,
           );
         }
@@ -195,18 +235,45 @@ function Stacks({
   );
 }
 
+function ConnectingLine({ orange, shift }: { orange: number[]; shift: number[] }) {
+  const points = useMemo<[number, number, number][]>(
+    () =>
+      orange.map((v, i) => {
+        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        const off = shift[i] ?? 0;
+        const top = PIECE_HEIGHT * (v + off) + 0.05;
+        return [x, top + 0.04, PIECE_DEPTH / 2 + 0.02];
+      }),
+    [orange, shift],
+  );
+  if (points.length < 2) return null;
+  return (
+    <>
+      <Line points={points} color={LINE_COLOR} lineWidth={3} />
+      {points.map((p, i) => (
+        <mesh key={i} position={p}>
+          <sphereGeometry args={[0.07, 16, 16]} />
+          <meshStandardMaterial color={LINE_COLOR} emissive={LINE_COLOR} emissiveIntensity={0.5} />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 function Scene({
   orange,
   red,
   shift,
   xValues,
   runId,
+  showLine,
 }: {
   orange: number[];
   red: number[];
   shift: number[];
   xValues: number[];
   runId: number;
+  showLine: boolean;
 }) {
   return (
     <>
@@ -224,6 +291,7 @@ function Scene({
       <directionalLight position={[-6, 5, -4]} intensity={0.7} color="#a8c0ff" />
       <Board xValues={xValues} />
       <Stacks orange={orange} red={red} shift={shift} runId={runId} />
+      {showLine && <ConnectingLine orange={orange} shift={shift} />}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
         <planeGeometry args={[60, 60]} />
         <shadowMaterial opacity={0.3} />
@@ -254,6 +322,9 @@ export default function CalculusAbacus() {
   const [shift, setShift] = useState<number[]>(Array(COLUMNS).fill(0));
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [showLine, setShowLine] = useState(false);
+  const [fractional, setFractional] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const setup = () => {
     try {
@@ -273,9 +344,11 @@ export default function CalculusAbacus() {
       const maxAbs = Math.max(...ys.map((y) => Math.abs(y)), 1e-9);
       const avail = MAX_PIECES - 10;
       const u = niceUnit(maxAbs / avail);
-      const counts = ys.map((y) =>
-        Math.max(0, Math.min(MAX_PIECES, Math.round(y / u))),
-      );
+      const counts = ys.map((y) => {
+        const raw = y / u;
+        const v = fractional ? raw : Math.round(raw);
+        return Math.max(0, Math.min(MAX_PIECES, v));
+      });
       setXValues(xs);
       setUnit(u);
       setOrange(counts);
@@ -313,10 +386,20 @@ export default function CalculusAbacus() {
     });
   };
 
+  const fmtCount = (v: number) =>
+    fractional ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v));
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
       <Canvas shadows camera={{ position: [0, 12, 28], fov: 45 }} dpr={[1, 2]}>
-        <Scene orange={orange} red={red} shift={shift} xValues={xValues} runId={runId} />
+        <Scene
+          orange={orange}
+          red={red}
+          shift={shift}
+          xValues={xValues}
+          runId={runId}
+          showLine={showLine}
+        />
       </Canvas>
 
       {/* Header */}
@@ -333,6 +416,89 @@ export default function CalculusAbacus() {
         </div>
       </div>
 
+      {/* Top-right controls */}
+      <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
+        <button
+          onClick={() => setShowHelp(true)}
+          className="pointer-events-auto h-9 w-9 rounded-full border border-border bg-card/80 font-serif text-lg text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
+          title="How does this work?"
+        >
+          ?
+        </button>
+        <div className="pointer-events-auto flex flex-col gap-1.5 rounded-xl border border-border bg-card/80 p-2 text-xs shadow-lg backdrop-blur-md">
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showLine}
+              onChange={(e) => setShowLine(e.target.checked)}
+              className="accent-[hsl(199_89%_70%)]"
+            />
+            <span className="text-foreground">Connect stones</span>
+          </label>
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={fractional}
+              onChange={(e) => setFractional(e.target.checked)}
+              className="accent-primary"
+            />
+            <span className="text-foreground">Fractional stones</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Help dialog */}
+      {showHelp && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center bg-background/60 p-4 backdrop-blur-sm"
+          onClick={() => setShowHelp(false)}
+        >
+          <div
+            className="max-h-[80vh] w-full max-w-xl overflow-auto rounded-2xl border border-border bg-card p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-start justify-between">
+              <h2 className="font-serif text-2xl text-foreground">How the abacus works</h2>
+              <button
+                onClick={() => setShowHelp(false)}
+                className="rounded-md px-2 text-2xl leading-none text-muted-foreground hover:text-foreground"
+              >
+                ×
+              </button>
+            </div>
+            <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
+              <p>
+                Each of the <span className="font-mono">11</span> columns represents a value of{" "}
+                <span className="font-mono text-primary">x</span> centered on your{" "}
+                <em>midpoint</em>, spaced by <span className="font-mono">Δx</span>.
+              </p>
+              <p>
+                For every column we evaluate{" "}
+                <span className="font-mono text-primary">y = f(x)</span> and stack{" "}
+                <span className="text-[hsl(28_70%_55%)]">orange stones</span> to that height. The
+                board picks a "nice" unit so the tallest column fits — one orange stone is worth{" "}
+                <span className="font-mono">{formatNum(unit)}</span>.
+              </p>
+              <p>
+                <strong>Calculate Δy</strong> drops{" "}
+                <span className="text-[hsl(0_70%_55%)]">red stones</span> on top of each column
+                equal to <span className="font-mono">|y(x) − y(x − Δx)|</span> — the{" "}
+                <em>discrete differential</em>. As Δx shrinks, the red heights approach the slope
+                <span className="font-mono"> dy/dx</span> times Δx.
+              </p>
+              <p>
+                <strong>Fractional stones</strong> lets values land between whole stones for a more
+                exact picture. <strong>Connect stones</strong> traces a curve through the tops of
+                the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps
+                out. The <strong>±</strong> buttons add or remove stones by hand, and{" "}
+                <strong>▲▼</strong> floats whole columns up or down so you can line them up to
+                compare.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Controls */}
       <div className="absolute inset-x-0 bottom-0 p-4">
         <div className="mx-auto flex max-w-6xl flex-col gap-3">
@@ -343,23 +509,23 @@ export default function CalculusAbacus() {
                 <div className="font-mono text-foreground">x={formatNum(xv)}</div>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => bump(setOrange, i, -1)}
+                    onClick={() => bump(setOrange, i, fractional ? -0.1 : -1)}
                     className="h-5 w-5 rounded bg-[hsl(28_60%_50%)]/80 font-bold text-white hover:bg-[hsl(28_60%_55%)]"
                   >−</button>
-                  <span className="w-5 text-center font-mono text-foreground">{orange[i]}</span>
+                  <span className="w-7 text-center font-mono text-foreground">{fmtCount(orange[i])}</span>
                   <button
-                    onClick={() => bump(setOrange, i, 1)}
+                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1)}
                     className="h-5 w-5 rounded bg-[hsl(28_60%_50%)]/80 font-bold text-white hover:bg-[hsl(28_60%_55%)]"
                   >+</button>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => bump(setRed, i, -1)}
+                    onClick={() => bump(setRed, i, fractional ? -0.1 : -1)}
                     className="h-5 w-5 rounded bg-[hsl(0_60%_45%)]/80 font-bold text-white hover:bg-[hsl(0_60%_50%)]"
                   >−</button>
-                  <span className="w-5 text-center font-mono text-foreground">{red[i]}</span>
+                  <span className="w-7 text-center font-mono text-foreground">{fmtCount(red[i])}</span>
                   <button
-                    onClick={() => bump(setRed, i, 1)}
+                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1)}
                     className="h-5 w-5 rounded bg-[hsl(0_60%_45%)]/80 font-bold text-white hover:bg-[hsl(0_60%_50%)]"
                   >+</button>
                 </div>
