@@ -291,7 +291,6 @@ export default function CalculusAbacus() {
   const calcDiff = () => {
     const r = orange.map((v, i) => (i === 0 ? 0 : Math.abs(v - orange[i - 1])));
     setRed(r);
-    setRunId((x) => x + 1);
   };
 
   useEffect(() => {
@@ -312,7 +311,6 @@ export default function CalculusAbacus() {
       next[i] = Math.max(min, Math.min(max, next[i] + d));
       return next;
     });
-    setRunId((r) => r + 1);
   };
 
   return (
