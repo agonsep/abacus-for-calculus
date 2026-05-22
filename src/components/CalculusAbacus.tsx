@@ -604,18 +604,7 @@ export default function CalculusAbacus() {
                     className="h-5 w-5 rounded bg-[hsl(0_60%_45%)]/80 font-bold text-white hover:bg-[hsl(0_60%_50%)]"
                   >+</button>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => bump(setShift, i, -1, -MAX_PIECES, MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
-                    title="Move column down"
-                  >▼</button>
-                  <button
-                    onClick={() => bump(setShift, i, 1, -MAX_PIECES, MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
-                    title="Move column up"
-                  >▲</button>
-                </div>
+                <div className="text-[9px] text-muted-foreground">drag to move</div>
               </div>
             ))}
           </div>
