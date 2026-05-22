@@ -536,6 +536,7 @@ export default function CalculusAbacus() {
       setOrange(counts);
       setRed(Array(COLUMNS).fill(0));
       setShift(Array(COLUMNS).fill(0));
+      setRedGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
       setError(null);
     } catch {
