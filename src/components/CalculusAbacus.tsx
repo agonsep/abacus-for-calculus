@@ -5,9 +5,9 @@ import { evaluate } from "mathjs";
 import * as THREE from "three";
 
 const COLUMNS = 11;
-const COL_SPACING = 1.1;
+const COL_SPACING = 1.375;
 const PIECE_HEIGHT = 0.18;
-const PIECE_WIDTH = 0.95;
+const PIECE_WIDTH = 1.1875;
 const PIECE_DEPTH = 0.95 / 1.618;
 const MAX_PIECES = 80;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
