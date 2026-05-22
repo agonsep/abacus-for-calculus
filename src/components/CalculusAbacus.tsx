@@ -611,6 +611,8 @@ export default function CalculusAbacus() {
           onDrag={dragColor}
           setDragging={setDragging}
           dragging={dragging}
+          brightness={brightness}
+          zoomTrigger={zoomTrigger}
         />
       </Canvas>
 
