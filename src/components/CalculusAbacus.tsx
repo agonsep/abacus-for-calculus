@@ -388,6 +388,15 @@ export default function CalculusAbacus() {
   const [showLine, setShowLine] = useState(false);
   const [fractional, setFractional] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [dragging, setDragging] = useState(false);
+
+  const shiftBy = (i: number, delta: number) => {
+    setShift((arr) => {
+      const next = arr.slice();
+      next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
+      return next;
+    });
+  };
 
   const setup = () => {
     try {
