@@ -578,10 +578,11 @@ export default function CalculusAbacus() {
           orange={orange}
           red={red}
           shift={shift}
+          redGap={redGap}
           xValues={xValues}
           runId={runId}
           showLine={showLine}
-          onShift={shiftBy}
+          onDrag={dragColor}
           setDragging={setDragging}
           dragging={dragging}
         />
