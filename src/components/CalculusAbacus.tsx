@@ -152,11 +152,13 @@ function Stacks({
   orange,
   red,
   shift,
+  redGap,
   runId,
 }: {
   orange: number[];
   red: number[];
   shift: number[];
+  redGap: number[];
   runId: number;
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
@@ -165,6 +167,7 @@ function Stacks({
       {orange.map((yVal, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const off = shift[i] ?? 0;
+        const gap = redGap[i] ?? 0;
         const pieces: ReactNode[] = [];
 
         const yFull = Math.floor(yVal);
@@ -200,7 +203,7 @@ function Stacks({
         const rVal = red[i] ?? 0;
         const rFull = Math.floor(rVal);
         const rFrac = rVal - rFull;
-        const redBase = yFull + (yFrac > 0.01 ? 1 : 0);
+        const redBase = yFull + (yFrac > 0.01 ? 1 : 0) + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
@@ -261,54 +264,104 @@ function ConnectingLine({ orange, shift }: { orange: number[]; shift: number[] }
 }
 
 function DragHandles({
-  onShift,
+  orange,
+  red,
+  shift,
+  redGap,
+  onDrag,
   setDragging,
 }: {
-  onShift: (i: number, delta: number) => void;
+  orange: number[];
+  red: number[];
+  shift: number[];
+  redGap: number[];
+  onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
 }) {
-  const startRef = useRef<{ i: number; y: number } | null>(null);
+  const startRef = useRef<{ i: number; color: "orange" | "red"; y: number } | null>(null);
+
+  const makeHandlers = (i: number, color: "orange" | "red") => ({
+    onPointerDown: (e: any) => {
+      e.stopPropagation();
+      (e.target as Element).setPointerCapture?.(e.pointerId);
+      startRef.current = { i, color, y: e.point.y };
+      setDragging(true);
+      document.body.style.cursor = "grabbing";
+    },
+    onPointerMove: (e: any) => {
+      if (!startRef.current || startRef.current.i !== i || startRef.current.color !== color) return;
+      e.stopPropagation();
+      const dy = e.point.y - startRef.current.y;
+      const slots = Math.round(dy / PIECE_HEIGHT);
+      if (slots !== 0) {
+        onDrag(i, color, slots);
+        startRef.current.y += slots * PIECE_HEIGHT;
+      }
+    },
+    onPointerUp: (e: any) => {
+      (e.target as Element).releasePointerCapture?.(e.pointerId);
+      startRef.current = null;
+      setDragging(false);
+      document.body.style.cursor = "";
+    },
+    onPointerOver: () => {
+      if (!startRef.current) document.body.style.cursor = "grab";
+    },
+    onPointerOut: () => {
+      if (!startRef.current) document.body.style.cursor = "";
+    },
+  });
+
   return (
     <>
       {Array.from({ length: COLUMNS }).map((_, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        const oVal = orange[i] ?? 0;
+        const rVal = red[i] ?? 0;
+        const oCount = Math.floor(oVal) + (oVal - Math.floor(oVal) > 0.01 ? 1 : 0);
+        const rCount = Math.floor(rVal) + (rVal - Math.floor(rVal) > 0.01 ? 1 : 0);
+        const off = shift[i] ?? 0;
+        const gap = redGap[i] ?? 0;
+
+        // Split point: top of orange (world Y)
+        const orangeTopY = slotY(oCount + off) - PIECE_HEIGHT / 2;
+        const minY = 0.05;
+        const maxY = SEPARATOR_HEIGHT + 0.05;
+
+        // Orange handle covers floor → top of orange (or whole column if no orange)
+        const oTop = oCount > 0 ? Math.max(orangeTopY, minY + 0.2) : (rCount > 0 ? minY : maxY);
+        const oBottom = minY;
+        const oHeight = Math.max(0.1, oTop - oBottom);
+        const oCenter = (oTop + oBottom) / 2;
+
+        // Red handle covers from top of orange upward (or its own stack region)
+        const rBottom = oCount > 0 ? oTop : minY;
+        const redTopY = slotY(oCount + gap + rCount + off) - PIECE_HEIGHT / 2;
+        const rTop = rCount > 0 ? Math.max(redTopY, rBottom + 0.2) : (oCount > 0 ? maxY : maxY);
+        const rHeight = Math.max(0.1, rTop - rBottom);
+        const rCenter = (rTop + rBottom) / 2;
+
         return (
-          <mesh
-            key={`drag-${i}`}
-            position={[x, SEPARATOR_HEIGHT / 2 + 0.05, PIECE_DEPTH / 2 + 0.05]}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              (e.target as Element).setPointerCapture?.(e.pointerId);
-              startRef.current = { i, y: e.point.y };
-              setDragging(true);
-              document.body.style.cursor = "grabbing";
-            }}
-            onPointerMove={(e) => {
-              if (!startRef.current || startRef.current.i !== i) return;
-              e.stopPropagation();
-              const dy = e.point.y - startRef.current.y;
-              const slots = Math.round(dy / PIECE_HEIGHT);
-              if (slots !== 0) {
-                onShift(i, slots);
-                startRef.current.y += slots * PIECE_HEIGHT;
-              }
-            }}
-            onPointerUp={(e) => {
-              (e.target as Element).releasePointerCapture?.(e.pointerId);
-              startRef.current = null;
-              setDragging(false);
-              document.body.style.cursor = "";
-            }}
-            onPointerOver={() => {
-              if (!startRef.current) document.body.style.cursor = "grab";
-            }}
-            onPointerOut={() => {
-              if (!startRef.current) document.body.style.cursor = "";
-            }}
-          >
-            <boxGeometry args={[PIECE_WIDTH, SEPARATOR_HEIGHT, PIECE_DEPTH]} />
-            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-          </mesh>
+          <group key={`drag-${i}`}>
+            {oCount > 0 && (
+              <mesh
+                position={[x, oCenter, PIECE_DEPTH / 2 + 0.05]}
+                {...makeHandlers(i, "orange")}
+              >
+                <boxGeometry args={[PIECE_WIDTH, oHeight, PIECE_DEPTH]} />
+                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+              </mesh>
+            )}
+            {rCount > 0 && (
+              <mesh
+                position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]}
+                {...makeHandlers(i, "red")}
+              >
+                <boxGeometry args={[PIECE_WIDTH, rHeight, PIECE_DEPTH]} />
+                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+              </mesh>
+            )}
+          </group>
         );
       })}
     </>
@@ -319,20 +372,22 @@ function Scene({
   orange,
   red,
   shift,
+  redGap,
   xValues,
   runId,
   showLine,
-  onShift,
+  onDrag,
   setDragging,
   dragging,
 }: {
   orange: number[];
   red: number[];
   shift: number[];
+  redGap: number[];
   xValues: number[];
   runId: number;
   showLine: boolean;
-  onShift: (i: number, delta: number) => void;
+  onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
   dragging: boolean;
 }) {
@@ -351,9 +406,16 @@ function Scene({
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7} color="#a8c0ff" />
       <Board xValues={xValues} />
-      <Stacks orange={orange} red={red} shift={shift} runId={runId} />
+      <Stacks orange={orange} red={red} shift={shift} redGap={redGap} runId={runId} />
       {showLine && <ConnectingLine orange={orange} shift={shift} />}
-      <DragHandles onShift={onShift} setDragging={setDragging} />
+      <DragHandles
+        orange={orange}
+        red={red}
+        shift={shift}
+        redGap={redGap}
+        onDrag={onDrag}
+        setDragging={setDragging}
+      />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
         <planeGeometry args={[60, 60]} />
         <shadowMaterial opacity={0.3} />
@@ -383,6 +445,7 @@ export default function CalculusAbacus() {
   const [orange, setOrange] = useState<number[]>(Array(COLUMNS).fill(0));
   const [red, setRed] = useState<number[]>(Array(COLUMNS).fill(0));
   const [shift, setShift] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [redGap, setRedGap] = useState<number[]>(Array(COLUMNS).fill(0));
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showLine, setShowLine] = useState(false);
@@ -390,12 +453,59 @@ export default function CalculusAbacus() {
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
 
-  const shiftBy = (i: number, delta: number) => {
-    setShift((arr) => {
-      const next = arr.slice();
-      next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
-      return next;
-    });
+  // Drag handler: orange and red move independently, but pushing into
+  // the other color shoves it in the same direction.
+  const dragColor = (i: number, color: "orange" | "red", delta: number) => {
+    if (color === "orange") {
+      if (delta > 0) {
+        // Orange moving up: red rides along (relative position preserved)
+        setShift((arr) => {
+          const next = arr.slice();
+          next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
+          return next;
+        });
+      } else {
+        // Orange moving down: red stays in place → compensate via redGap
+        setShift((arr) => {
+          const next = arr.slice();
+          next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
+          return next;
+        });
+        setRedGap((arr) => {
+          const next = arr.slice();
+          next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] - delta));
+          return next;
+        });
+      }
+    } else {
+      // Red drag
+      if (delta > 0) {
+        // Red moving up: just grows the gap, orange stays
+        setRedGap((arr) => {
+          const next = arr.slice();
+          next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] + delta));
+          return next;
+        });
+      } else {
+        // Red moving down: shrink the gap; if it would go negative,
+        // push orange down by the overflow
+        setRedGap((curGap) => {
+          setShift((curShift) => {
+            const newGap = curGap[i] + delta;
+            if (newGap < 0) {
+              const push = newGap; // negative
+              const next = curShift.slice();
+              next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + push));
+              return next;
+            }
+            return curShift;
+          });
+          const next = curGap.slice();
+          next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] + delta));
+          return next;
+        });
+      }
+    }
   };
 
   const setup = () => {
@@ -426,6 +536,7 @@ export default function CalculusAbacus() {
       setOrange(counts);
       setRed(Array(COLUMNS).fill(0));
       setShift(Array(COLUMNS).fill(0));
+      setRedGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
       setError(null);
     } catch {
@@ -468,10 +579,11 @@ export default function CalculusAbacus() {
           orange={orange}
           red={red}
           shift={shift}
+          redGap={redGap}
           xValues={xValues}
           runId={runId}
           showLine={showLine}
-          onShift={shiftBy}
+          onDrag={dragColor}
           setDragging={setDragging}
           dragging={dragging}
         />
@@ -566,8 +678,9 @@ export default function CalculusAbacus() {
                 exact picture. <strong>Connect stones</strong> traces a curve through the tops of
                 the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps
                 out. The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
-                <strong>click-and-drag any column</strong> up or down to line stacks up for
-                comparison.
+                <strong>drag the orange or red zone</strong> of any column to slide it. The
+                two colors move independently, but pushing one into the other shoves both
+                together.
               </p>
             </div>
           </div>
