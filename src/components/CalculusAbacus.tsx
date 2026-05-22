@@ -471,6 +471,9 @@ export default function CalculusAbacus() {
           xValues={xValues}
           runId={runId}
           showLine={showLine}
+          onShift={shiftBy}
+          setDragging={setDragging}
+          dragging={dragging}
         />
       </Canvas>
 
