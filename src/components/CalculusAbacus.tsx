@@ -260,6 +260,61 @@ function ConnectingLine({ orange, shift }: { orange: number[]; shift: number[] }
   );
 }
 
+function DragHandles({
+  onShift,
+  setDragging,
+}: {
+  onShift: (i: number, delta: number) => void;
+  setDragging: (b: boolean) => void;
+}) {
+  const startRef = useRef<{ i: number; y: number } | null>(null);
+  return (
+    <>
+      {Array.from({ length: COLUMNS }).map((_, i) => {
+        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        return (
+          <mesh
+            key={`drag-${i}`}
+            position={[x, SEPARATOR_HEIGHT / 2 + 0.05, PIECE_DEPTH / 2 + 0.05]}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              (e.target as Element).setPointerCapture?.(e.pointerId);
+              startRef.current = { i, y: e.point.y };
+              setDragging(true);
+              document.body.style.cursor = "grabbing";
+            }}
+            onPointerMove={(e) => {
+              if (!startRef.current || startRef.current.i !== i) return;
+              e.stopPropagation();
+              const dy = e.point.y - startRef.current.y;
+              const slots = Math.round(dy / PIECE_HEIGHT);
+              if (slots !== 0) {
+                onShift(i, slots);
+                startRef.current.y += slots * PIECE_HEIGHT;
+              }
+            }}
+            onPointerUp={(e) => {
+              (e.target as Element).releasePointerCapture?.(e.pointerId);
+              startRef.current = null;
+              setDragging(false);
+              document.body.style.cursor = "";
+            }}
+            onPointerOver={() => {
+              if (!startRef.current) document.body.style.cursor = "grab";
+            }}
+            onPointerOut={() => {
+              if (!startRef.current) document.body.style.cursor = "";
+            }}
+          >
+            <boxGeometry args={[PIECE_WIDTH, SEPARATOR_HEIGHT, PIECE_DEPTH]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
+        );
+      })}
+    </>
+  );
+}
+
 function Scene({
   orange,
   red,
@@ -267,6 +322,9 @@ function Scene({
   xValues,
   runId,
   showLine,
+  onShift,
+  setDragging,
+  dragging,
 }: {
   orange: number[];
   red: number[];
@@ -274,6 +332,9 @@ function Scene({
   xValues: number[];
   runId: number;
   showLine: boolean;
+  onShift: (i: number, delta: number) => void;
+  setDragging: (b: boolean) => void;
+  dragging: boolean;
 }) {
   return (
     <>
@@ -292,12 +353,14 @@ function Scene({
       <Board xValues={xValues} />
       <Stacks orange={orange} red={red} shift={shift} runId={runId} />
       {showLine && <ConnectingLine orange={orange} shift={shift} />}
+      <DragHandles onShift={onShift} setDragging={setDragging} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
         <planeGeometry args={[60, 60]} />
         <shadowMaterial opacity={0.3} />
       </mesh>
       <Environment preset="city" />
       <OrbitControls
+        enabled={!dragging}
         enablePan={false}
         minDistance={8}
         maxDistance={50}
