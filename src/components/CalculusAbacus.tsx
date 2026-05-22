@@ -5,10 +5,10 @@ import { evaluate } from "mathjs";
 import * as THREE from "three";
 
 const COLUMNS = 11;
-const COL_SPACING = 1.1;
+const COL_SPACING = 1.375;
 const PIECE_HEIGHT = 0.18;
-const PIECE_WIDTH = 0.95;
-const PIECE_DEPTH = 0.95 / 1.618;
+const PIECE_WIDTH = 1.1875;
+const PIECE_DEPTH = 1.1875 / 1.618;
 const MAX_PIECES = 80;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
@@ -260,6 +260,61 @@ function ConnectingLine({ orange, shift }: { orange: number[]; shift: number[] }
   );
 }
 
+function DragHandles({
+  onShift,
+  setDragging,
+}: {
+  onShift: (i: number, delta: number) => void;
+  setDragging: (b: boolean) => void;
+}) {
+  const startRef = useRef<{ i: number; y: number } | null>(null);
+  return (
+    <>
+      {Array.from({ length: COLUMNS }).map((_, i) => {
+        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        return (
+          <mesh
+            key={`drag-${i}`}
+            position={[x, SEPARATOR_HEIGHT / 2 + 0.05, PIECE_DEPTH / 2 + 0.05]}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              (e.target as Element).setPointerCapture?.(e.pointerId);
+              startRef.current = { i, y: e.point.y };
+              setDragging(true);
+              document.body.style.cursor = "grabbing";
+            }}
+            onPointerMove={(e) => {
+              if (!startRef.current || startRef.current.i !== i) return;
+              e.stopPropagation();
+              const dy = e.point.y - startRef.current.y;
+              const slots = Math.round(dy / PIECE_HEIGHT);
+              if (slots !== 0) {
+                onShift(i, slots);
+                startRef.current.y += slots * PIECE_HEIGHT;
+              }
+            }}
+            onPointerUp={(e) => {
+              (e.target as Element).releasePointerCapture?.(e.pointerId);
+              startRef.current = null;
+              setDragging(false);
+              document.body.style.cursor = "";
+            }}
+            onPointerOver={() => {
+              if (!startRef.current) document.body.style.cursor = "grab";
+            }}
+            onPointerOut={() => {
+              if (!startRef.current) document.body.style.cursor = "";
+            }}
+          >
+            <boxGeometry args={[PIECE_WIDTH, SEPARATOR_HEIGHT, PIECE_DEPTH]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
+        );
+      })}
+    </>
+  );
+}
+
 function Scene({
   orange,
   red,
@@ -267,6 +322,9 @@ function Scene({
   xValues,
   runId,
   showLine,
+  onShift,
+  setDragging,
+  dragging,
 }: {
   orange: number[];
   red: number[];
@@ -274,6 +332,9 @@ function Scene({
   xValues: number[];
   runId: number;
   showLine: boolean;
+  onShift: (i: number, delta: number) => void;
+  setDragging: (b: boolean) => void;
+  dragging: boolean;
 }) {
   return (
     <>
@@ -292,12 +353,14 @@ function Scene({
       <Board xValues={xValues} />
       <Stacks orange={orange} red={red} shift={shift} runId={runId} />
       {showLine && <ConnectingLine orange={orange} shift={shift} />}
+      <DragHandles onShift={onShift} setDragging={setDragging} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
         <planeGeometry args={[60, 60]} />
         <shadowMaterial opacity={0.3} />
       </mesh>
       <Environment preset="city" />
       <OrbitControls
+        enabled={!dragging}
         enablePan={false}
         minDistance={8}
         maxDistance={50}
@@ -325,6 +388,15 @@ export default function CalculusAbacus() {
   const [showLine, setShowLine] = useState(false);
   const [fractional, setFractional] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [dragging, setDragging] = useState(false);
+
+  const shiftBy = (i: number, delta: number) => {
+    setShift((arr) => {
+      const next = arr.slice();
+      next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
+      return next;
+    });
+  };
 
   const setup = () => {
     try {
@@ -399,6 +471,9 @@ export default function CalculusAbacus() {
           xValues={xValues}
           runId={runId}
           showLine={showLine}
+          onShift={shiftBy}
+          setDragging={setDragging}
+          dragging={dragging}
         />
       </Canvas>
 
@@ -490,9 +565,9 @@ export default function CalculusAbacus() {
                 <strong>Fractional stones</strong> lets values land between whole stones for a more
                 exact picture. <strong>Connect stones</strong> traces a curve through the tops of
                 the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps
-                out. The <strong>±</strong> buttons add or remove stones by hand, and{" "}
-                <strong>▲▼</strong> floats whole columns up or down so you can line them up to
-                compare.
+                out. The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
+                <strong>click-and-drag any column</strong> up or down to line stacks up for
+                comparison.
               </p>
             </div>
           </div>
@@ -529,18 +604,7 @@ export default function CalculusAbacus() {
                     className="h-5 w-5 rounded bg-[hsl(0_60%_45%)]/80 font-bold text-white hover:bg-[hsl(0_60%_50%)]"
                   >+</button>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => bump(setShift, i, -1, -MAX_PIECES, MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
-                    title="Move column down"
-                  >▼</button>
-                  <button
-                    onClick={() => bump(setShift, i, 1, -MAX_PIECES, MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
-                    title="Move column up"
-                  >▲</button>
-                </div>
+                <div className="text-[9px] text-muted-foreground">drag to move</div>
               </div>
             ))}
           </div>
