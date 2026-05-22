@@ -445,6 +445,7 @@ export default function CalculusAbacus() {
   const [orange, setOrange] = useState<number[]>(Array(COLUMNS).fill(0));
   const [red, setRed] = useState<number[]>(Array(COLUMNS).fill(0));
   const [shift, setShift] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [redGap, setRedGap] = useState<number[]>(Array(COLUMNS).fill(0));
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showLine, setShowLine] = useState(false);
@@ -452,12 +453,59 @@ export default function CalculusAbacus() {
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
 
-  const shiftBy = (i: number, delta: number) => {
-    setShift((arr) => {
-      const next = arr.slice();
-      next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
-      return next;
-    });
+  // Drag handler: orange and red move independently, but pushing into
+  // the other color shoves it in the same direction.
+  const dragColor = (i: number, color: "orange" | "red", delta: number) => {
+    if (color === "orange") {
+      if (delta > 0) {
+        // Orange moving up: red rides along (relative position preserved)
+        setShift((arr) => {
+          const next = arr.slice();
+          next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
+          return next;
+        });
+      } else {
+        // Orange moving down: red stays in place → compensate via redGap
+        setShift((arr) => {
+          const next = arr.slice();
+          next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
+          return next;
+        });
+        setRedGap((arr) => {
+          const next = arr.slice();
+          next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] - delta));
+          return next;
+        });
+      }
+    } else {
+      // Red drag
+      if (delta > 0) {
+        // Red moving up: just grows the gap, orange stays
+        setRedGap((arr) => {
+          const next = arr.slice();
+          next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] + delta));
+          return next;
+        });
+      } else {
+        // Red moving down: shrink the gap; if it would go negative,
+        // push orange down by the overflow
+        setRedGap((curGap) => {
+          setShift((curShift) => {
+            const newGap = curGap[i] + delta;
+            if (newGap < 0) {
+              const push = newGap; // negative
+              const next = curShift.slice();
+              next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + push));
+              return next;
+            }
+            return curShift;
+          });
+          const next = curGap.slice();
+          next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] + delta));
+          return next;
+        });
+      }
+    }
   };
 
   const setup = () => {
