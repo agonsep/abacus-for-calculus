@@ -565,9 +565,9 @@ export default function CalculusAbacus() {
                 <strong>Fractional stones</strong> lets values land between whole stones for a more
                 exact picture. <strong>Connect stones</strong> traces a curve through the tops of
                 the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps
-                out. The <strong>±</strong> buttons add or remove stones by hand, and{" "}
-                <strong>▲▼</strong> floats whole columns up or down so you can line them up to
-                compare.
+                out. The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
+                <strong>click-and-drag any column</strong> up or down to line stacks up for
+                comparison.
               </p>
             </div>
           </div>
