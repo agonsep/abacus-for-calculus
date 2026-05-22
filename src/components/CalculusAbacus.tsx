@@ -152,11 +152,13 @@ function Stacks({
   orange,
   red,
   shift,
+  redGap,
   runId,
 }: {
   orange: number[];
   red: number[];
   shift: number[];
+  redGap: number[];
   runId: number;
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
@@ -165,6 +167,7 @@ function Stacks({
       {orange.map((yVal, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const off = shift[i] ?? 0;
+        const gap = redGap[i] ?? 0;
         const pieces: ReactNode[] = [];
 
         const yFull = Math.floor(yVal);
@@ -200,7 +203,7 @@ function Stacks({
         const rVal = red[i] ?? 0;
         const rFull = Math.floor(rVal);
         const rFrac = rVal - rFull;
-        const redBase = yFull + (yFrac > 0.01 ? 1 : 0);
+        const redBase = yFull + (yFrac > 0.01 ? 1 : 0) + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
