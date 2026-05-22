@@ -658,6 +658,36 @@ export default function CalculusAbacus() {
             />
             <span className="text-foreground">Fractional stones</span>
           </label>
+          <div className="mt-1 flex flex-col gap-1 border-t border-border/60 pt-2">
+            <label className="flex items-center justify-between gap-2">
+              <span className="text-foreground">Brightness</span>
+              <span className="font-mono text-muted-foreground">{brightness.toFixed(1)}×</span>
+            </label>
+            <input
+              type="range"
+              min={0.2}
+              max={2}
+              step={0.1}
+              value={brightness}
+              onChange={(e) => setBrightness(Number(e.target.value))}
+              className="accent-primary"
+            />
+          </div>
+          <div className="mt-1 flex items-center justify-between gap-2 border-t border-border/60 pt-2">
+            <span className="text-foreground">Zoom</span>
+            <div className="flex gap-1">
+              <button
+                onClick={() => zoom(-1)}
+                className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
+                title="Zoom out"
+              >−</button>
+              <button
+                onClick={() => zoom(1)}
+                className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
+                title="Zoom in"
+              >+</button>
+            </div>
+          </div>
         </div>
       </div>
 
