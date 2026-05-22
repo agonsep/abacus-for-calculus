@@ -678,8 +678,9 @@ export default function CalculusAbacus() {
                 exact picture. <strong>Connect stones</strong> traces a curve through the tops of
                 the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps
                 out. The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
-                <strong>click-and-drag any column</strong> up or down to line stacks up for
-                comparison.
+                <strong>drag the orange or red zone</strong> of any column to slide it. The
+                two colors move independently, but pushing one into the other shoves both
+                together.
               </p>
             </div>
           </div>
