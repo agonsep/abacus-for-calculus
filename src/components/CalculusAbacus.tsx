@@ -379,6 +379,8 @@ function Scene({
   onDrag,
   setDragging,
   dragging,
+  brightness,
+  zoomTrigger,
 }: {
   orange: number[];
   red: number[];
@@ -390,21 +392,23 @@ function Scene({
   onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
   dragging: boolean;
+  brightness: number;
+  zoomTrigger: { dir: number; n: number };
 }) {
   return (
     <>
       <color attach="background" args={["#1c2238"]} />
       <fog attach="fog" args={["#1c2238", 18, 36]} />
-      <ambientLight intensity={0.85} />
-      <hemisphereLight args={["#ffffff", "#3a4060", 0.6]} />
+      <ambientLight intensity={0.85 * brightness} />
+      <hemisphereLight args={["#ffffff", "#3a4060", 0.6 * brightness]} />
       <directionalLight
         position={[6, 12, 6]}
-        intensity={2.0}
+        intensity={2.0 * brightness}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
       />
-      <directionalLight position={[-6, 5, -4]} intensity={0.7} color="#a8c0ff" />
+      <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <Board xValues={xValues} />
       <Stacks orange={orange} red={red} shift={shift} redGap={redGap} runId={runId} />
       {showLine && <ConnectingLine orange={orange} shift={shift} />}
@@ -421,6 +425,7 @@ function Scene({
         <shadowMaterial opacity={0.3} />
       </mesh>
       <Environment preset="city" />
+      <CameraController trigger={zoomTrigger} />
       <OrbitControls
         enabled={!dragging}
         enablePan={false}
@@ -431,6 +436,23 @@ function Scene({
       />
     </>
   );
+}
+
+function CameraController({ trigger }: { trigger: { dir: number; n: number } }) {
+  const { camera } = useThree();
+  const last = useRef(trigger.n);
+  const target = useMemo(() => new THREE.Vector3(0, 7, 0), []);
+  useEffect(() => {
+    if (trigger.n === last.current) return;
+    last.current = trigger.n;
+    const factor = trigger.dir > 0 ? 0.85 : 1.18;
+    const offset = camera.position.clone().sub(target).multiplyScalar(factor);
+    const dist = offset.length();
+    const clamped = Math.min(50, Math.max(8, dist));
+    offset.setLength(clamped);
+    camera.position.copy(target).add(offset);
+  }, [trigger, camera, target]);
+  return null;
 }
 
 export default function CalculusAbacus() {
