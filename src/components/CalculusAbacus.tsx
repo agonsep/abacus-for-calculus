@@ -570,7 +570,7 @@ export default function CalculusAbacus() {
   };
 
   const calcDiff = () => {
-    const r = orange.map((v, i) => (i === 0 ? 0 : Math.abs(v - orange[i - 1])));
+    const r = orange.map((v, i) => (i === orange.length - 1 ? 0 : Math.abs(orange[i + 1] - v)));
     setRed(r);
   };
 
