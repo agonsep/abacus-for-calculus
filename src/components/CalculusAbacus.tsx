@@ -474,6 +474,9 @@ export default function CalculusAbacus() {
   const [fractional, setFractional] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [brightness, setBrightness] = useState(1);
+  const [zoomTrigger, setZoomTrigger] = useState({ dir: 0, n: 0 });
+  const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
   // Drag handler: orange and red move independently, but pushing into
   // the other color shoves it in the same direction.
