@@ -672,20 +672,20 @@ export default function CalculusAbacus() {
       </Canvas>
 
       {/* Header */}
-      {!uiHidden && (
-        <div className="pointer-events-none absolute left-0 right-0 top-0 p-5">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">An abacus for</p>
-            <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground md:text-4xl">
-              Calculus
-            </h1>
+      <div className="pointer-events-none absolute left-0 right-0 top-0 p-5">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">An abacus for</p>
+          <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground md:text-4xl">
+            Calculus
+          </h1>
+          {!uiHidden && (
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
               Red stones show <span className="text-primary">Δy</span>.
             </p>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Top-right controls */}
       <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
