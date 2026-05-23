@@ -293,6 +293,7 @@ function DragHandles({
   redGap,
   onDrag,
   setDragging,
+  onHover,
 }: {
   orange: number[];
   red: number[];
@@ -300,6 +301,7 @@ function DragHandles({
   redGap: number[];
   onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
+  onHover: (c: "orange" | "red" | null) => void;
 }) {
   const startRef = useRef<{ i: number; color: "orange" | "red"; y: number } | null>(null);
 
@@ -327,13 +329,21 @@ function DragHandles({
       setDragging(false);
       document.body.style.cursor = "";
     },
-    onPointerOver: () => {
+    onPointerOver: (e: any) => {
+      e.stopPropagation();
+      onHover(color);
       if (!startRef.current) document.body.style.cursor = "grab";
     },
     onPointerOut: () => {
+      onHover(null);
       if (!startRef.current) document.body.style.cursor = "";
     },
   });
+
+  // Wider hit area + min handle height so 2-3 piece stacks are easy to grab
+  const HIT_W = PIECE_WIDTH * 1.35;
+  const HIT_D = PIECE_DEPTH * 1.6;
+  const MIN_H = PIECE_HEIGHT * 6;
 
   return (
     <>
@@ -346,21 +356,28 @@ function DragHandles({
         const off = shift[i] ?? 0;
         const gap = redGap[i] ?? 0;
 
-        // Split point: top of orange (world Y)
         const orangeTopY = slotY(oCount + off) - PIECE_HEIGHT / 2;
         const minY = 0.05;
         const maxY = SEPARATOR_HEIGHT + 0.05;
 
         // Orange handle covers floor → top of orange (or whole column if no orange)
-        const oTop = oCount > 0 ? Math.max(orangeTopY, minY + 0.2) : (rCount > 0 ? minY : maxY);
-        const oBottom = minY;
+        let oTop = oCount > 0 ? orangeTopY : (rCount > 0 ? minY : maxY);
+        let oBottom = minY;
+        if (oCount > 0 && oTop - oBottom < MIN_H) {
+          // grow upward (cap before red zone) so small stacks are still grabbable
+          const cap = rCount > 0 ? oTop + (MIN_H - (oTop - oBottom)) * 0.5 : oTop + MIN_H;
+          oTop = Math.min(cap, maxY);
+        }
         const oHeight = Math.max(0.1, oTop - oBottom);
         const oCenter = (oTop + oBottom) / 2;
 
-        // Red handle covers from top of orange upward (or its own stack region)
-        const rBottom = oCount > 0 ? oTop : minY;
+        // Red handle covers from top of orange upward
+        let rBottom = oCount > 0 ? orangeTopY : minY;
         const redTopY = slotY(oCount + gap + rCount + off) - PIECE_HEIGHT / 2;
-        const rTop = rCount > 0 ? Math.max(redTopY, rBottom + 0.2) : (oCount > 0 ? maxY : maxY);
+        let rTop = rCount > 0 ? redTopY : (oCount > 0 ? maxY : maxY);
+        if (rCount > 0 && rTop - rBottom < MIN_H) {
+          rTop = Math.min(rBottom + MIN_H, maxY);
+        }
         const rHeight = Math.max(0.1, rTop - rBottom);
         const rCenter = (rTop + rBottom) / 2;
 
@@ -371,7 +388,7 @@ function DragHandles({
                 position={[x, oCenter, PIECE_DEPTH / 2 + 0.05]}
                 {...makeHandlers(i, "orange")}
               >
-                <boxGeometry args={[PIECE_WIDTH, oHeight, PIECE_DEPTH]} />
+                <boxGeometry args={[HIT_W, oHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}
@@ -380,7 +397,7 @@ function DragHandles({
                 position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]}
                 {...makeHandlers(i, "red")}
               >
-                <boxGeometry args={[PIECE_WIDTH, rHeight, PIECE_DEPTH]} />
+                <boxGeometry args={[HIT_W, rHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}
@@ -404,6 +421,9 @@ function Scene({
   dragging,
   brightness,
   zoomTrigger,
+  panY,
+  highlight,
+  onHover,
 }: {
   orange: number[];
   red: number[];
@@ -417,6 +437,9 @@ function Scene({
   dragging: boolean;
   brightness: number;
   zoomTrigger: { dir: number; n: number };
+  panY: number;
+  highlight: "orange" | "red" | null;
+  onHover: (c: "orange" | "red" | null) => void;
 }) {
   return (
     <>
@@ -432,21 +455,24 @@ function Scene({
         shadow-mapSize-height={2048}
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
-      <Board xValues={xValues} />
-      <Stacks orange={orange} red={red} shift={shift} redGap={redGap} runId={runId} />
-      {showLine && <ConnectingLine orange={orange} shift={shift} />}
-      <DragHandles
-        orange={orange}
-        red={red}
-        shift={shift}
-        redGap={redGap}
-        onDrag={onDrag}
-        setDragging={setDragging}
-      />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
-        <planeGeometry args={[60, 60]} />
-        <shadowMaterial opacity={0.3} />
-      </mesh>
+      <group position={[0, -panY, 0]}>
+        <Board xValues={xValues} />
+        <Stacks orange={orange} red={red} shift={shift} redGap={redGap} runId={runId} highlight={highlight} />
+        {showLine && <ConnectingLine orange={orange} shift={shift} />}
+        <DragHandles
+          orange={orange}
+          red={red}
+          shift={shift}
+          redGap={redGap}
+          onDrag={onDrag}
+          setDragging={setDragging}
+          onHover={onHover}
+        />
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
+          <planeGeometry args={[60, 60]} />
+          <shadowMaterial opacity={0.3} />
+        </mesh>
+      </group>
       <Environment preset="city" />
       <CameraController trigger={zoomTrigger} />
       <OrbitControls
