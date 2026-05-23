@@ -249,6 +249,8 @@ function Stacks({
               delay={i * 0.04 + (redBase + rFull) * 0.02}
               color={RED}
               heightScale={rFrac}
+              dim={rDim}
+              highlighted={rH}
             />,
           );
         }
