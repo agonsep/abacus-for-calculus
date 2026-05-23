@@ -665,6 +665,9 @@ export default function CalculusAbacus() {
           dragging={dragging}
           brightness={brightness}
           zoomTrigger={zoomTrigger}
+          panY={panY}
+          highlight={highlight}
+          onHover={setHighlight}
         />
       </Canvas>
 
