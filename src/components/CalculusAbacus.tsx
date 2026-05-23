@@ -232,6 +232,8 @@ function Stacks({
               targetY={slotY(redBase + k + off)}
               delay={i * 0.04 + (redBase + k) * 0.02}
               color={RED}
+              dim={rDim}
+              highlighted={rH}
             />,
           );
         }
