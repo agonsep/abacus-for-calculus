@@ -527,7 +527,7 @@ export default function CalculusAbacus() {
   const [zoomTrigger, setZoomTrigger] = useState({ dir: 0, n: 0 });
   const [panY, setPanY] = useState(0);
   const [uiHidden, setUiHidden] = useState(false);
-  const [highlight, setHighlight] = useState<"orange" | "red" | null>(null);
+  const [highlight, setHighlight] = useState<{ i: number; color: "orange" | "red" } | null>(null);
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
   // Drag handler: orange and red move independently, but pushing into
