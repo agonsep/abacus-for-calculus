@@ -213,6 +213,8 @@ function Stacks({
               delay={i * 0.04 + yFull * 0.02}
               color={ORANGE}
               heightScale={yFrac}
+              dim={oDim}
+              highlighted={oH}
             />,
           );
         }
