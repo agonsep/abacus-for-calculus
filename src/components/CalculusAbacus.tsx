@@ -36,6 +36,8 @@ function Piece({
   delay,
   color,
   heightScale = 1,
+  dim = false,
+  highlighted = false,
 }: {
   x: number;
   fromY: number;
@@ -43,6 +45,8 @@ function Piece({
   delay: number;
   color: string;
   heightScale?: number;
+  dim?: boolean;
+  highlighted?: boolean;
 }) {
   const ref = useRef<THREE.Group>(null);
   const start = useRef(performance.now() / 1000 + delay);
@@ -69,6 +73,7 @@ function Piece({
   });
 
   const c = useMemo(() => new THREE.Color(color), [color]);
+  const emissive = useMemo(() => new THREE.Color(color), [color]);
 
   return (
     <group ref={ref}>
@@ -79,6 +84,10 @@ function Piece({
           metalness={0.15}
           clearcoat={0.6}
           clearcoatRoughness={0.2}
+          emissive={emissive}
+          emissiveIntensity={highlighted ? 0.55 : 0}
+          transparent
+          opacity={dim ? 0.25 : 1}
         />
       </RoundedBox>
     </group>
@@ -154,13 +163,19 @@ function Stacks({
   shift,
   redGap,
   runId,
+  highlight,
 }: {
   orange: number[];
   red: number[];
   shift: number[];
   redGap: number[];
   runId: number;
+  highlight: "orange" | "red" | null;
 }) {
+  const oH = highlight === "orange";
+  const rH = highlight === "red";
+  const oDim = highlight !== null && !oH;
+  const rDim = highlight !== null && !rH;
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
@@ -181,6 +196,8 @@ function Stacks({
               targetY={slotY(k + off)}
               delay={i * 0.04 + k * 0.02}
               color={ORANGE}
+              dim={oDim}
+              highlighted={oH}
             />,
           );
         }
@@ -196,6 +213,8 @@ function Stacks({
               delay={i * 0.04 + yFull * 0.02}
               color={ORANGE}
               heightScale={yFrac}
+              dim={oDim}
+              highlighted={oH}
             />,
           );
         }
@@ -213,6 +232,8 @@ function Stacks({
               targetY={slotY(redBase + k + off)}
               delay={i * 0.04 + (redBase + k) * 0.02}
               color={RED}
+              dim={rDim}
+              highlighted={rH}
             />,
           );
         }
@@ -228,6 +249,8 @@ function Stacks({
               delay={i * 0.04 + (redBase + rFull) * 0.02}
               color={RED}
               heightScale={rFrac}
+              dim={rDim}
+              highlighted={rH}
             />,
           );
         }
@@ -270,6 +293,7 @@ function DragHandles({
   redGap,
   onDrag,
   setDragging,
+  onHover,
 }: {
   orange: number[];
   red: number[];
@@ -277,6 +301,7 @@ function DragHandles({
   redGap: number[];
   onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
+  onHover: (c: "orange" | "red" | null) => void;
 }) {
   const startRef = useRef<{ i: number; color: "orange" | "red"; y: number } | null>(null);
 
@@ -304,13 +329,21 @@ function DragHandles({
       setDragging(false);
       document.body.style.cursor = "";
     },
-    onPointerOver: () => {
+    onPointerOver: (e: any) => {
+      e.stopPropagation();
+      onHover(color);
       if (!startRef.current) document.body.style.cursor = "grab";
     },
     onPointerOut: () => {
+      onHover(null);
       if (!startRef.current) document.body.style.cursor = "";
     },
   });
+
+  // Wider hit area + min handle height so 2-3 piece stacks are easy to grab
+  const HIT_W = PIECE_WIDTH * 1.35;
+  const HIT_D = PIECE_DEPTH * 1.6;
+  const MIN_H = PIECE_HEIGHT * 6;
 
   return (
     <>
@@ -323,21 +356,28 @@ function DragHandles({
         const off = shift[i] ?? 0;
         const gap = redGap[i] ?? 0;
 
-        // Split point: top of orange (world Y)
         const orangeTopY = slotY(oCount + off) - PIECE_HEIGHT / 2;
         const minY = 0.05;
         const maxY = SEPARATOR_HEIGHT + 0.05;
 
         // Orange handle covers floor → top of orange (or whole column if no orange)
-        const oTop = oCount > 0 ? Math.max(orangeTopY, minY + 0.2) : (rCount > 0 ? minY : maxY);
-        const oBottom = minY;
+        let oTop = oCount > 0 ? orangeTopY : (rCount > 0 ? minY : maxY);
+        let oBottom = minY;
+        if (oCount > 0 && oTop - oBottom < MIN_H) {
+          // grow upward (cap before red zone) so small stacks are still grabbable
+          const cap = rCount > 0 ? oTop + (MIN_H - (oTop - oBottom)) * 0.5 : oTop + MIN_H;
+          oTop = Math.min(cap, maxY);
+        }
         const oHeight = Math.max(0.1, oTop - oBottom);
         const oCenter = (oTop + oBottom) / 2;
 
-        // Red handle covers from top of orange upward (or its own stack region)
-        const rBottom = oCount > 0 ? oTop : minY;
+        // Red handle covers from top of orange upward
+        let rBottom = oCount > 0 ? orangeTopY : minY;
         const redTopY = slotY(oCount + gap + rCount + off) - PIECE_HEIGHT / 2;
-        const rTop = rCount > 0 ? Math.max(redTopY, rBottom + 0.2) : (oCount > 0 ? maxY : maxY);
+        let rTop = rCount > 0 ? redTopY : (oCount > 0 ? maxY : maxY);
+        if (rCount > 0 && rTop - rBottom < MIN_H) {
+          rTop = Math.min(rBottom + MIN_H, maxY);
+        }
         const rHeight = Math.max(0.1, rTop - rBottom);
         const rCenter = (rTop + rBottom) / 2;
 
@@ -348,7 +388,7 @@ function DragHandles({
                 position={[x, oCenter, PIECE_DEPTH / 2 + 0.05]}
                 {...makeHandlers(i, "orange")}
               >
-                <boxGeometry args={[PIECE_WIDTH, oHeight, PIECE_DEPTH]} />
+                <boxGeometry args={[HIT_W, oHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}
@@ -357,7 +397,7 @@ function DragHandles({
                 position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]}
                 {...makeHandlers(i, "red")}
               >
-                <boxGeometry args={[PIECE_WIDTH, rHeight, PIECE_DEPTH]} />
+                <boxGeometry args={[HIT_W, rHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}
@@ -381,6 +421,9 @@ function Scene({
   dragging,
   brightness,
   zoomTrigger,
+  panY,
+  highlight,
+  onHover,
 }: {
   orange: number[];
   red: number[];
@@ -394,6 +437,9 @@ function Scene({
   dragging: boolean;
   brightness: number;
   zoomTrigger: { dir: number; n: number };
+  panY: number;
+  highlight: "orange" | "red" | null;
+  onHover: (c: "orange" | "red" | null) => void;
 }) {
   return (
     <>
@@ -409,21 +455,24 @@ function Scene({
         shadow-mapSize-height={2048}
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
-      <Board xValues={xValues} />
-      <Stacks orange={orange} red={red} shift={shift} redGap={redGap} runId={runId} />
-      {showLine && <ConnectingLine orange={orange} shift={shift} />}
-      <DragHandles
-        orange={orange}
-        red={red}
-        shift={shift}
-        redGap={redGap}
-        onDrag={onDrag}
-        setDragging={setDragging}
-      />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
-        <planeGeometry args={[60, 60]} />
-        <shadowMaterial opacity={0.3} />
-      </mesh>
+      <group position={[0, -panY, 0]}>
+        <Board xValues={xValues} />
+        <Stacks orange={orange} red={red} shift={shift} redGap={redGap} runId={runId} highlight={highlight} />
+        {showLine && <ConnectingLine orange={orange} shift={shift} />}
+        <DragHandles
+          orange={orange}
+          red={red}
+          shift={shift}
+          redGap={redGap}
+          onDrag={onDrag}
+          setDragging={setDragging}
+          onHover={onHover}
+        />
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
+          <planeGeometry args={[60, 60]} />
+          <shadowMaterial opacity={0.3} />
+        </mesh>
+      </group>
       <Environment preset="city" />
       <CameraController trigger={zoomTrigger} />
       <OrbitControls
@@ -476,6 +525,9 @@ export default function CalculusAbacus() {
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
   const [zoomTrigger, setZoomTrigger] = useState({ dir: 0, n: 0 });
+  const [panY, setPanY] = useState(0);
+  const [uiHidden, setUiHidden] = useState(false);
+  const [highlight, setHighlight] = useState<"orange" | "red" | null>(null);
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
   // Drag handler: orange and red move independently, but pushing into
@@ -613,22 +665,27 @@ export default function CalculusAbacus() {
           dragging={dragging}
           brightness={brightness}
           zoomTrigger={zoomTrigger}
+          panY={panY}
+          highlight={highlight}
+          onHover={setHighlight}
         />
       </Canvas>
 
       {/* Header */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 p-5">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">An abacus for</p>
-          <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground md:text-4xl">
-            Calculus
-          </h1>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
-            Red stones show <span className="text-primary">Δy</span>.
-          </p>
+      {!uiHidden && (
+        <div className="pointer-events-none absolute left-0 right-0 top-0 p-5">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">An abacus for</p>
+            <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground md:text-4xl">
+              Calculus
+            </h1>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
+              Red stones show <span className="text-primary">Δy</span>.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Top-right controls */}
       <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
@@ -688,6 +745,28 @@ export default function CalculusAbacus() {
               >+</button>
             </div>
           </div>
+          <div className="mt-1 flex flex-col gap-1 border-t border-border/60 pt-2">
+            <label className="flex items-center justify-between gap-2">
+              <span className="text-foreground">Vertical pan</span>
+              <span className="font-mono text-muted-foreground">{panY.toFixed(1)}</span>
+            </label>
+            <input
+              type="range"
+              min={-3}
+              max={5}
+              step={0.1}
+              value={panY}
+              onChange={(e) => setPanY(Number(e.target.value))}
+              className="accent-primary"
+            />
+          </div>
+          <button
+            onClick={() => setUiHidden((v) => !v)}
+            className="mt-1 rounded bg-muted px-2 py-1 text-foreground hover:bg-muted/80 border-t border-border/60"
+            title="Toggle panels"
+          >
+            {uiHidden ? "Show panels" : "Hide panels"}
+          </button>
         </div>
       </div>
 
@@ -745,6 +824,7 @@ export default function CalculusAbacus() {
       )}
 
       {/* Controls */}
+      {!uiHidden && (
       <div className="absolute inset-x-0 bottom-0 p-4">
         <div className="mx-auto flex max-w-6xl flex-col gap-3">
           {/* Per-column controls */}
@@ -824,6 +904,7 @@ export default function CalculusAbacus() {
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
         </div>
       </div>
+      )}
     </div>
   );
 }
