@@ -904,6 +904,7 @@ export default function CalculusAbacus() {
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
         </div>
       </div>
+      )}
     </div>
   );
 }
