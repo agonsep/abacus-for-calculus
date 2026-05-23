@@ -745,6 +745,28 @@ export default function CalculusAbacus() {
               >+</button>
             </div>
           </div>
+          <div className="mt-1 flex flex-col gap-1 border-t border-border/60 pt-2">
+            <label className="flex items-center justify-between gap-2">
+              <span className="text-foreground">Vertical pan</span>
+              <span className="font-mono text-muted-foreground">{panY.toFixed(1)}</span>
+            </label>
+            <input
+              type="range"
+              min={-3}
+              max={5}
+              step={0.1}
+              value={panY}
+              onChange={(e) => setPanY(Number(e.target.value))}
+              className="accent-primary"
+            />
+          </div>
+          <button
+            onClick={() => setUiHidden((v) => !v)}
+            className="mt-1 rounded bg-muted px-2 py-1 text-foreground hover:bg-muted/80 border-t border-border/60"
+            title="Toggle panels"
+          >
+            {uiHidden ? "Show panels" : "Hide panels"}
+          </button>
         </div>
       </div>
 
