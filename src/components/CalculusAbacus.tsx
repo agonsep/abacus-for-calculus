@@ -331,7 +331,7 @@ function DragHandles({
     },
     onPointerOver: (e: any) => {
       e.stopPropagation();
-      onHover(color);
+      onHover({ i, color });
       if (!startRef.current) document.body.style.cursor = "grab";
     },
     onPointerOut: () => {
