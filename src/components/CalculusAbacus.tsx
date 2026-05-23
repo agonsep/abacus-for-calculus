@@ -438,8 +438,8 @@ function Scene({
   brightness: number;
   zoomTrigger: { dir: number; n: number };
   panY: number;
-  highlight: "orange" | "red" | null;
-  onHover: (c: "orange" | "red" | null) => void;
+  highlight: { i: number; color: "orange" | "red" } | null;
+  onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
 }) {
   return (
     <>
