@@ -180,6 +180,10 @@ function Stacks({
         const off = shift[i] ?? 0;
         const gap = redGap[i] ?? 0;
         const pieces: ReactNode[] = [];
+        const oH = highlight?.i === i && highlight.color === "orange";
+        const rH = highlight?.i === i && highlight.color === "red";
+        const oDim = highlight !== null && !oH;
+        const rDim = highlight !== null && !rH;
 
         const yFull = Math.floor(yVal);
         const yFrac = yVal - yFull;
