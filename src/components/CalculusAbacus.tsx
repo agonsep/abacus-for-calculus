@@ -170,12 +170,8 @@ function Stacks({
   shift: number[];
   redGap: number[];
   runId: number;
-  highlight: "orange" | "red" | null;
+  highlight: { i: number; color: "orange" | "red" } | null;
 }) {
-  const oH = highlight === "orange";
-  const rH = highlight === "red";
-  const oDim = highlight !== null && !oH;
-  const rDim = highlight !== null && !rH;
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
@@ -184,6 +180,10 @@ function Stacks({
         const off = shift[i] ?? 0;
         const gap = redGap[i] ?? 0;
         const pieces: ReactNode[] = [];
+        const oH = highlight?.i === i && highlight.color === "orange";
+        const rH = highlight?.i === i && highlight.color === "red";
+        const oDim = highlight !== null && !oH;
+        const rDim = highlight !== null && !rH;
 
         const yFull = Math.floor(yVal);
         const yFrac = yVal - yFull;
@@ -301,7 +301,7 @@ function DragHandles({
   redGap: number[];
   onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
-  onHover: (c: "orange" | "red" | null) => void;
+  onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
 }) {
   const startRef = useRef<{ i: number; color: "orange" | "red"; y: number } | null>(null);
 
@@ -331,7 +331,7 @@ function DragHandles({
     },
     onPointerOver: (e: any) => {
       e.stopPropagation();
-      onHover(color);
+      onHover({ i, color });
       if (!startRef.current) document.body.style.cursor = "grab";
     },
     onPointerOut: () => {
@@ -438,8 +438,8 @@ function Scene({
   brightness: number;
   zoomTrigger: { dir: number; n: number };
   panY: number;
-  highlight: "orange" | "red" | null;
-  onHover: (c: "orange" | "red" | null) => void;
+  highlight: { i: number; color: "orange" | "red" } | null;
+  onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
 }) {
   return (
     <>
@@ -527,7 +527,7 @@ export default function CalculusAbacus() {
   const [zoomTrigger, setZoomTrigger] = useState({ dir: 0, n: 0 });
   const [panY, setPanY] = useState(0);
   const [uiHidden, setUiHidden] = useState(false);
-  const [highlight, setHighlight] = useState<"orange" | "red" | null>(null);
+  const [highlight, setHighlight] = useState<{ i: number; color: "orange" | "red" } | null>(null);
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
   // Drag handler: orange and red move independently, but pushing into
