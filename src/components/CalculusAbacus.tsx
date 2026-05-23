@@ -301,7 +301,7 @@ function DragHandles({
   redGap: number[];
   onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
-  onHover: (c: "orange" | "red" | null) => void;
+  onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
 }) {
   const startRef = useRef<{ i: number; color: "orange" | "red"; y: number } | null>(null);
 
