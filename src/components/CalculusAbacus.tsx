@@ -824,6 +824,7 @@ export default function CalculusAbacus() {
       )}
 
       {/* Controls */}
+      {!uiHidden && (
       <div className="absolute inset-x-0 bottom-0 p-4">
         <div className="mx-auto flex max-w-6xl flex-col gap-3">
           {/* Per-column controls */}
