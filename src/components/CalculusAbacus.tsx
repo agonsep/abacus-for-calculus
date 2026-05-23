@@ -163,13 +163,19 @@ function Stacks({
   shift,
   redGap,
   runId,
+  highlight,
 }: {
   orange: number[];
   red: number[];
   shift: number[];
   redGap: number[];
   runId: number;
+  highlight: "orange" | "red" | null;
 }) {
+  const oH = highlight === "orange";
+  const rH = highlight === "red";
+  const oDim = highlight !== null && !oH;
+  const rDim = highlight !== null && !rH;
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
