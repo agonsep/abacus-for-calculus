@@ -303,42 +303,81 @@ function DragHandles({
   setDragging: (b: boolean) => void;
   onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
 }) {
-  const startRef = useRef<{ i: number; color: "orange" | "red"; y: number } | null>(null);
+  const { camera, gl } = useThree();
+  const dragRef = useRef<{
+    i: number;
+    color: "orange" | "red";
+    startY: number;
+    accSlots: number;
+    cleanup: () => void;
+  } | null>(null);
+
+  const planeZ = PIECE_DEPTH / 2 + 0.05;
+  const plane = useMemo(
+    () => new THREE.Plane(new THREE.Vector3(0, 0, 1), -planeZ),
+    [planeZ]
+  );
+  const raycaster = useMemo(() => new THREE.Raycaster(), []);
+
+  const pointerWorldY = (clientX: number, clientY: number) => {
+    const rect = gl.domElement.getBoundingClientRect();
+    const ndc = new THREE.Vector2(
+      ((clientX - rect.left) / rect.width) * 2 - 1,
+      -((clientY - rect.top) / rect.height) * 2 + 1
+    );
+    raycaster.setFromCamera(ndc, camera);
+    const point = new THREE.Vector3();
+    if (!raycaster.ray.intersectPlane(plane, point)) return null;
+    return point.y;
+  };
 
   const makeHandlers = (i: number, color: "orange" | "red") => ({
     onPointerDown: (e: any) => {
       e.stopPropagation();
-      (e.target as Element).setPointerCapture?.(e.pointerId);
-      startRef.current = { i, color, y: e.point.y };
+      const startY = pointerWorldY(e.clientX, e.clientY);
+      if (startY == null) return;
       setDragging(true);
       document.body.style.cursor = "grabbing";
-    },
-    onPointerMove: (e: any) => {
-      if (!startRef.current || startRef.current.i !== i || startRef.current.color !== color) return;
-      e.stopPropagation();
-      const dy = e.point.y - startRef.current.y;
-      const slots = Math.round(dy / PIECE_HEIGHT);
-      if (slots !== 0) {
-        onDrag(i, color, slots);
-        startRef.current.y += slots * PIECE_HEIGHT;
-      }
-    },
-    onPointerUp: (e: any) => {
-      (e.target as Element).releasePointerCapture?.(e.pointerId);
-      startRef.current = null;
-      setDragging(false);
-      document.body.style.cursor = "";
+
+      const onMove = (ev: PointerEvent) => {
+        const cur = dragRef.current;
+        if (!cur) return;
+        const y = pointerWorldY(ev.clientX, ev.clientY);
+        if (y == null) return;
+        const totalSlots = Math.round((y - cur.startY) / PIECE_HEIGHT);
+        const delta = totalSlots - cur.accSlots;
+        if (delta !== 0) {
+          onDrag(cur.i, cur.color, delta);
+          cur.accSlots = totalSlots;
+        }
+      };
+      const onUp = () => {
+        if (dragRef.current) dragRef.current.cleanup();
+        dragRef.current = null;
+        setDragging(false);
+        document.body.style.cursor = "";
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+      const cleanup = () => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+      };
+      dragRef.current = { i, color, startY, accSlots: 0, cleanup };
     },
     onPointerOver: (e: any) => {
       e.stopPropagation();
       onHover({ i, color });
-      if (!startRef.current) document.body.style.cursor = "grab";
+      if (!dragRef.current) document.body.style.cursor = "grab";
     },
     onPointerOut: () => {
       onHover(null);
-      if (!startRef.current) document.body.style.cursor = "";
+      if (!dragRef.current) document.body.style.cursor = "";
     },
   });
+
 
   // Wider hit area + min handle height so 2-3 piece stacks are easy to grab
   const HIT_W = PIECE_WIDTH * 1.35;
@@ -672,20 +711,20 @@ export default function CalculusAbacus() {
       </Canvas>
 
       {/* Header */}
-      {!uiHidden && (
-        <div className="pointer-events-none absolute left-0 right-0 top-0 p-5">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">An abacus for</p>
-            <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground md:text-4xl">
-              Calculus
-            </h1>
+      <div className="pointer-events-none absolute left-0 right-0 top-0 p-5">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">An abacus for</p>
+          <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground md:text-4xl">
+            Calculus
+          </h1>
+          {!uiHidden && (
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
               Red stones show <span className="text-primary">Δy</span>.
             </p>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Top-right controls */}
       <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
