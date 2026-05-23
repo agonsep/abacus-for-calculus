@@ -36,6 +36,8 @@ function Piece({
   delay,
   color,
   heightScale = 1,
+  dim = false,
+  highlighted = false,
 }: {
   x: number;
   fromY: number;
@@ -43,6 +45,8 @@ function Piece({
   delay: number;
   color: string;
   heightScale?: number;
+  dim?: boolean;
+  highlighted?: boolean;
 }) {
   const ref = useRef<THREE.Group>(null);
   const start = useRef(performance.now() / 1000 + delay);
@@ -69,6 +73,7 @@ function Piece({
   });
 
   const c = useMemo(() => new THREE.Color(color), [color]);
+  const emissive = useMemo(() => new THREE.Color(color), [color]);
 
   return (
     <group ref={ref}>
@@ -79,6 +84,10 @@ function Piece({
           metalness={0.15}
           clearcoat={0.6}
           clearcoatRoughness={0.2}
+          emissive={emissive}
+          emissiveIntensity={highlighted ? 0.55 : 0}
+          transparent
+          opacity={dim ? 0.25 : 1}
         />
       </RoundedBox>
     </group>
