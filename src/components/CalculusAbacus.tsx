@@ -836,17 +836,23 @@ export default function CalculusAbacus() {
               </p>
               <p>
                 For every column we evaluate{" "}
-                <span className="font-mono text-primary">y = f(x)</span> and stack{" "}
-                <span className="text-[hsl(28_70%_55%)]">orange stones</span> to that height. The
-                board picks a "nice" unit so the tallest column fits — one orange stone is worth{" "}
-                <span className="font-mono">{formatNum(unit)}</span>.
+                <span className="font-mono text-primary">y = f(x)</span> to get{" "}
+                <span className="font-mono">11</span> y-values. We then find their{" "}
+                <span className="font-mono">min</span> and <span className="font-mono">max</span>{" "}
+                and pick a unit so that one{" "}
+                <span className="text-[hsl(28_70%_55%)]">orange stone</span> is worth{" "}
+                <span className="font-mono">(max − min) / 50</span> — currently{" "}
+                <span className="font-mono">{formatNum(unit)}</span>. The number of orange stones
+                in each column is <span className="font-mono">f(x) − min</span>. Only the{" "}
+                <em>differences</em> between columns matter, so anchoring to the minimum makes
+                more efficient use of the stones.
               </p>
               <p>
                 <strong>Calculate Δy</strong> drops{" "}
-                <span className="text-[hsl(0_70%_55%)]">red stones</span> on top of each column
-                equal to <span className="font-mono">|y(x) − y(x − Δx)|</span> — the{" "}
-                <em>discrete differential</em>. As Δx shrinks, the red heights approach the slope
-                <span className="font-mono"> dy/dx</span> times Δx.
+                <span className="text-[hsl(0_70%_55%)]">red stones</span> next to each column
+                equal to <span className="font-mono">|y(x + Δx) − y(x)|</span> — the{" "}
+                <em>discrete differential</em> to the right. As Δx shrinks, the red heights
+                approach the slope <span className="font-mono">dy/dx</span> times Δx.
               </p>
               <p>
                 <strong>Fractional stones</strong> lets values land between whole stones for a more
