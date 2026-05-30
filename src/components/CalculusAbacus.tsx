@@ -891,12 +891,12 @@ export default function CalculusAbacus() {
                 <div className="font-mono text-foreground">x={formatNum(xv)}</div>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => bump(setOrange, i, fractional ? -0.1 : -1)}
+                    onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[hsl(28_60%_50%)]/80 font-bold text-white hover:bg-[hsl(28_60%_55%)]"
                   >−</button>
                   <span className="w-7 text-center font-mono text-foreground">{fmtCount(orange[i])}</span>
                   <button
-                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1)}
+                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[hsl(28_60%_50%)]/80 font-bold text-white hover:bg-[hsl(28_60%_55%)]"
                   >+</button>
                 </div>
