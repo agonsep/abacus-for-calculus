@@ -563,7 +563,7 @@ export default function CalculusAbacus() {
   const [formula, setFormula] = useState("(x^2 + x) / 2");
   const [midpoint, setMidpoint] = useState("5");
   const [increment, setIncrement] = useState("1");
-  const [maxStones, setMaxStones] = useState("50");
+  const [maxStones, setMaxStones] = useState("55");
 
   const [xValues, setXValues] = useState<number[]>(
     Array.from({ length: COLUMNS }, (_, i) => i - 5),
