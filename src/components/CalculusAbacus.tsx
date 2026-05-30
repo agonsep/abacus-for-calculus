@@ -933,6 +933,16 @@ export default function CalculusAbacus() {
               onChange={(e) => setIncrement(e.target.value)}
               className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
+            <span className="font-mono text-sm text-muted-foreground">max stones</span>
+            <input
+              type="number"
+              min={25}
+              max={100}
+              step={1}
+              value={maxStones}
+              onChange={(e) => setMaxStones(e.target.value)}
+              className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+            />
             <button
               type="submit"
               className="rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:opacity-90"
