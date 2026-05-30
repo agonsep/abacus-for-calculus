@@ -186,8 +186,11 @@ function Stacks({
         const oDim = highlight !== null && !oH;
         const rDim = highlight !== null && !rH;
 
-        const yFull = Math.floor(yVal);
-        const yFrac = yVal - yFull;
+        const neg = yVal < 0;
+        const absVal = Math.abs(yVal);
+        const stoneColor = neg ? BLACK : ORANGE;
+        const yFull = Math.floor(absVal);
+        const yFrac = absVal - yFull;
         for (let k = 0; k < yFull; k++) {
           pieces.push(
             <Piece
@@ -196,7 +199,7 @@ function Stacks({
               fromY={skyY}
               targetY={slotY(k + off)}
               delay={i * 0.04 + k * 0.02}
-              color={ORANGE}
+              color={stoneColor}
               dim={oDim}
               highlighted={oH}
             />,
@@ -212,7 +215,7 @@ function Stacks({
               fromY={skyY}
               targetY={targetY}
               delay={i * 0.04 + yFull * 0.02}
-              color={ORANGE}
+              color={stoneColor}
               heightScale={yFrac}
               dim={oDim}
               highlighted={oH}
