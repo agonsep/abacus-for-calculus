@@ -14,7 +14,7 @@ const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
 const ORANGE = "#ff932a";
 const BLACK = "#1a1a1a";
-const RED = "#c8332a";
+const RED = "#e8352c";
 const LINE_COLOR = "#7dd3fc";
 
 function slotY(slot: number) {
@@ -870,7 +870,7 @@ export default function CalculusAbacus() {
                 <span className="font-mono">11</span> y-values. We then find their{" "}
                 <span className="font-mono">min</span> and <span className="font-mono">max</span>{" "}
                 and pick a unit so that one{" "}
-                <span className="text-[hsl(28_70%_55%)]">orange stone</span> is worth{" "}
+                <span className="text-[#ff932a]">orange stone</span> is worth{" "}
                 <span className="font-mono">(max − min) / 50</span> — currently{" "}
                 <span className="font-mono">{formatNum(unit)}</span>. The number of orange stones
                 in each column is <span className="font-mono">f(x) − min</span>. Only the{" "}
@@ -879,7 +879,7 @@ export default function CalculusAbacus() {
               </p>
               <p>
                 <strong>Calculate Δy</strong> drops{" "}
-                <span className="text-[hsl(0_70%_55%)]">red stones</span> next to each column
+                <span className="text-[#e8352c]">red stones</span> next to each column
                 equal to <span className="font-mono">|y(x + Δx) − y(x)|</span> — the{" "}
                 <em>discrete differential</em> to the right. As Δx shrinks, the red heights
                 approach the slope <span className="font-mono">dy/dx</span> times Δx.
@@ -910,23 +910,23 @@ export default function CalculusAbacus() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-[hsl(28_60%_50%)]/80 font-bold text-white hover:bg-[hsl(28_60%_55%)]"
+                    className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
                   >−</button>
                   <span className="w-7 text-center font-mono text-foreground">{fmtCount(orange[i])}</span>
                   <button
                     onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-[hsl(28_60%_50%)]/80 font-bold text-white hover:bg-[hsl(28_60%_55%)]"
+                    className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
                   >+</button>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => bump(setRed, i, fractional ? -0.1 : -1)}
-                    className="h-5 w-5 rounded bg-[hsl(0_60%_45%)]/80 font-bold text-white hover:bg-[hsl(0_60%_50%)]"
+                    className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                   >−</button>
                   <span className="w-7 text-center font-mono text-foreground">{fmtCount(red[i])}</span>
                   <button
                     onClick={() => bump(setRed, i, fractional ? 0.1 : 1)}
-                    className="h-5 w-5 rounded bg-[hsl(0_60%_45%)]/80 font-bold text-white hover:bg-[hsl(0_60%_50%)]"
+                    className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                   >+</button>
                 </div>
                 <div className="text-[9px] text-muted-foreground">drag to move</div>
@@ -980,7 +980,7 @@ export default function CalculusAbacus() {
             <button
               type="button"
               onClick={calcDiff}
-              className="rounded-xl border border-[hsl(0_60%_45%)] bg-[hsl(0_60%_45%)]/90 px-4 py-2 font-medium text-white transition hover:bg-[hsl(0_60%_50%)]"
+              className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
             >
               Calculate Δy
             </button>
