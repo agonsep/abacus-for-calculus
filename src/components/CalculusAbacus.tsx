@@ -520,11 +520,16 @@ function Scene({
       <CameraController trigger={zoomTrigger} />
       <OrbitControls
         enabled={!dragging}
-        enablePan={false}
+        enablePan={true}
         minDistance={8}
         maxDistance={50}
         maxPolarAngle={Math.PI / 2.1}
         target={[0, 7, 0]}
+        mouseButtons={{
+          LEFT: THREE.MOUSE.ROTATE,
+          MIDDLE: THREE.MOUSE.DOLLY,
+          RIGHT: THREE.MOUSE.PAN,
+        }}
       />
     </>
   );
