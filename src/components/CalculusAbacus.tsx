@@ -641,7 +641,8 @@ export default function CalculusAbacus() {
         ys.push(y);
       }
       const maxAbs = Math.max(...ys.map((y) => Math.abs(y)), 1e-9);
-      const avail = MAX_PIECES - 10;
+      const ms = Math.max(25, Math.min(100, Math.round(Number(maxStones)) || 50));
+      const avail = Math.min(ms, MAX_PIECES);
       const u = niceUnit(maxAbs / avail);
       const counts = ys.map((y) => {
         const raw = y / u;
