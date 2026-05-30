@@ -86,7 +86,7 @@ function Piece({
           clearcoat={0.2}
           clearcoatRoughness={0.4}
           emissive={emissive}
-          emissiveIntensity={highlighted ? 0.55 : 0.25}
+          emissiveIntensity={highlighted ? 0.55 : color === "#ff932a" ? 0.4 : 0.25}
           transparent
           opacity={dim ? 0.25 : 1}
         />
