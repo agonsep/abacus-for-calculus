@@ -81,12 +81,12 @@ function Piece({
       <RoundedBox args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_DEPTH]} radius={0.08} smoothness={4} castShadow receiveShadow>
         <meshPhysicalMaterial
           color={c}
-          roughness={0.35}
-          metalness={0.15}
-          clearcoat={0.6}
-          clearcoatRoughness={0.2}
+          roughness={0.45}
+          metalness={0}
+          clearcoat={0.2}
+          clearcoatRoughness={0.4}
           emissive={emissive}
-          emissiveIntensity={highlighted ? 0.55 : 0}
+          emissiveIntensity={highlighted ? 0.55 : 0.25}
           transparent
           opacity={dim ? 0.25 : 1}
         />
