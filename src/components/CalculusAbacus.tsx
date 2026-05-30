@@ -491,11 +491,18 @@ function Scene({
       <ambientLight intensity={0.85 * brightness} />
       <hemisphereLight args={["#ffffff", "#3a4060", 0.6 * brightness]} />
       <directionalLight
-        position={[6, 12, 6]}
+        position={[6, 20, 8]}
         intensity={2.0 * brightness}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={4096}
+        shadow-mapSize-height={4096}
+        shadow-camera-left={-40}
+        shadow-camera-right={40}
+        shadow-camera-top={40}
+        shadow-camera-bottom={-40}
+        shadow-camera-near={0.5}
+        shadow-camera-far={80}
+        shadow-bias={-0.0005}
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
