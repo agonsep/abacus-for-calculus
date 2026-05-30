@@ -13,6 +13,7 @@ const MAX_PIECES = 80;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
 const ORANGE = "#d98b4a";
+const BLACK = "#1a1a1a";
 const RED = "#c8332a";
 const LINE_COLOR = "#7dd3fc";
 
