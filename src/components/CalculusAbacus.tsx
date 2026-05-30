@@ -13,6 +13,7 @@ const MAX_PIECES = 80;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
 const ORANGE = "#d98b4a";
+const BLACK = "#1a1a1a";
 const RED = "#c8332a";
 const LINE_COLOR = "#7dd3fc";
 
@@ -185,8 +186,11 @@ function Stacks({
         const oDim = highlight !== null && !oH;
         const rDim = highlight !== null && !rH;
 
-        const yFull = Math.floor(yVal);
-        const yFrac = yVal - yFull;
+        const neg = yVal < 0;
+        const absVal = Math.abs(yVal);
+        const stoneColor = neg ? BLACK : ORANGE;
+        const yFull = Math.floor(absVal);
+        const yFrac = absVal - yFull;
         for (let k = 0; k < yFull; k++) {
           pieces.push(
             <Piece
@@ -195,7 +199,7 @@ function Stacks({
               fromY={skyY}
               targetY={slotY(k + off)}
               delay={i * 0.04 + k * 0.02}
-              color={ORANGE}
+              color={stoneColor}
               dim={oDim}
               highlighted={oH}
             />,
@@ -211,7 +215,7 @@ function Stacks({
               fromY={skyY}
               targetY={targetY}
               delay={i * 0.04 + yFull * 0.02}
-              color={ORANGE}
+              color={stoneColor}
               heightScale={yFrac}
               dim={oDim}
               highlighted={oH}
@@ -647,7 +651,7 @@ export default function CalculusAbacus() {
       const counts = ys.map((y) => {
         const raw = y / u;
         const v = fractional ? raw : Math.round(raw);
-        return Math.max(0, Math.min(MAX_PIECES, v));
+        return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
       });
       setXValues(xs);
       setUnit(u);
@@ -887,12 +891,12 @@ export default function CalculusAbacus() {
                 <div className="font-mono text-foreground">x={formatNum(xv)}</div>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => bump(setOrange, i, fractional ? -0.1 : -1)}
+                    onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[hsl(28_60%_50%)]/80 font-bold text-white hover:bg-[hsl(28_60%_55%)]"
                   >−</button>
                   <span className="w-7 text-center font-mono text-foreground">{fmtCount(orange[i])}</span>
                   <button
-                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1)}
+                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[hsl(28_60%_50%)]/80 font-bold text-white hover:bg-[hsl(28_60%_55%)]"
                   >+</button>
                 </div>
