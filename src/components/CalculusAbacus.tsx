@@ -594,19 +594,25 @@ export default function CalculusAbacus() {
         // Orange moving up: red rides along (relative position preserved)
         setShift((arr) => {
           const next = arr.slice();
-          next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
+          next[i] = Math.max(0, Math.min(MAX_PIECES, next[i] + delta));
           return next;
         });
       } else {
-        // Orange moving down: red stays in place → compensate via redGap
-        setShift((arr) => {
-          const next = arr.slice();
-          next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + delta));
-          return next;
-        });
-        setRedGap((arr) => {
-          const next = arr.slice();
-          next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] - delta));
+        // Orange moving down: red stays in place → compensate via redGap.
+        // Clamp shift at 0 so stones never sink below the board, and only
+        // compensate redGap by the amount the orange actually moved.
+        setShift((curShift) => {
+          const oldOff = curShift[i];
+          const newOff = Math.max(0, Math.min(MAX_PIECES, oldOff + delta));
+          const actualDelta = newOff - oldOff;
+          if (actualDelta === 0) return curShift;
+          setRedGap((arr) => {
+            const next = arr.slice();
+            next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] - actualDelta));
+            return next;
+          });
+          const next = curShift.slice();
+          next[i] = newOff;
           return next;
         });
       }
@@ -621,14 +627,14 @@ export default function CalculusAbacus() {
         });
       } else {
         // Red moving down: shrink the gap; if it would go negative,
-        // push orange down by the overflow
+        // push orange down by the overflow (but not below the board).
         setRedGap((curGap) => {
           setShift((curShift) => {
             const newGap = curGap[i] + delta;
             if (newGap < 0) {
               const push = newGap; // negative
               const next = curShift.slice();
-              next[i] = Math.max(-MAX_PIECES, Math.min(MAX_PIECES, next[i] + push));
+              next[i] = Math.max(0, Math.min(MAX_PIECES, next[i] + push));
               return next;
             }
             return curShift;
