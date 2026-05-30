@@ -487,7 +487,7 @@ function Scene({
   return (
     <>
       <color attach="background" args={["#1c2238"]} />
-      <fog attach="fog" args={["#1c2238", 18, 36]} />
+      <fog attach="fog" args={["#1c2238", 32, 55]} />
       <ambientLight intensity={0.85 * brightness} />
       <hemisphereLight args={["#ffffff", "#3a4060", 0.6 * brightness]} />
       <directionalLight
