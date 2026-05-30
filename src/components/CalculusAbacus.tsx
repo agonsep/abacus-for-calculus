@@ -673,6 +673,12 @@ export default function CalculusAbacus() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Re-fill when max stones changes so the unit label stays in sync
+  useEffect(() => {
+    setup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxStones]);
+
   const bump = (
     setter: React.Dispatch<React.SetStateAction<number[]>>,
     i: number,
