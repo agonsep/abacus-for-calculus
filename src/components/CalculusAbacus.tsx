@@ -651,7 +651,7 @@ export default function CalculusAbacus() {
       const counts = ys.map((y) => {
         const raw = y / u;
         const v = fractional ? raw : Math.round(raw);
-        return Math.max(0, Math.min(MAX_PIECES, v));
+        return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
       });
       setXValues(xs);
       setUnit(u);
