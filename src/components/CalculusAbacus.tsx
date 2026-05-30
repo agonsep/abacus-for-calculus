@@ -547,6 +547,7 @@ export default function CalculusAbacus() {
   const [formula, setFormula] = useState("(x^2 + x) / 2");
   const [midpoint, setMidpoint] = useState("5");
   const [increment, setIncrement] = useState("1");
+  const [maxStones, setMaxStones] = useState("50");
 
   const [xValues, setXValues] = useState<number[]>(
     Array.from({ length: COLUMNS }, (_, i) => i - 5),
@@ -640,7 +641,8 @@ export default function CalculusAbacus() {
         ys.push(y);
       }
       const maxAbs = Math.max(...ys.map((y) => Math.abs(y)), 1e-9);
-      const avail = MAX_PIECES - 10;
+      const ms = Math.max(25, Math.min(100, Math.round(Number(maxStones)) || 50));
+      const avail = Math.min(ms, MAX_PIECES);
       const u = niceUnit(maxAbs / avail);
       const counts = ys.map((y) => {
         const raw = y / u;
@@ -929,6 +931,16 @@ export default function CalculusAbacus() {
             <input
               value={increment}
               onChange={(e) => setIncrement(e.target.value)}
+              className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+            />
+            <span className="font-mono text-sm text-muted-foreground">max stones</span>
+            <input
+              type="number"
+              min={25}
+              max={100}
+              step={1}
+              value={maxStones}
+              onChange={(e) => setMaxStones(e.target.value)}
               className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
             <button
