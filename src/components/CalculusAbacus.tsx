@@ -872,6 +872,7 @@ export default function CalculusAbacus() {
         >
           ?
         </button>
+      </div>
 
       {/* Help dialog */}
       {showHelp && (
