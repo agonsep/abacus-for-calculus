@@ -997,6 +997,7 @@ export default function CalculusAbacus() {
         >
           <p className="text-xs text-muted-foreground">
             One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
+            <br />
             Red stones show <span className="text-primary">Δy</span>.
           </p>
           <label className="flex flex-col gap-1">
