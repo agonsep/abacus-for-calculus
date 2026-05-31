@@ -789,7 +789,7 @@ export default function CalculusAbacus() {
       </Canvas>
 
       {/* Header */}
-      <div className="pointer-events-none absolute left-6 top-1/2 w-72 -translate-y-1/2">
+      <div className="pointer-events-none absolute left-6 top-[16%] w-72">
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.4em] text-muted-foreground">An abacus for</p>
           <h1 className="mt-2 font-serif text-5xl font-semibold leading-none text-foreground md:text-6xl">
