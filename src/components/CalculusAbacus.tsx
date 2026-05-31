@@ -940,6 +940,14 @@ export default function CalculusAbacus() {
           }}
           className="absolute right-4 top-4 z-10 flex w-72 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
         >
+          <button
+            type="button"
+            onClick={() => setShowHelp(true)}
+            className="absolute right-2 top-2 h-7 w-7 rounded-full border border-border bg-card font-serif text-foreground hover:bg-muted"
+            title="How does this work?"
+          >
+            ?
+          </button>
           <p className="text-xs text-muted-foreground">
             One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
           </p>
