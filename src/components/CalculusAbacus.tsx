@@ -187,9 +187,9 @@ function Board({ xValues }: { xValues: number[] }) {
         return (
           <Text
             key={`lbl-${i}`}
-            position={[x, -0.32, depth / 2 + 0.28]}
+            position={[x, -0.29, depth / 2 + 0.55]}
             rotation={[-Math.PI / 2, 0, 0]}
-            fontSize={0.28}
+            fontSize={0.42}
             color="#f5e8c8"
             anchorX="center"
             anchorY="middle"
