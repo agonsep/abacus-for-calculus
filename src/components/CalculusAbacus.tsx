@@ -993,20 +993,20 @@ export default function CalculusAbacus() {
             e.preventDefault();
             setup();
           }}
-          className="absolute right-4 bottom-44 z-10 flex w-64 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
+          className="absolute right-4 bottom-44 z-10 flex w-72 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
         >
           <p className="text-xs text-muted-foreground">
             One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
             <br />
             Red stones show <span className="text-primary">Δy</span>.
           </p>
-          <label className="flex flex-col gap-1">
+          <label className="flex items-center gap-2">
             <span className="font-serif text-lg text-primary">y =</span>
             <input
               value={formula}
               onChange={(e) => setFormula(e.target.value)}
               placeholder="(x^2 + x) / 2"
-              className="w-full rounded-md bg-background/50 px-2 py-2 font-mono text-base text-foreground outline-none placeholder:text-muted-foreground"
+              className="flex-1 min-w-0 rounded-md bg-background/50 px-2 py-2 font-mono text-base text-foreground outline-none placeholder:text-muted-foreground"
             />
           </label>
           <label className="flex items-center justify-between gap-2">
