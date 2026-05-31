@@ -997,61 +997,72 @@ export default function CalculusAbacus() {
               ))}
             </div>
 
-            {/* Equation + midpoint + increment */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setup();
-              }}
-              className="flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-border bg-card/80 p-2 shadow-2xl backdrop-blur-md"
-            >
-              <span className="pl-3 font-serif text-xl text-primary">y =</span>
-              <input
-                value={formula}
-                onChange={(e) => setFormula(e.target.value)}
-                placeholder="(x^2 + x) / 2"
-                className="min-w-[180px] flex-1 bg-transparent px-2 py-2 font-mono text-base text-foreground outline-none placeholder:text-muted-foreground"
-              />
-              <span className="font-mono text-sm text-muted-foreground">midpoint</span>
-              <input
-                value={midpoint}
-                onChange={(e) => setMidpoint(e.target.value)}
-                className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
-              />
-              <span className="font-mono text-sm text-muted-foreground">Δx</span>
-              <input
-                value={increment}
-                onChange={(e) => setIncrement(e.target.value)}
-                className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
-              />
-              <span className="font-mono text-sm text-muted-foreground">max stones</span>
-              <input
-                type="number"
-                min={25}
-                max={100}
-                step={1}
-                value={maxStones}
-                onChange={(e) => setMaxStones(e.target.value)}
-                className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
-              />
-              <button
-                type="submit"
-                className="rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:opacity-90"
-              >
-                Fill board
-              </button>
-              <button
-                type="button"
-                onClick={calcDiff}
-                className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
-              >
-                Calculate Δy
-              </button>
-            </form>
-
             {error && <p className="text-center text-sm text-destructive">{error}</p>}
           </div>
         </div>
+      )}
+
+      {/* Right-side equation / inputs panel */}
+      {!uiHidden && (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setup();
+          }}
+          className="absolute right-4 top-1/2 z-10 flex w-64 -translate-y-1/2 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
+        >
+          <label className="flex flex-col gap-1">
+            <span className="font-serif text-lg text-primary">y =</span>
+            <input
+              value={formula}
+              onChange={(e) => setFormula(e.target.value)}
+              placeholder="(x^2 + x) / 2"
+              className="w-full rounded-md bg-background/50 px-2 py-2 font-mono text-base text-foreground outline-none placeholder:text-muted-foreground"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-2">
+            <span className="font-mono text-sm text-muted-foreground">midpoint</span>
+            <input
+              value={midpoint}
+              onChange={(e) => setMidpoint(e.target.value)}
+              className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-2">
+            <span className="font-mono text-sm text-muted-foreground">Δx</span>
+            <input
+              value={increment}
+              onChange={(e) => setIncrement(e.target.value)}
+              className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-2">
+            <span className="font-mono text-sm text-muted-foreground">max stones</span>
+            <input
+              type="number"
+              min={25}
+              max={100}
+              step={1}
+              value={maxStones}
+              onChange={(e) => setMaxStones(e.target.value)}
+              className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+            />
+          </label>
+          <button
+            type="submit"
+            className="rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:opacity-90"
+          >
+            Fill board
+          </button>
+          <button
+            type="button"
+            onClick={calcDiff}
+            className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
+          >
+            Calculate Δy
+          </button>
+          {error && <p className="text-center text-sm text-destructive">{error}</p>}
+        </form>
       )}
     </div>
   );
