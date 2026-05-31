@@ -790,7 +790,7 @@ export default function CalculusAbacus() {
       <div className="pointer-events-none absolute left-6 top-1/2 w-72 -translate-y-1/2">
         <div className="text-left">
           <p className="text-sm uppercase tracking-[0.4em] text-muted-foreground">An abacus for</p>
-          <h1 className="mt-2 font-serif text-7xl font-semibold leading-none text-foreground md:text-8xl">
+          <h1 className="mt-2 font-serif text-5xl font-semibold leading-none text-foreground md:text-6xl">
             Calculus
           </h1>
         </div>
