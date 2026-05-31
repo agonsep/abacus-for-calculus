@@ -865,7 +865,7 @@ export default function CalculusAbacus() {
                 One can slide the red stones up into the empy space above the orange stones and
                 algin the bottom of each stack. This represents a new curve, a red curve of
                 differences. To find the slope of the tangent for a particular value of x, just
-                multiply the number of red stones by value of one orange stone and divdid by the
+                multiply the number of red stones by the value of one orange stone and divdid by the
                 increment.
               </p>
               <p>
