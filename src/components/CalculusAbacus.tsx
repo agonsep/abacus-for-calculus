@@ -1064,22 +1064,16 @@ export default function CalculusAbacus() {
                 Hide panels
               </button>
             </div>
-          </div>
-        </form>
-      )}
-      {!uiHidden && (
-        <button
-          type="button"
-          onClick={() => setShowHelp(true)}
-          className="absolute right-4 top-[calc(theme(spacing.4)+0px)] z-20 hidden"
-          aria-hidden
-        />
-      )}
-      {!uiHidden && (
-        <div className="pointer-events-none absolute right-4 top-4 z-20 flex w-72 justify-center">
-          {/* spacer to align help button under panel */}
-        </div>
-      )}
+            <div className="flex justify-center pt-1">
+              <button
+                type="button"
+                onClick={() => setShowHelp(true)}
+                className="h-8 w-8 rounded-full border border-border bg-card font-serif text-foreground hover:bg-muted"
+                title="How does this work?"
+              >
+                ?
+              </button>
+            </div>
           </div>
         </form>
       )}
