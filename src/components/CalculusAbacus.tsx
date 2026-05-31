@@ -130,7 +130,7 @@ function Piece({
 function Board({ xValues }: { xValues: number[] }) {
   const width = COLUMNS * COL_SPACING + 0.6;
   const depth = 1.6;
-  const sepThickness = 0.04;
+  const sepThickness = 0.22;
   const sepHeight = SEPARATOR_HEIGHT;
   const sepDepth = depth - 0.3;
   const backThickness = 0.08;
@@ -144,7 +144,7 @@ function Board({ xValues }: { xValues: number[] }) {
         castShadow
         receiveShadow
       >
-        <meshPhysicalMaterial color="#3a3020" roughness={0.6} metalness={0.1} clearcoat={0.3} />
+        <meshPhysicalMaterial color="#6b4423" roughness={0.75} metalness={0.05} clearcoat={0.25} clearcoatRoughness={0.5} />
       </RoundedBox>
       <RoundedBox
         args={[width - 0.2, 0.05, depth - 0.2]}
@@ -153,7 +153,7 @@ function Board({ xValues }: { xValues: number[] }) {
         position={[0, 0.02, 0]}
         receiveShadow
       >
-        <meshStandardMaterial color="#4a3d28" roughness={0.8} />
+        <meshStandardMaterial color="#8b5a2b" roughness={0.85} />
       </RoundedBox>
       <RoundedBox
         args={[width, sepHeight, backThickness]}
@@ -163,20 +163,22 @@ function Board({ xValues }: { xValues: number[] }) {
         castShadow
         receiveShadow
       >
-        <meshStandardMaterial color="#4a3d28" roughness={0.85} metalness={0.05} />
+        <meshStandardMaterial color="#7a4e26" roughness={0.9} metalness={0.03} />
       </RoundedBox>
       {Array.from({ length: COLUMNS + 1 }).map((_, i) => {
         const x = (i - COLUMNS / 2) * COL_SPACING;
         return (
-          <mesh
+          <RoundedBox
             key={`sep-${i}`}
+            args={[sepThickness, sepHeight, sepDepth]}
+            radius={0.04}
+            smoothness={4}
             position={[x, sepHeight / 2 + 0.05, 0.05]}
             castShadow
             receiveShadow
           >
-            <boxGeometry args={[sepThickness, sepHeight, sepDepth]} />
-            <meshStandardMaterial color="#5a4d38" roughness={0.7} metalness={0.05} />
-          </mesh>
+            <meshPhysicalMaterial color="#9c6b3a" roughness={0.8} metalness={0.04} clearcoat={0.2} clearcoatRoughness={0.6} />
+          </RoundedBox>
         );
       })}
       {xValues.map((xv, i) => {
