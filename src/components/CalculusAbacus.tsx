@@ -856,7 +856,7 @@ export default function CalculusAbacus() {
                 efficient use of the stones.
               </p>
               <p>
-                <strong>Add red stones</strong> drops{" "}
+                The button <strong>add red stones</strong> drops{" "}
                 <span className="text-[#e8352c]">red stones</span> next to each column equal to{" "}
                 <span className="font-mono">|y(x + Δx) − y(x)|</span> — the discrete difference to
                 the right.
