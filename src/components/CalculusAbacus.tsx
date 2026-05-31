@@ -789,15 +789,19 @@ export default function CalculusAbacus() {
         />
       </Canvas>
 
-      {/* Header + per-column controls */}
-      <div className="pointer-events-none absolute left-6 top-[6%] z-10 flex w-[260px] flex-col gap-4">
+      {/* Header */}
+      <div className="pointer-events-none absolute left-6 top-[10%] z-10 w-[260px]">
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.4em] text-muted-foreground">An abacus for</p>
           <h1 className="mt-2 font-serif text-5xl font-semibold leading-none text-foreground md:text-6xl">
             Calculus
           </h1>
         </div>
-        {!uiHidden && (
+      </div>
+
+      {/* Per-column controls */}
+      {!uiHidden && (
+        <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-[260px]">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             {xValues.map((xv, i) => (
               <div
@@ -842,8 +846,8 @@ export default function CalculusAbacus() {
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Floating show button when panels hidden */}
       {uiHidden && (
