@@ -919,8 +919,7 @@ export default function CalculusAbacus() {
                 the slope <span className="font-mono">dy/dx</span> times Δx.
               </p>
               <p>
-                <strong>Fractional stones</strong> lets values land between whole stones for a more
-                exact picture. <strong>Connect stones</strong> traces a curve through the tops of
+                <strong>Connect stones</strong> traces a curve through the tops of
                 the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps out.
                 The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
                 <strong>drag the orange or red zone</strong> of any column to slide it. The two
