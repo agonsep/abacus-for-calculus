@@ -187,13 +187,14 @@ function Board({ xValues }: { xValues: number[] }) {
         return (
           <Text
             key={`lbl-${i}`}
-            position={[x, 0.06, depth / 2 - 0.25]}
-            rotation={[-Math.PI / 2, 0, 0]}
+            position={[x, -0.3, depth / 2 - 0.25]}
+            rotation={[0, 0, 0]}
             fontSize={0.32}
             renderOrder={2}
             color="#f5e8c8"
             anchorX="center"
             anchorY="middle"
+            material-depthTest={false}
           >
             {label}
           </Text>
