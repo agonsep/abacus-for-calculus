@@ -847,8 +847,8 @@ export default function CalculusAbacus() {
               <p>
                 For every column we evaluate{" "}
                 <span className="font-mono text-primary">y = f(x)</span> to get{" "}
-                <span className="font-mono">11</span> y-values. Suppose we choose to limit the number of stones in any one column to 50. We then find their{" "}
-                <span className="font-mono">min</span> and <span className="font-mono">max</span>{" "}
+                <span className="font-mono">11</span> y-values. Suppose we choose to limit the number of stones in any one column to 50. We find the{" "}
+                <span className="font-mono">min</span> and <span className="font-mono">max</span> of the 11 y-values{" "}
                 and pick a unit so that one <span className="text-[#ff932a]">orange stone</span> is
                 worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in
                 each column is <span className="font-mono">f(x) − min</span>. Only the{" "}
