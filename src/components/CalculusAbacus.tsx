@@ -1009,7 +1009,7 @@ export default function CalculusAbacus() {
             e.preventDefault();
             setup();
           }}
-          className="absolute right-4 top-1/2 z-10 flex w-64 -translate-y-1/2 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
+          className="absolute right-4 bottom-24 z-10 flex w-64 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
         >
           <label className="flex flex-col gap-1">
             <span className="font-serif text-lg text-primary">y =</span>
