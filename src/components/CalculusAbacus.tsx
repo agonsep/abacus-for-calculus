@@ -857,7 +857,7 @@ export default function CalculusAbacus() {
                 efficient use of the stones.
               </p>
               <p>
-                <strong>Calculate Δy</strong> drops{" "}
+                <strong>Add red stones</strong> drops{" "}
                 <span className="text-[#e8352c]">red stones</span> next to each column equal to{" "}
                 <span className="font-mono">|y(x + Δx) − y(x)|</span> — the{" "}
                 <em>discrete differential</em> to the right. As Δx shrinks, the red heights approach
@@ -969,7 +969,7 @@ export default function CalculusAbacus() {
             />
           </label>
           <label className="flex items-center justify-between gap-2">
-            <span className="font-mono text-sm text-muted-foreground">Δx</span>
+            <span className="font-mono text-sm text-muted-foreground">increment</span>
             <input
               value={increment}
               onChange={(e) => setIncrement(e.target.value)}
