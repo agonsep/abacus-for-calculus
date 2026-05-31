@@ -798,75 +798,15 @@ export default function CalculusAbacus() {
         </div>
       </div>
 
-      {/* Top-right controls */}
-      <div className="absolute right-4 top-[380px] flex w-72 flex-col items-stretch gap-2">
-        <div className="pointer-events-auto flex flex-col gap-1.5 rounded-xl border border-border bg-card/80 p-2 text-xs shadow-lg backdrop-blur-md">
-          <label className="flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
-              checked={showLine}
-              onChange={(e) => setShowLine(e.target.checked)}
-              className="accent-[hsl(199_89%_70%)]"
-            />
-            <span className="text-foreground">Connect stones</span>
-          </label>
-          <div className="mt-1 flex flex-col gap-1 border-t border-border/60 pt-2">
-            <label className="flex items-center justify-between gap-2">
-              <span className="text-foreground">Brightness</span>
-              <span className="font-mono text-muted-foreground">{brightness.toFixed(1)}×</span>
-            </label>
-            <input
-              type="range"
-              min={0.2}
-              max={2}
-              step={0.1}
-              value={brightness}
-              onChange={(e) => setBrightness(Number(e.target.value))}
-              className="accent-primary"
-            />
-          </div>
-          <div className="mt-1 flex items-center justify-between gap-2 border-t border-border/60 pt-2">
-            <span className="text-foreground">Zoom</span>
-            <div className="flex gap-1">
-              <button
-                onClick={() => zoom(-1)}
-                className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
-                title="Zoom out"
-              >
-                −
-              </button>
-              <button
-                onClick={() => zoom(1)}
-                className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
-                title="Zoom in"
-              >
-                +
-              </button>
-            </div>
-          </div>
-          <div className="mt-1 flex flex-col gap-1 border-t border-border/60 pt-2">
-            <label className="flex items-center justify-between gap-2">
-              <span className="text-foreground">Vertical pan</span>
-              <span className="font-mono text-muted-foreground">{panY.toFixed(1)}</span>
-            </label>
-            <input
-              type="range"
-              min={-3}
-              max={5}
-              step={0.1}
-              value={panY}
-              onChange={(e) => setPanY(Number(e.target.value))}
-              className="accent-primary"
-            />
-          </div>
-          <button
-            onClick={() => setUiHidden((v) => !v)}
-            className="mt-1 rounded bg-muted px-2 py-1 text-foreground hover:bg-muted/80 border-t border-border/60"
-            title="Toggle panels"
-          >
-            {uiHidden ? "Show panels" : "Hide panels"}
-          </button>
-        </div>
+      {/* Floating help / toggle buttons */}
+      <div className="absolute right-4 top-4 z-20 flex flex-col items-end gap-2">
+        <button
+          onClick={() => setUiHidden((v) => !v)}
+          className="pointer-events-auto h-9 rounded-full border border-border bg-card/80 px-3 text-xs text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
+          title="Toggle panels"
+        >
+          {uiHidden ? "Show panels" : "Hide panels"}
+        </button>
         <button
           onClick={() => setShowHelp(true)}
           className="pointer-events-auto h-9 w-9 rounded-full border border-border bg-card/80 font-serif text-lg text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
@@ -875,6 +815,7 @@ export default function CalculusAbacus() {
           ?
         </button>
       </div>
+
 
       {/* Help dialog */}
       {showHelp && (
