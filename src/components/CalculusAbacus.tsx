@@ -798,13 +798,6 @@ export default function CalculusAbacus() {
 
       {/* Top-right controls */}
       <div className="absolute right-4 bottom-4 flex flex-col items-end gap-2">
-        <button
-          onClick={() => setShowHelp(true)}
-          className="pointer-events-auto h-9 w-9 rounded-full border border-border bg-card/80 font-serif text-lg text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
-          title="How does this work?"
-        >
-          ?
-        </button>
         <div className="pointer-events-auto flex flex-col gap-1.5 rounded-xl border border-border bg-card/80 p-2 text-xs shadow-lg backdrop-blur-md">
           <label className="flex cursor-pointer items-center gap-2">
             <input
