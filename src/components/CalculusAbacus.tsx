@@ -766,7 +766,7 @@ export default function CalculusAbacus() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
-      <Canvas shadows camera={{ position: [0, 12, 28], fov: 45 }} dpr={[1, 2]}>
+      <Canvas shadows camera={{ position: [0, 10, 27], fov: 45 }} dpr={[1, 2]}>
         <Scene
           orange={orange}
           red={red}
