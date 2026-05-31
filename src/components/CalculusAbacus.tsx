@@ -797,7 +797,7 @@ export default function CalculusAbacus() {
       </div>
 
       {/* Top-right controls */}
-      <div className="absolute right-4 top-4 flex flex-col items-end gap-2">
+      <div className="absolute right-4 bottom-4 flex flex-col items-end gap-2">
         <button
           onClick={() => setShowHelp(true)}
           className="pointer-events-auto h-9 w-9 rounded-full border border-border bg-card/80 font-serif text-lg text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
@@ -993,7 +993,7 @@ export default function CalculusAbacus() {
             e.preventDefault();
             setup();
           }}
-          className="absolute right-4 bottom-44 z-10 flex w-72 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
+          className="absolute right-4 top-4 z-10 flex w-72 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
         >
           <p className="text-xs text-muted-foreground">
             One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
