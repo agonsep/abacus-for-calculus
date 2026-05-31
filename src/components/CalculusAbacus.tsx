@@ -991,7 +991,7 @@ export default function CalculusAbacus() {
             onClick={calcDiff}
             className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
           >
-            Calculate Δy
+            Add red stones
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
