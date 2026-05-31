@@ -1,5 +1,5 @@
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Environment, Text, RoundedBox, Line } from "@react-three/drei";
+import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { OrbitControls, Text, RoundedBox, Line } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluate } from "mathjs";
 import * as THREE from "three";
@@ -13,9 +13,29 @@ const MAX_PIECES = 80;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
 const ORANGE = "#ff932a";
+const ORANGE_LIGHT = "#ffb56a";
+const ORANGE_DARK = "#dc5800";
 const BLACK = "#1a1a1a";
 const RED = "#e8352c";
 const LINE_COLOR = "#7dd3fc";
+
+let _orangeGradTex: THREE.CanvasTexture | null = null;
+function getOrangeGradTex(): THREE.CanvasTexture {
+  if (!_orangeGradTex) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 64;
+    const ctx = canvas.getContext("2d")!;
+    const grad = ctx.createLinearGradient(0, 0, 0, 64);
+    grad.addColorStop(0, ORANGE_LIGHT);
+    grad.addColorStop(0.5, ORANGE);
+    grad.addColorStop(1, ORANGE_DARK);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1, 64);
+    _orangeGradTex = new THREE.CanvasTexture(canvas);
+  }
+  return _orangeGradTex;
+}
 
 function slotY(slot: number) {
   return PIECE_HEIGHT / 2 + slot * PIECE_HEIGHT + 0.05;
@@ -73,22 +93,34 @@ function Piece({
     ref.current.scale.set(s, s * heightScale, s);
   });
 
-  const c = useMemo(() => new THREE.Color(color), [color]);
+  const isOrange = color === ORANGE;
+  const c = useMemo(
+    () => (isOrange ? new THREE.Color(1, 1, 1) : new THREE.Color(color)),
+    [color, isOrange],
+  );
   const emissive = useMemo(() => new THREE.Color(color), [color]);
 
   return (
     <group ref={ref}>
-      <RoundedBox args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_DEPTH]} radius={0.08} smoothness={4} castShadow receiveShadow>
+      <RoundedBox
+        args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_DEPTH]}
+        radius={0.08}
+        smoothness={4}
+        castShadow
+        receiveShadow
+      >
         <meshPhysicalMaterial
+          map={isOrange ? getOrangeGradTex() : undefined}
           color={c}
           roughness={0.45}
           metalness={0}
           clearcoat={0.2}
           clearcoatRoughness={0.4}
           emissive={emissive}
-          emissiveIntensity={highlighted ? 0.55 : color === "#ff932a" ? 0.4 : 0.25}
+          emissiveIntensity={highlighted ? 0.55 : isOrange ? 0.4 : 0.25}
           transparent
           opacity={dim ? 0.25 : 1}
+          fog={!highlighted}
         />
       </RoundedBox>
     </group>
@@ -104,10 +136,23 @@ function Board({ xValues }: { xValues: number[] }) {
   const backThickness = 0.08;
   return (
     <group position={[0, -0.15, 0]}>
-      <RoundedBox args={[width, 0.3, depth]} radius={0.08} smoothness={4} position={[0, -0.15, 0]} castShadow receiveShadow>
+      <RoundedBox
+        args={[width, 0.3, depth]}
+        radius={0.08}
+        smoothness={4}
+        position={[0, -0.15, 0]}
+        castShadow
+        receiveShadow
+      >
         <meshPhysicalMaterial color="#3a3020" roughness={0.6} metalness={0.1} clearcoat={0.3} />
       </RoundedBox>
-      <RoundedBox args={[width - 0.2, 0.05, depth - 0.2]} radius={0.04} smoothness={4} position={[0, 0.02, 0]} receiveShadow>
+      <RoundedBox
+        args={[width - 0.2, 0.05, depth - 0.2]}
+        radius={0.04}
+        smoothness={4}
+        position={[0, 0.02, 0]}
+        receiveShadow
+      >
         <meshStandardMaterial color="#4a3d28" roughness={0.8} />
       </RoundedBox>
       <RoundedBox
@@ -123,7 +168,12 @@ function Board({ xValues }: { xValues: number[] }) {
       {Array.from({ length: COLUMNS + 1 }).map((_, i) => {
         const x = (i - COLUMNS / 2) * COL_SPACING;
         return (
-          <mesh key={`sep-${i}`} position={[x, sepHeight / 2 + 0.05, 0.05]} castShadow receiveShadow>
+          <mesh
+            key={`sep-${i}`}
+            position={[x, sepHeight / 2 + 0.05, 0.05]}
+            castShadow
+            receiveShadow
+          >
             <boxGeometry args={[sepThickness, sepHeight, sepDepth]} />
             <meshStandardMaterial color="#5a4d38" roughness={0.7} metalness={0.05} />
           </mesh>
@@ -317,17 +367,14 @@ function DragHandles({
   } | null>(null);
 
   const planeZ = PIECE_DEPTH / 2 + 0.05;
-  const plane = useMemo(
-    () => new THREE.Plane(new THREE.Vector3(0, 0, 1), -planeZ),
-    [planeZ]
-  );
+  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), -planeZ), [planeZ]);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
 
   const pointerWorldY = (clientX: number, clientY: number) => {
     const rect = gl.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(
       ((clientX - rect.left) / rect.width) * 2 - 1,
-      -((clientY - rect.top) / rect.height) * 2 + 1
+      -((clientY - rect.top) / rect.height) * 2 + 1,
     );
     raycaster.setFromCamera(ndc, camera);
     const point = new THREE.Vector3();
@@ -336,7 +383,7 @@ function DragHandles({
   };
 
   const makeHandlers = (i: number, color: "orange" | "red") => ({
-    onPointerDown: (e: any) => {
+    onPointerDown: (e: PointerEvent) => {
       e.stopPropagation();
       const startY = pointerWorldY(e.clientX, e.clientY);
       if (startY == null) return;
@@ -371,7 +418,7 @@ function DragHandles({
       };
       dragRef.current = { i, color, startY, accSlots: 0, cleanup };
     },
-    onPointerOver: (e: any) => {
+    onPointerOver: (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation();
       onHover({ i, color });
       if (!dragRef.current) document.body.style.cursor = "grab";
@@ -381,7 +428,6 @@ function DragHandles({
       if (!dragRef.current) document.body.style.cursor = "";
     },
   });
-
 
   // Wider hit area + min handle height so 2-3 piece stacks are easy to grab
   const HIT_W = PIECE_WIDTH * 1.35;
@@ -404,8 +450,8 @@ function DragHandles({
         const maxY = SEPARATOR_HEIGHT + 0.05;
 
         // Orange handle covers floor → top of orange (or whole column if no orange)
-        let oTop = oCount > 0 ? orangeTopY : (rCount > 0 ? minY : maxY);
-        let oBottom = minY;
+        let oTop = oCount > 0 ? orangeTopY : rCount > 0 ? minY : maxY;
+        const oBottom = minY;
         if (oCount > 0 && oTop - oBottom < MIN_H) {
           // grow upward (cap before red zone) so small stacks are still grabbable
           const cap = rCount > 0 ? oTop + (MIN_H - (oTop - oBottom)) * 0.5 : oTop + MIN_H;
@@ -415,9 +461,9 @@ function DragHandles({
         const oCenter = (oTop + oBottom) / 2;
 
         // Red handle covers from top of orange upward
-        let rBottom = oCount > 0 ? orangeTopY : minY;
+        const rBottom = oCount > 0 ? orangeTopY : minY;
         const redTopY = slotY(oCount + gap + rCount + off) - PIECE_HEIGHT / 2;
-        let rTop = rCount > 0 ? redTopY : (oCount > 0 ? maxY : maxY);
+        let rTop = rCount > 0 ? redTopY : oCount > 0 ? maxY : maxY;
         if (rCount > 0 && rTop - rBottom < MIN_H) {
           rTop = Math.min(rBottom + MIN_H, maxY);
         }
@@ -427,19 +473,13 @@ function DragHandles({
         return (
           <group key={`drag-${i}`}>
             {oCount > 0 && (
-              <mesh
-                position={[x, oCenter, PIECE_DEPTH / 2 + 0.05]}
-                {...makeHandlers(i, "orange")}
-              >
+              <mesh position={[x, oCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "orange")}>
                 <boxGeometry args={[HIT_W, oHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}
             {rCount > 0 && (
-              <mesh
-                position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]}
-                {...makeHandlers(i, "red")}
-              >
+              <mesh position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "red")}>
                 <boxGeometry args={[HIT_W, rHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
@@ -487,7 +527,7 @@ function Scene({
   return (
     <>
       <color attach="background" args={["#1c2238"]} />
-      <fog attach="fog" args={["#1c2238", 32, 55]} />
+      <fogExp2 attach="fog" args={["#1c2238", 0.01]} />
       <ambientLight intensity={0.85 * brightness} />
       <hemisphereLight args={["#ffffff", "#3a4060", 0.6 * brightness]} />
       <directionalLight
@@ -507,7 +547,14 @@ function Scene({
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
         <Board xValues={xValues} />
-        <Stacks orange={orange} red={red} shift={shift} redGap={redGap} runId={runId} highlight={highlight} />
+        <Stacks
+          orange={orange}
+          red={red}
+          shift={shift}
+          redGap={redGap}
+          runId={runId}
+          highlight={highlight}
+        />
         {showLine && <ConnectingLine orange={orange} shift={shift} />}
         <DragHandles
           orange={orange}
@@ -523,7 +570,6 @@ function Scene({
           <shadowMaterial opacity={0.3} />
         </mesh>
       </group>
-      <Environment preset="city" />
       <CameraController trigger={zoomTrigger} />
       <OrbitControls
         enabled={!dragging}
@@ -806,12 +852,16 @@ export default function CalculusAbacus() {
                 onClick={() => zoom(-1)}
                 className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
                 title="Zoom out"
-              >−</button>
+              >
+                −
+              </button>
               <button
                 onClick={() => zoom(1)}
                 className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
                 title="Zoom in"
-              >+</button>
+              >
+                +
+              </button>
             </div>
           </div>
           <div className="mt-1 flex flex-col gap-1 border-t border-border/60 pt-2">
@@ -861,37 +911,35 @@ export default function CalculusAbacus() {
             <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
               <p>
                 Each of the <span className="font-mono">11</span> columns represents a value of{" "}
-                <span className="font-mono text-primary">x</span> centered on your{" "}
-                <em>midpoint</em>, spaced by <span className="font-mono">Δx</span>.
+                <span className="font-mono text-primary">x</span> centered on your <em>midpoint</em>
+                , spaced by <span className="font-mono">Δx</span>.
               </p>
               <p>
                 For every column we evaluate{" "}
                 <span className="font-mono text-primary">y = f(x)</span> to get{" "}
                 <span className="font-mono">11</span> y-values. We then find their{" "}
                 <span className="font-mono">min</span> and <span className="font-mono">max</span>{" "}
-                and pick a unit so that one{" "}
-                <span className="text-[#ff932a]">orange stone</span> is worth{" "}
-                <span className="font-mono">(max − min) / 50</span> — currently{" "}
-                <span className="font-mono">{formatNum(unit)}</span>. The number of orange stones
-                in each column is <span className="font-mono">f(x) − min</span>. Only the{" "}
-                <em>differences</em> between columns matter, so anchoring to the minimum makes
-                more efficient use of the stones.
+                and pick a unit so that one <span className="text-[#ff932a]">orange stone</span> is
+                worth <span className="font-mono">(max − min) / 50</span> — currently{" "}
+                <span className="font-mono">{formatNum(unit)}</span>. The number of orange stones in
+                each column is <span className="font-mono">f(x) − min</span>. Only the{" "}
+                <em>differences</em> between columns matter, so anchoring to the minimum makes more
+                efficient use of the stones.
               </p>
               <p>
                 <strong>Calculate Δy</strong> drops{" "}
-                <span className="text-[#e8352c]">red stones</span> next to each column
-                equal to <span className="font-mono">|y(x + Δx) − y(x)|</span> — the{" "}
-                <em>discrete differential</em> to the right. As Δx shrinks, the red heights
-                approach the slope <span className="font-mono">dy/dx</span> times Δx.
+                <span className="text-[#e8352c]">red stones</span> next to each column equal to{" "}
+                <span className="font-mono">|y(x + Δx) − y(x)|</span> — the{" "}
+                <em>discrete differential</em> to the right. As Δx shrinks, the red heights approach
+                the slope <span className="font-mono">dy/dx</span> times Δx.
               </p>
               <p>
                 <strong>Fractional stones</strong> lets values land between whole stones for a more
                 exact picture. <strong>Connect stones</strong> traces a curve through the tops of
-                the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps
-                out. The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
-                <strong>drag the orange or red zone</strong> of any column to slide it. The
-                two colors move independently, but pushing one into the other shoves both
-                together.
+                the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps out.
+                The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
+                <strong>drag the orange or red zone</strong> of any column to slide it. The two
+                colors move independently, but pushing one into the other shoves both together.
               </p>
             </div>
           </div>
@@ -900,95 +948,110 @@ export default function CalculusAbacus() {
 
       {/* Controls */}
       {!uiHidden && (
-      <div className="absolute inset-x-0 bottom-0 p-4">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3">
-          {/* Per-column controls */}
-          <div className="grid grid-cols-11 gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
-            {xValues.map((xv, i) => (
-              <div key={i} className="flex flex-col items-center gap-1 rounded-lg bg-background/40 p-1.5 text-[10px]">
-                <div className="font-mono text-foreground">x={formatNum(xv)}</div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                  >−</button>
-                  <span className="w-7 text-center font-mono text-foreground">{fmtCount(orange[i])}</span>
-                  <button
-                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                  >+</button>
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <div className="mx-auto flex max-w-6xl flex-col gap-3">
+            {/* Per-column controls */}
+            <div className="grid grid-cols-11 gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
+              {xValues.map((xv, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center gap-1 rounded-lg bg-background/40 p-1.5 text-[10px]"
+                >
+                  <div className="font-mono text-foreground">x={formatNum(xv)}</div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                    >
+                      −
+                    </button>
+                    <span className="w-7 text-center font-mono text-foreground">
+                      {fmtCount(orange[i])}
+                    </span>
+                    <button
+                      onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => bump(setRed, i, fractional ? -0.1 : -1)}
+                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                    >
+                      −
+                    </button>
+                    <span className="w-7 text-center font-mono text-foreground">
+                      {fmtCount(red[i])}
+                    </span>
+                    <button
+                      onClick={() => bump(setRed, i, fractional ? 0.1 : 1)}
+                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="text-[9px] text-muted-foreground">drag to move</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => bump(setRed, i, fractional ? -0.1 : -1)}
-                    className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                  >−</button>
-                  <span className="w-7 text-center font-mono text-foreground">{fmtCount(red[i])}</span>
-                  <button
-                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1)}
-                    className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                  >+</button>
-                </div>
-                <div className="text-[9px] text-muted-foreground">drag to move</div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Equation + midpoint + increment */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setup();
+              }}
+              className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/80 p-2 shadow-2xl backdrop-blur-md"
+            >
+              <span className="pl-3 font-serif text-xl text-primary">y =</span>
+              <input
+                value={formula}
+                onChange={(e) => setFormula(e.target.value)}
+                placeholder="(x^2 + x) / 2"
+                className="min-w-[180px] flex-1 bg-transparent px-2 py-2 font-mono text-base text-foreground outline-none placeholder:text-muted-foreground"
+              />
+              <span className="font-mono text-sm text-muted-foreground">midpoint</span>
+              <input
+                value={midpoint}
+                onChange={(e) => setMidpoint(e.target.value)}
+                className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+              />
+              <span className="font-mono text-sm text-muted-foreground">Δx</span>
+              <input
+                value={increment}
+                onChange={(e) => setIncrement(e.target.value)}
+                className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+              />
+              <span className="font-mono text-sm text-muted-foreground">max stones</span>
+              <input
+                type="number"
+                min={25}
+                max={100}
+                step={1}
+                value={maxStones}
+                onChange={(e) => setMaxStones(e.target.value)}
+                className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+              />
+              <button
+                type="submit"
+                className="rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:opacity-90"
+              >
+                Fill board
+              </button>
+              <button
+                type="button"
+                onClick={calcDiff}
+                className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
+              >
+                Calculate Δy
+              </button>
+            </form>
+
+            {error && <p className="text-center text-sm text-destructive">{error}</p>}
           </div>
-
-          {/* Equation + midpoint + increment */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setup();
-            }}
-            className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/80 p-2 shadow-2xl backdrop-blur-md"
-          >
-            <span className="pl-3 font-serif text-xl text-primary">y =</span>
-            <input
-              value={formula}
-              onChange={(e) => setFormula(e.target.value)}
-              placeholder="(x^2 + x) / 2"
-              className="min-w-[180px] flex-1 bg-transparent px-2 py-2 font-mono text-base text-foreground outline-none placeholder:text-muted-foreground"
-            />
-            <span className="font-mono text-sm text-muted-foreground">midpoint</span>
-            <input
-              value={midpoint}
-              onChange={(e) => setMidpoint(e.target.value)}
-              className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
-            />
-            <span className="font-mono text-sm text-muted-foreground">Δx</span>
-            <input
-              value={increment}
-              onChange={(e) => setIncrement(e.target.value)}
-              className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
-            />
-            <span className="font-mono text-sm text-muted-foreground">max stones</span>
-            <input
-              type="number"
-              min={25}
-              max={100}
-              step={1}
-              value={maxStones}
-              onChange={(e) => setMaxStones(e.target.value)}
-              className="w-16 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
-            />
-            <button
-              type="submit"
-              className="rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:opacity-90"
-            >
-              Fill board
-            </button>
-            <button
-              type="button"
-              onClick={calcDiff}
-              className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
-            >
-              Calculate Δy
-            </button>
-          </form>
-
-          {error && <p className="text-center text-sm text-destructive">{error}</p>}
         </div>
-      </div>
       )}
     </div>
   );
