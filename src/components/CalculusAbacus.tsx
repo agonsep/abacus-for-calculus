@@ -1003,7 +1003,7 @@ export default function CalculusAbacus() {
                 e.preventDefault();
                 setup();
               }}
-              className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/80 p-2 shadow-2xl backdrop-blur-md"
+              className="flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-border bg-card/80 p-2 shadow-2xl backdrop-blur-md"
             >
               <span className="pl-3 font-serif text-xl text-primary">y =</span>
               <input
