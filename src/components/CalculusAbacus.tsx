@@ -859,9 +859,15 @@ export default function CalculusAbacus() {
               <p>
                 <strong>Add red stones</strong> drops{" "}
                 <span className="text-[#e8352c]">red stones</span> next to each column equal to{" "}
-                <span className="font-mono">|y(x + Δx) − y(x)|</span> — the{" "}
-                <em>discrete differential</em> to the right. As Δx shrinks, the red heights approach
-                the slope <span className="font-mono">dy/dx</span> times Δx.
+                <span className="font-mono">|y(x + Δx) − y(x)|</span> — the discrete difference to
+                the right.
+              </p>
+              <p>
+                One can slide the red stones up into the empy space above the orange stones and
+                algin the bottom of each stack. This represents a new curve, a red curve of
+                differences. To find the slope of the tangent for a particular value of x, just
+                multiply the number of red stones by value of one orange stone and divdid by the
+                increment.
               </p>
               <p>
                 <strong>Connect stones</strong> traces a curve through the tops of
