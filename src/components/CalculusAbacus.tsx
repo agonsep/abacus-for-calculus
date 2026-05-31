@@ -868,6 +868,26 @@ export default function CalculusAbacus() {
         </div>
       )}
 
+      {/* X-values panel under the board */}
+      {!uiHidden && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
+          <div className="pointer-events-auto rounded-2xl border border-border bg-card/70 px-3 py-2 shadow-2xl backdrop-blur-md">
+            <div
+              className="grid gap-1"
+              style={{ gridTemplateColumns: `repeat(${COLUMNS}, minmax(0, 1fr))` }}
+            >
+              {xValues.map((xv, i) => (
+                <div
+                  key={i}
+                  className="w-12 text-center font-mono text-xs text-foreground"
+                >
+                  {formatNum(xv)}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* Help dialog */}
