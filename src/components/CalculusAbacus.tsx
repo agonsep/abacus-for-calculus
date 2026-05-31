@@ -842,7 +842,7 @@ export default function CalculusAbacus() {
               <p>
                 Each of the <span className="font-mono">11</span> columns represents a value of{" "}
                 <span className="font-mono text-primary">x</span> centered on your <em>midpoint</em>
-                , spaced by <span className="font-mono">Δx</span>.
+                , spaced by your <em>increment</em>.
               </p>
               <p>
                 For every column we evaluate{" "}
