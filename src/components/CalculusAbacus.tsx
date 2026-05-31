@@ -797,7 +797,7 @@ export default function CalculusAbacus() {
       </div>
 
       {/* Top-right controls */}
-      <div className="absolute right-4 bottom-4 flex flex-col items-end gap-2">
+      <div className="absolute right-4 top-[340px] flex flex-col items-end gap-2">
         <div className="pointer-events-auto flex flex-col gap-1.5 rounded-xl border border-border bg-card/80 p-2 text-xs shadow-lg backdrop-blur-md">
           <label className="flex cursor-pointer items-center gap-2">
             <input
