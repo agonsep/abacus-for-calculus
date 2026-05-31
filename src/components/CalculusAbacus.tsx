@@ -789,7 +789,7 @@ export default function CalculusAbacus() {
       </Canvas>
 
       {/* Header + per-column controls */}
-      <div className="pointer-events-none absolute left-6 top-[8%] z-10 flex w-[360px] flex-col gap-4">
+      <div className="pointer-events-none absolute left-6 top-[6%] z-10 flex w-[260px] flex-col gap-4">
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.4em] text-muted-foreground">An abacus for</p>
           <h1 className="mt-2 font-serif text-5xl font-semibold leading-none text-foreground md:text-6xl">
@@ -797,41 +797,45 @@ export default function CalculusAbacus() {
           </h1>
         </div>
         {!uiHidden && (
-          <div className="pointer-events-auto grid grid-cols-11 gap-0.5 rounded-2xl border border-border bg-card/70 p-1.5 shadow-2xl backdrop-blur-md">
+          <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             {xValues.map((xv, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center gap-1 rounded-md bg-background/40 p-1 text-[9px]"
+                className="flex items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
               >
-                <div className="font-mono text-foreground">{formatNum(xv)}</div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <button
-                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                    className="h-4 w-4 rounded bg-[#ff932a]/80 text-[10px] font-bold leading-none text-white hover:bg-[#ff932a]"
-                  >
-                    +
-                  </button>
-                  <span className="font-mono text-foreground">{fmtCount(orange[i])}</span>
+                <div className="w-12 font-mono text-foreground">x={formatNum(xv)}</div>
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                    className="h-4 w-4 rounded bg-[#ff932a]/80 text-[10px] font-bold leading-none text-white hover:bg-[#ff932a]"
+                    className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
                   >
                     −
                   </button>
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
+                  <span className="w-7 text-center font-mono text-foreground">
+                    {fmtCount(orange[i])}
+                  </span>
                   <button
-                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1)}
-                    className="h-4 w-4 rounded bg-[#e8352c]/80 text-[10px] font-bold leading-none text-white hover:bg-[#e8352c]"
+                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                    className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
                   >
                     +
                   </button>
-                  <span className="font-mono text-foreground">{fmtCount(red[i])}</span>
+                </div>
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => bump(setRed, i, fractional ? -0.1 : -1)}
-                    className="h-4 w-4 rounded bg-[#e8352c]/80 text-[10px] font-bold leading-none text-white hover:bg-[#e8352c]"
+                    className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                   >
                     −
+                  </button>
+                  <span className="w-7 text-center font-mono text-foreground">
+                    {fmtCount(red[i])}
+                  </span>
+                  <button
+                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1)}
+                    className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                  >
+                    +
                   </button>
                 </div>
               </div>
