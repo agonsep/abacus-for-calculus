@@ -626,7 +626,7 @@ export default function CalculusAbacus() {
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showLine, setShowLine] = useState(false);
-  const fractional = false;
+  const [fractional, setFractional] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
@@ -1030,6 +1030,15 @@ export default function CalculusAbacus() {
                 className="accent-[hsl(199_89%_70%)]"
               />
               <span className="text-foreground">Connect stones</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={fractional}
+                onChange={(e) => setFractional(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className="text-foreground">Fractional stones</span>
             </label>
             <div className="flex flex-col gap-1 border-t border-border/60 pt-2">
               <label className="flex items-center justify-between gap-2">
