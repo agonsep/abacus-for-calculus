@@ -865,7 +865,13 @@ export default function CalculusAbacus() {
             {uiHidden ? "Show panels" : "Hide panels"}
           </button>
         </div>
-      </div>
+        <button
+          onClick={() => setShowHelp(true)}
+          className="pointer-events-auto h-9 w-9 rounded-full border border-border bg-card/80 font-serif text-lg text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
+          title="How does this work?"
+        >
+          ?
+        </button>
 
       {/* Help dialog */}
       {showHelp && (
