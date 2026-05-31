@@ -815,15 +815,6 @@ export default function CalculusAbacus() {
             />
             <span className="text-foreground">Connect stones</span>
           </label>
-          <label className="flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
-              checked={fractional}
-              onChange={(e) => setFractional(e.target.checked)}
-              className="accent-primary"
-            />
-            <span className="text-foreground">Fractional stones</span>
-          </label>
           <div className="mt-1 flex flex-col gap-1 border-t border-border/60 pt-2">
             <label className="flex items-center justify-between gap-2">
               <span className="text-foreground">Brightness</span>
