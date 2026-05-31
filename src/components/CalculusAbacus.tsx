@@ -622,7 +622,7 @@ export default function CalculusAbacus() {
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showLine, setShowLine] = useState(false);
-  const [fractional, setFractional] = useState(false);
+  const fractional = false;
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
@@ -815,15 +815,6 @@ export default function CalculusAbacus() {
             />
             <span className="text-foreground">Connect stones</span>
           </label>
-          <label className="flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
-              checked={fractional}
-              onChange={(e) => setFractional(e.target.checked)}
-              className="accent-primary"
-            />
-            <span className="text-foreground">Fractional stones</span>
-          </label>
           <div className="mt-1 flex flex-col gap-1 border-t border-border/60 pt-2">
             <label className="flex items-center justify-between gap-2">
               <span className="text-foreground">Brightness</span>
@@ -928,8 +919,7 @@ export default function CalculusAbacus() {
                 the slope <span className="font-mono">dy/dx</span> times Δx.
               </p>
               <p>
-                <strong>Fractional stones</strong> lets values land between whole stones for a more
-                exact picture. <strong>Connect stones</strong> traces a curve through the tops of
+                <strong>Connect stones</strong> traces a curve through the tops of
                 the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps out.
                 The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
                 <strong>drag the orange or red zone</strong> of any column to slide it. The two
