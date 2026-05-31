@@ -1005,6 +1005,10 @@ export default function CalculusAbacus() {
           }}
           className="absolute right-4 bottom-44 z-10 flex w-64 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
         >
+          <p className="text-xs text-muted-foreground">
+            One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
+            Red stones show <span className="text-primary">Δy</span>.
+          </p>
           <label className="flex flex-col gap-1">
             <span className="font-serif text-lg text-primary">y =</span>
             <input
