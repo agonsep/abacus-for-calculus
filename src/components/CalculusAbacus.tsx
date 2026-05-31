@@ -994,6 +994,85 @@ export default function CalculusAbacus() {
             Calculate Δy
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
+          <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={showLine}
+                onChange={(e) => setShowLine(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className="text-foreground">Connect stones</span>
+            </label>
+            <div className="flex flex-col gap-1 border-t border-border/60 pt-2">
+              <label className="flex items-center justify-between gap-2">
+                <span className="text-foreground">Brightness</span>
+                <span className="font-mono text-muted-foreground">{brightness.toFixed(1)}×</span>
+              </label>
+              <input
+                type="range"
+                min={0.2}
+                max={2}
+                step={0.1}
+                value={brightness}
+                onChange={(e) => setBrightness(Number(e.target.value))}
+                className="accent-primary"
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2 border-t border-border/60 pt-2">
+              <span className="text-foreground">Zoom</span>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => zoom(-1)}
+                  className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
+                  title="Zoom out"
+                >
+                  −
+                </button>
+                <button
+                  type="button"
+                  onClick={() => zoom(1)}
+                  className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
+                  title="Zoom in"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1 border-t border-border/60 pt-2">
+              <label className="flex items-center justify-between gap-2">
+                <span className="text-foreground">Vertical pan</span>
+                <span className="font-mono text-muted-foreground">{panY.toFixed(1)}</span>
+              </label>
+              <input
+                type="range"
+                min={-3}
+                max={5}
+                step={0.1}
+                value={panY}
+                onChange={(e) => setPanY(Number(e.target.value))}
+                className="accent-primary"
+              />
+            </div>
+            <div className="flex gap-2 border-t border-border/60 pt-2">
+              <button
+                type="button"
+                onClick={() => setUiHidden(true)}
+                className="flex-1 rounded bg-muted px-2 py-1 text-foreground hover:bg-muted/80"
+              >
+                Hide panels
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowHelp(true)}
+                className="h-7 w-7 rounded-full border border-border bg-card font-serif text-foreground hover:bg-muted"
+                title="How does this work?"
+              >
+                ?
+              </button>
+            </div>
+          </div>
         </form>
       )}
     </div>
