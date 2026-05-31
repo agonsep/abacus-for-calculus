@@ -993,7 +993,7 @@ export default function CalculusAbacus() {
             e.preventDefault();
             setup();
           }}
-          className="absolute right-4 bottom-44 z-10 flex w-72 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
+          className="absolute right-4 top-4 z-10 flex w-72 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
         >
           <p className="text-xs text-muted-foreground">
             One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
