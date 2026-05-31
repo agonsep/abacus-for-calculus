@@ -793,12 +793,6 @@ export default function CalculusAbacus() {
           <h1 className="mt-1 font-serif text-3xl font-semibold text-foreground md:text-4xl">
             Calculus
           </h1>
-          {!uiHidden && (
-            <p className="mt-2 text-sm text-muted-foreground">
-              One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
-              Red stones show <span className="text-primary">Δy</span>.
-            </p>
-          )}
         </div>
       </div>
 
