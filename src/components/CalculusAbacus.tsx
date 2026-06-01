@@ -751,7 +751,7 @@ export default function CalculusAbacus() {
   useEffect(() => {
     setup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxStones]);
+  }, [maxStones, fractional]);
 
   const bump = (
     setter: React.Dispatch<React.SetStateAction<number[]>>,
