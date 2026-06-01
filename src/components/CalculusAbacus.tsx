@@ -905,7 +905,7 @@ export default function CalculusAbacus() {
                 <span className="font-mono">min</span> and <span className="font-mono">max</span> of the 11 y-values{" "}
                 and pick a unit so that one <span className="text-[#ff932a]">orange stone</span> is
                 worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in
-                each column is <span className="font-mono">f(x) − min</span>. Only the{" "}
+                each column represents <span className="font-mono">f(x) − min</span>. Only the{" "}
                 <em>differences</em> between columns matter, so anchoring to the minimum makes more
                 efficient use of the stones.
               </p>
