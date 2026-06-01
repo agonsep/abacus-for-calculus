@@ -846,7 +846,7 @@ export default function CalculusAbacus() {
                     +
                   </button>
                 </div>
-                <div className="whitespace-nowrap text-right font-mono text-foreground/80">
+                <div className="whitespace-nowrap font-mono text-foreground/80">
                   est: {formatNum((red[i] ?? 0) * unit / (Number(increment) || 1))}
                 </div>
               </div>
