@@ -712,12 +712,14 @@ export default function CalculusAbacus() {
         xs.push(xv);
         ys.push(y);
       }
-      const maxAbs = Math.max(...ys.map((y) => Math.abs(y)), 1e-9);
+      const yMin = Math.min(...ys);
+      const yMax = Math.max(...ys);
+      const range = Math.max(yMax - yMin, 1e-9);
       const ms = Math.max(25, Math.min(100, Math.round(Number(maxStones)) || 50));
       const avail = Math.min(ms, MAX_PIECES);
-      const u = niceUnit(maxAbs / avail);
+      const u = range / avail;
       const counts = ys.map((y) => {
-        const raw = y / u;
+        const raw = (y - yMin) / u;
         const v = fractional ? raw : Math.round(raw);
         return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
       });
