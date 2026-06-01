@@ -804,14 +804,14 @@ export default function CalculusAbacus() {
 
       {/* Per-column controls */}
       {!uiHidden && (
-        <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-[260px]">
+        <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-[340px]">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             {xValues.map((xv, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
+                className="grid grid-cols-[3rem_auto_auto_1fr] items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
               >
-                <div className="w-12 font-mono text-foreground">x={formatNum(xv)}</div>
+                <div className="font-mono text-foreground">x={formatNum(xv)}</div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
@@ -846,8 +846,8 @@ export default function CalculusAbacus() {
                     +
                   </button>
                 </div>
-                <div className="ml-auto whitespace-nowrap font-mono text-foreground/80">
-                  estimate: {formatNum((red[i] ?? 0) * unit / (Number(increment) || 1))}
+                <div className="whitespace-nowrap text-right font-mono text-foreground/80">
+                  est: {formatNum((red[i] ?? 0) * unit / (Number(increment) || 1))}
                 </div>
               </div>
             ))}
