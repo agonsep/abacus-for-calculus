@@ -715,7 +715,7 @@ export default function CalculusAbacus() {
       const yMin = Math.min(...ys);
       const yMax = Math.max(...ys);
       const range = Math.max(yMax - yMin, 1e-9);
-      const ms = Math.max(25, Math.min(100, Math.round(Number(maxStones)) || 50));
+      const ms = Math.max(25, Math.min(80, Math.round(Number(maxStones)) || 50));
       const avail = Math.min(ms, MAX_PIECES);
       const u = range / avail;
       const counts = ys.map((y) => {
@@ -1002,7 +1002,7 @@ export default function CalculusAbacus() {
             <input
               type="number"
               min={25}
-              max={100}
+              max={80}
               step={1}
               value={maxStones}
               onChange={(e) => setMaxStones(e.target.value)}
