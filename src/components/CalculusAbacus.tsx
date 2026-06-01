@@ -846,6 +846,9 @@ export default function CalculusAbacus() {
                     +
                   </button>
                 </div>
+                <div className="ml-auto whitespace-nowrap font-mono text-foreground/80">
+                  estimate: {formatNum((red[i] ?? 0) * unit / (Number(increment) || 1))}
+                </div>
               </div>
             ))}
           </div>
