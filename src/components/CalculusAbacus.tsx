@@ -627,6 +627,7 @@ export default function CalculusAbacus() {
   const [error, setError] = useState<string | null>(null);
   const [showLine, setShowLine] = useState(false);
   const [fractional, setFractional] = useState(false);
+  const [leftCompare, setLeftCompare] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
@@ -737,7 +738,12 @@ export default function CalculusAbacus() {
   };
 
   const calcDiff = () => {
-    const r = orange.map((v, i) => (i === orange.length - 1 ? 0 : Math.abs(orange[i + 1] - v)));
+    const r = orange.map((v, i) => {
+      if (leftCompare) {
+        return i === 0 ? 0 : Math.abs(v - orange[i - 1]);
+      }
+      return i === orange.length - 1 ? 0 : Math.abs(orange[i + 1] - v);
+    });
     setRed(r);
   };
 
@@ -1044,6 +1050,15 @@ export default function CalculusAbacus() {
                 className="accent-[hsl(199_89%_70%)]"
               />
               <span className="text-foreground">Fractional stones</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={leftCompare}
+                onChange={(e) => setLeftCompare(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className="text-foreground">Lefthand comparison</span>
             </label>
             <div className="flex flex-col gap-1 border-t border-border/60 pt-2">
               <label className="flex items-center justify-between gap-2">
