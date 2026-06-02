@@ -627,6 +627,7 @@ export default function CalculusAbacus() {
   const [error, setError] = useState<string | null>(null);
   const [showLine, setShowLine] = useState(false);
   const [fractional, setFractional] = useState(false);
+  const [leftCompare, setLeftCompare] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
