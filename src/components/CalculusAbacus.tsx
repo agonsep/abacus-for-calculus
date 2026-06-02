@@ -1051,6 +1051,15 @@ export default function CalculusAbacus() {
               />
               <span className="text-foreground">Fractional stones</span>
             </label>
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={leftCompare}
+                onChange={(e) => setLeftCompare(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className="text-foreground">Lefthand comparison</span>
+            </label>
             <div className="flex flex-col gap-1 border-t border-border/60 pt-2">
               <label className="flex items-center justify-between gap-2">
                 <span className="text-foreground">Brightness</span>
