@@ -912,13 +912,13 @@ export default function CalculusAbacus() {
                 Move the red stones so they form a second curve in the empty space above the orange stones. This move is a foundational move in calculus. It represents the operation of going from a curve with any number of terms of a variable quantity to a curve based on small differences. One can also use the abacus to make robust estimates of the slope of a tangent or the area under a curve, for an unlimited number of curves. Details about the abacus are below.
               </p>
               <p>
-                Click on <strong>Show panels</strong> to reveal panels with input fields. Each of the{" "}
-                <span className="font-mono">11</span> columns of the abacus represents a value of{" "}
-                <span className="font-mono text-primary">x</span> centered on your <em>midpoint</em>
-                , spaced by your <em>increment</em>.
+                Click on <strong>Show panels</strong> to reveal panels with input fields.
               </p>
               <p>
-                For every column we evaluate{" "}
+                Each of the{" "}
+                <span className="font-mono">11</span> columns of the abacus represents a value of{" "}
+                <span className="font-mono text-primary">x</span> centered on your <em>midpoint</em>
+                , spaced by your <em>increment</em>. For every column we evaluate{" "}
                 <span className="font-mono text-primary">y = f(x)</span> to get{" "}
                 <span className="font-mono">11</span> y-values. Suppose we choose to limit the number of stones in any one column to 50. We find the{" "}
                 <span className="font-mono">min</span> and <span className="font-mono">max</span> of the 11 y-values{" "}
