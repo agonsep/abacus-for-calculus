@@ -766,7 +766,12 @@ export default function CalculusAbacus() {
   }, []);
 
   // Re-fill when max stones changes so the unit label stays in sync
+  const skipRefillRef = useRef(true);
   useEffect(() => {
+    if (skipRefillRef.current) {
+      skipRefillRef.current = false;
+      return;
+    }
     setup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxStones, fractional]);
