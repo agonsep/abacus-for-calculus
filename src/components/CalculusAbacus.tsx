@@ -698,6 +698,7 @@ export default function CalculusAbacus() {
     }
   };
 
+  const firstRunRef = useRef(true);
   const setup = () => {
     try {
       const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
