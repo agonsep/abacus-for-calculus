@@ -913,7 +913,7 @@ export default function CalculusAbacus() {
               </p>
               <p>
                 Click on <strong>Show panels</strong> to reveal panels with input fields. Each of the{" "}
-                <span className="font-mono">11</span> columns represents a value of{" "}
+                <span className="font-mono">11</span> columns of the abacus represents a value of{" "}
                 <span className="font-mono text-primary">x</span> centered on your <em>midpoint</em>
                 , spaced by your <em>increment</em>.
               </p>
