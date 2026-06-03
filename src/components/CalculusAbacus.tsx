@@ -727,7 +727,13 @@ export default function CalculusAbacus() {
       setXValues(xs);
       setUnit(u);
       setOrange(counts);
-      setRed(Array(COLUMNS).fill(0));
+      const initialRed = counts.map((v, i) => {
+        if (leftCompare) {
+          return i === 0 ? 0 : Math.abs(v - counts[i - 1]);
+        }
+        return i === counts.length - 1 ? 0 : Math.abs(counts[i + 1] - v);
+      });
+      setRed(initialRed);
       setShift(Array(COLUMNS).fill(0));
       setRedGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
