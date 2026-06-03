@@ -909,7 +909,7 @@ export default function CalculusAbacus() {
             </div>
             <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
               <p>
-                Move the red stones so they form a second curve in the empty space above the orange stones. This move is a foundational move in calculus. It represents the operation of going from a curve with any number of terms of a variable quantity to a curve based on small differences. One can use the abacus to make robust estimates of the slope of a tangent or the area under a curve, for an unlimited number of curves. Details about the abacus are below.
+                Move the red stones so they form a second curve in the empty space above the orange stones. This move is a foundational move in calculus. It represents the operation of going from a curve with any number of terms of a variable quantity to a curve based on small differences. One can also use the abacus to make robust estimates of the slope of a tangent or the area under a curve, for an unlimited number of curves. Details about the abacus are below.
               </p>
               <p>
                 Click on <strong>Show panels</strong> to reveal panels with input fields. Each of the{" "}
