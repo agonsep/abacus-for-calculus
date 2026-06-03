@@ -903,7 +903,8 @@ export default function CalculusAbacus() {
             </div>
             <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
               <p>
-                Each of the <span className="font-mono">11</span> columns represents a value of{" "}
+                Click on <strong>show panels</strong> to reveal panels with input fields. Each of the{" "}
+                <span className="font-mono">11</span> columns represents a value of{" "}
                 <span className="font-mono text-primary">x</span> centered on your <em>midpoint</em>
                 , spaced by your <em>increment</em>.
               </p>
