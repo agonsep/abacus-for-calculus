@@ -909,7 +909,7 @@ export default function CalculusAbacus() {
             </div>
             <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
               <p>
-                Move the red stones so they form a second curve in the empty space above the orange stones. This move represents the operation of going from a curve with any number of terms of a variable quantity to a curve based on small differences (differences one can imagine to be infinitely small). One can also use the abacus to make robust estimates of the slope of a tangent, or the area under a curve, for an unlimited number of curves. Details about the abacus are below.
+                Move the red stones so they form a second curve in the empty space above the orange stones. This move represents the operation of going from an orange curve to a red curve, where the orange curve corresponds to an equation with any number of terms for a variable quantity and the red curve corresponds to small differences in the variable quantity. By exploring the results of using small increments and even smaller increments, one can begin to imagine what the result would be if one used an infinitely small interval for the orange stones. One can also use the abacus to make robust estimates of the slope of a tangent, or the area under a curve, for an unlimited number of curves. Details about the abacus are below.
               </p>
               <p>
                 Click on <strong>Show panels</strong> to reveal panels with input fields.
