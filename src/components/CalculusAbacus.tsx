@@ -956,20 +956,20 @@ export default function CalculusAbacus() {
             e.preventDefault();
             setup();
           }}
-          className="absolute right-4 top-1/2 z-10 flex w-72 -translate-y-1/2 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
+          className="absolute right-4 top-1/2 z-10 flex w-64 -translate-y-1/2 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
         >
           <button
             type="button"
             onClick={() => setShowHelp(true)}
-            className="absolute right-2 top-2 h-7 w-7 rounded-full border border-border bg-card font-serif text-foreground hover:bg-muted"
+            className="absolute right-2 top-2 flex h-20 w-20 items-center justify-center rounded-full border border-border bg-card font-serif text-5xl leading-none text-foreground hover:bg-muted"
             title="How does this work?"
           >
             ?
           </button>
-          <p className="text-xs text-muted-foreground">
+          <p className="pr-24 text-xs text-muted-foreground">
             One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
           </p>
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 pr-24">
             <span className="font-serif text-lg text-primary">y =</span>
             <input
               value={formula}
