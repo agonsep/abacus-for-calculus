@@ -633,7 +633,7 @@ export default function CalculusAbacus() {
   const [brightness, setBrightness] = useState(1);
   const [zoomTrigger, setZoomTrigger] = useState({ dir: 0, n: 0 });
   const [panY, setPanY] = useState(-1.0);
-  const [uiHidden, setUiHidden] = useState(false);
+  const [uiHidden, setUiHidden] = useState(true);
   const [highlight, setHighlight] = useState<{ i: number; color: "orange" | "red" } | null>(null);
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
