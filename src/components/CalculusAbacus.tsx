@@ -866,13 +866,13 @@ export default function CalculusAbacus() {
         <div className="absolute right-4 top-4 z-20 flex flex-col items-end gap-2">
           <button
             onClick={() => setUiHidden(false)}
-            className="pointer-events-auto h-9 rounded-full border border-border bg-card/80 px-3 text-xs text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
+            className="pointer-events-auto h-12 rounded-full border border-border bg-card/80 px-5 text-base text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
           >
             Show panels
           </button>
           <button
             onClick={() => setShowHelp(true)}
-            className="pointer-events-auto h-9 w-9 rounded-full border border-border bg-card/80 font-serif text-lg text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
+            className="pointer-events-auto h-12 w-12 rounded-full border border-border bg-card/80 font-serif text-2xl text-foreground shadow-lg backdrop-blur-md transition hover:bg-card"
             title="How does this work?"
           >
             ?
