@@ -961,15 +961,15 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={() => setShowHelp(true)}
-            className="absolute right-2 top-2 flex h-20 w-20 items-center justify-center rounded-full border border-border bg-card font-serif text-5xl leading-none text-foreground hover:bg-muted"
+            className="absolute right-2 top-2 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card font-serif text-5xl leading-none text-foreground hover:bg-muted"
             title="How does this work?"
           >
             ?
           </button>
-          <p className="pr-24 text-xs text-muted-foreground">
+          <p className="pr-16 text-xs text-muted-foreground">
             One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
           </p>
-          <label className="flex items-center gap-2 pr-24">
+          <label className="flex items-center gap-2 pr-16">
             <span className="font-serif text-lg text-primary">y =</span>
             <input
               value={formula}
