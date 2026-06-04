@@ -947,7 +947,7 @@ export default function CalculusAbacus() {
                 Click <strong>"Add Red Stones"</strong> to display the differences between neighboring columns.
               </p>
               <p>
-                Drag red stones up into the empty area to form a new curve. Use the <strong>+</strong> and <strong>−</strong> buttons to experiment with the display manually.
+                Drag red stones up into the empty area to form a new curve.
               </p>
               <p>
                 Click <strong>"Connect Stones"</strong> to draw a curve through the tops of the orange stacks.
