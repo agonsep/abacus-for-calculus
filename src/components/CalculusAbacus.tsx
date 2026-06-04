@@ -938,7 +938,7 @@ export default function CalculusAbacus() {
                 Click <strong>"Show Panels"</strong> to reveal the input controls.
               </p>
               <p>
-                Enter an equation and choose a midpoint and increment. Click on <strong>"Full Board"</strong>.
+                Enter an equation and choose a midpoint and increment. Click on <strong>"Fill Board"</strong>.
               </p>
               <p>
                 The abacus displays 11 columns centered on the selected midpoint.
