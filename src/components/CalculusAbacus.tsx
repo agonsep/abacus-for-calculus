@@ -923,7 +923,7 @@ export default function CalculusAbacus() {
                 The Calculus Abacus lets you explore curves, rates of change, and areas using stacks of stones.
               </p>
               <p>
-                The <span className="text-[#ff932a]">orange stones</span> represent the values of <span className="font-mono text-primary">x</span> along a curve. The <span className="text-[#e8352c]">red stones</span> represent the differences between neighboring values of <span className="font-mono text-primary">x</span>. By comparing the red stones produced by small increments with those produced by even smaller increments, you can begin to visualize what happens as the increment approaches zero or what happen if the increment is infinitely small—a central idea behind calculus.
+                The <span className="text-[#ff932a]">orange stones</span> represent the values of <span className="font-mono text-primary">y</span> along a curve. The <span className="text-[#e8352c]">red stones</span> represent the differences between neighboring values of <span className="font-mono text-primary">y</span>. By comparing the red stones produced by small increments with those produced by even smaller increments, you can begin to visualize what happens as the increment approaches zero or what happen if the increment is infinitely small—a central idea behind calculus.
               </p>
               <p>The abacus can be used to:</p>
               <ul className="list-disc space-y-1 pl-6">
