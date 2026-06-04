@@ -931,7 +931,7 @@ export default function CalculusAbacus() {
                 <li>Estimate the slope of a tangent line</li>
                 <li>Explore how differentials or derivatives emerge from differences</li>
                 <li>Estimate the area under a curve</li>
-                <li>Experiment with an unlimited variety of functions</li>
+                <li>Experiment with an unlimited variety of curves</li>
               </ul>
               <h3 className="font-serif text-lg text-foreground pt-2">Getting Started</h3>
               <p>
