@@ -949,9 +949,6 @@ export default function CalculusAbacus() {
               <p>
                 Drag red stones up into the empty area to form a new curve.
               </p>
-              <p>
-                Click <strong>"Connect Stones"</strong> to draw a curve through the tops of the orange stacks.
-              </p>
               <h3 className="font-serif text-lg text-foreground pt-2">How the Orange Stones Work</h3>
               <p>
                 Each of the 11 columns represents a <span className="font-mono text-primary">y</span>-value for each <span className="font-mono text-primary">x</span>. The columns are centered on the chosen midpoint and spaced according to the selected increment.
