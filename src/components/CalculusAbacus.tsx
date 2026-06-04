@@ -963,7 +963,7 @@ export default function CalculusAbacus() {
                 For every column the app evaluates <span className="font-mono text-primary">y(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one orange stone is worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in each column represents <span className="font-mono">y(x) − min</span>.
               </p>
               <p>
-                The number of orange stones in a column represents the <span className="font-mono text-primary">y</span>-value relative to the smallest <span className="font-mono text-primary">y</span>-value currently displayed. Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
+                Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">How the Red Stones Work</h3>
               <p>
