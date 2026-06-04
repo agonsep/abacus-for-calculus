@@ -920,42 +920,83 @@ export default function CalculusAbacus() {
             </div>
             <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
               <p>
-                Move the red stones so they form a second curve in the empty space above the orange stones. This move represents the operation of going from an orange curve to a red curve, where the orange curve corresponds to an equation with any number of terms for a variable quantity and the red curve corresponds to small differences in the variable quantity. By exploring the results of using small increments and even smaller increments, one can begin to imagine what the result would be if one used an infinitely small interval for the sequence of orange stones. One can also use the abacus to make robust estimates of the slope of a tangent, or the area under a curve, for an unlimited number of curves. Details about the abacus are below.
+                The Calculus Abacus lets you explore curves, rates of change, and areas using stacks of stones.
               </p>
               <p>
-                Click on <strong>Show panels</strong> to reveal panels with input fields.
+                The <span className="text-[#ff932a]">orange stones</span> represent the values of <span className="font-mono text-primary">x</span> along a curve. The <span className="text-[#e8352c]">red stones</span> represent the differences between neighboring values of <span className="font-mono text-primary">x</span>. By comparing the red stones produced by small increments with those produced by even smaller increments, you can begin to visualize what happens as the increment approaches zero or what happen if the increment is infinitely small—a central idea behind calculus.
+              </p>
+              <p>The abacus can be used to:</p>
+              <ul className="list-disc space-y-1 pl-6">
+                <li>Visualize the shape of a curve</li>
+                <li>Estimate the slope of a tangent line</li>
+                <li>Explore how differentials or derivatives emerge from differences</li>
+                <li>Estimate the area under a curve</li>
+                <li>Experiment with an unlimited variety of functions</li>
+              </ul>
+              <h3 className="font-serif text-lg text-foreground pt-2">Getting Started</h3>
+              <p>
+                Click <strong>"Show Panels"</strong> to reveal the input controls.
               </p>
               <p>
-                Each of the{" "}
-                <span className="font-mono">11</span> columns of the abacus represents a value of{" "}
-                <span className="font-mono text-primary">x</span> centered on your <em>midpoint</em>
-                , spaced by your <em>increment</em>. For every column we evaluate{" "}
-                <span className="font-mono text-primary">y = f(x)</span> to get{" "}
-                <span className="font-mono">11</span> y-values. Suppose we choose to limit the number of stones in any one column to 50. We find the{" "}
-                <span className="font-mono">min</span> and <span className="font-mono">max</span> of the 11 y-values{" "}
-                and pick a unit so that one <span className="text-[#ff932a]">orange stone</span> is
-                worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in
-                each column represents <span className="font-mono">f(x) − min</span>. Only the{" "}
-                <em>differences</em> between columns matter, so anchoring to the minimum makes more
-                efficient use of the stones.
+                Enter an equation and choose a midpoint and increment. Click on <strong>"Full Board"</strong>.
               </p>
               <p>
-                The button <strong>add red stones</strong> drops{" "}
-                <span className="text-[#e8352c]">red stones</span> next to each column equal to{" "}
-                <span className="font-mono">|y(x + Δx) − y(x)|</span> — the discrete difference to
-                the right.
+                The abacus displays 11 columns centered on the selected midpoint.
               </p>
               <p>
-                To find the slope of the tangent for a particular value of x,
-                multiply the number of red stones in the corresponding column by the value of one orange stone and divide by the
-                increment.
+                Click <strong>"Add Red Stones"</strong> to display the differences between neighboring columns.
               </p>
               <p>
-                <strong>Connect stones</strong> traces a curve through the tops of
-                the orange stacks so the shape of <span className="font-mono">f(x)</span> jumps out.
-                The <strong>±</strong> buttons add or remove stones by hand, and you can{" "}
-                <strong>drag the orange or red zone</strong> of any column to slide it. The two
-                colors move independently, but pushing one into the other shoves both together.
+                Drag stones or use the <strong>+</strong> and <strong>−</strong> buttons to experiment with the display manually.
+              </p>
+              <p>
+                Click <strong>"Connect Stones"</strong> to draw a curve through the tops of the orange stacks.
+              </p>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Orange Stones Work</h3>
+              <p>
+                Each of the 11 columns represents a <span className="font-mono text-primary">y</span>-value for each <span className="font-mono text-primary">x</span>. The columns are centered on the chosen midpoint and spaced according to the selected increment.
+              </p>
+              <p>
+                The abacus automatically determines how many orange stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-primary">y</span>-values and scales the display so that no column exceeds 50 stones.
+              </p>
+              <p>
+                For every column the app evaluates <span className="font-mono text-primary">y(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one orange stone is worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in each column represents <span className="font-mono">y(x) − min</span>.
+              </p>
+              <p>
+                The number of orange stones in a column represents the <span className="font-mono text-primary">y</span>-value relative to the smallest <span className="font-mono text-primary">y</span>-value currently displayed. Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
+              </p>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Red Stones Work</h3>
+              <p>
+                When you click <strong>"Add Red Stones,"</strong> the app places red stones next to each column.
+              </p>
+              <p>The number of red stones represents:</p>
+              <p className="font-mono text-center">|y(x + Δx) − y(x)|</p>
+              <p>
+                In other words, the red stones show how much the function changes as you move one increment to the right.
+              </p>
+              <p>
+                You can move the red stones to form a second curve above the orange curve. This red curve represents differences in the <span className="font-mono text-primary">y</span>-values for points along the curve rather than the <span className="font-mono text-primary">y</span>-values themselves.
+              </p>
+              <h3 className="font-serif text-lg text-foreground pt-2">Estimating the Slope of a Tangent</h3>
+              <p>The red stones can be used to estimate the slope of a tangent line.</p>
+              <p>For a particular column:</p>
+              <ol className="list-decimal space-y-1 pl-6">
+                <li>Count the red stones.</li>
+                <li>Multiply by the value represented by one orange stone.</li>
+                <li>Divide by the increment.</li>
+              </ol>
+              <p>
+                As the increment becomes smaller and smaller, the estimate becomes increasingly close to the true slope of the tangent.
+              </p>
+              <h3 className="font-serif text-lg text-foreground pt-2">Interacting with the Abacus</h3>
+              <p>
+                <strong>Connect Stones</strong> draws a smooth trace through the tops of the orange stacks, making the shape of the function easier to see.
+              </p>
+              <p>
+                The <strong>+</strong> and <strong>−</strong> buttons let you add or remove stones manually.
+              </p>
+              <p>
+                You can also drag the orange or red portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
             </div>
           </div>
