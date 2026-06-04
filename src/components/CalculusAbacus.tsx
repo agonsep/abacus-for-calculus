@@ -954,7 +954,7 @@ export default function CalculusAbacus() {
                 Each of the 11 columns represents a <span className="font-mono text-primary">y</span>-value for each <span className="font-mono text-primary">x</span>. The columns are centered on the chosen midpoint and spaced according to the selected increment.
               </p>
               <p>
-                The abacus automatically determines how many orange stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-primary">y</span>-values and scales the display so that no column exceeds 50 stones.
+                The abacus automatically determines how many orange stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-primary">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
               </p>
               <p>
                 For every column the app evaluates <span className="font-mono text-primary">y(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one orange stone is worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in each column represents <span className="font-mono">y(x) − min</span>.
