@@ -987,7 +987,7 @@ export default function CalculusAbacus() {
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Interacting with the Abacus</h3>
               <p>
-                <strong>Connect Stones</strong> draws a smooth trace through the tops of the orange stacks, making the shape of the curve easier to see.
+                <strong>Connect stones</strong> draws a smooth trace through the tops of the orange stacks, making the shape of the curve easier to see.
               </p>
               <p>
                 The <strong>+</strong> and <strong>−</strong> buttons let you add or remove stones manually.
