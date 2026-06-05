@@ -716,15 +716,29 @@ export default function CalculusAbacus() {
       }
       const yMin = Math.min(...ys);
       const yMax = Math.max(...ys);
-      const range = Math.max(yMax - yMin, 1e-9);
       const ms = Math.max(25, Math.min(80, Math.round(Number(maxStones)) || 50));
       const avail = Math.min(ms, MAX_PIECES);
-      const u = range / avail;
-      const counts = ys.map((y) => {
-        const raw = (y - yMin) / u;
-        const v = fractional ? raw : Math.round(raw);
-        return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
-      });
+      // Special case: y = constant (formula doesn't reference x).
+      const isConstant = !/\bx\b/i.test(cleaned);
+      let u: number;
+      let counts: number[];
+      if (isConstant) {
+        const a = ys[0];
+        u = Math.abs(a) <= ms ? 1 : Math.abs(a) / ms;
+        counts = ys.map((y) => {
+          const raw = y / u;
+          const v = fractional ? raw : Math.round(raw);
+          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+        });
+      } else {
+        const range = Math.max(yMax - yMin, 1e-9);
+        u = range / avail;
+        counts = ys.map((y) => {
+          const raw = (y - yMin) / u;
+          const v = fractional ? raw : Math.round(raw);
+          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+        });
+      }
       setXValues(xs);
       setUnit(u);
       setOrange(counts);
