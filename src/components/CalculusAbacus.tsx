@@ -718,8 +718,8 @@ export default function CalculusAbacus() {
       const yMax = Math.max(...ys);
       const ms = Math.max(25, Math.min(80, Math.round(Number(maxStones)) || 50));
       const avail = Math.min(ms, MAX_PIECES);
-      // Special case: y = constant (formula doesn't reference x).
-      const isConstant = !/\bx\b/i.test(cleaned);
+      // Special case: y = constant (all sampled y values are identical).
+      const isConstant = ys.every((y) => y === ys[0]);
       let u: number;
       let counts: number[];
       if (isConstant) {
