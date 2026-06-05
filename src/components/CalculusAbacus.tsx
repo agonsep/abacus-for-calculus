@@ -1050,18 +1050,18 @@ export default function CalculusAbacus() {
             <span className="font-mono text-sm text-muted-foreground">increment</span>
             <input
               type="number"
-              min={0.05}
-              step={0.05}
+              min={0.01}
+              step={0.01}
               value={increment}
               onChange={(e) => {
                 const v = e.target.value;
                 if (v === "") return setIncrement(v);
                 const n = Number(v);
-                setIncrement(Number.isFinite(n) && n < 0.05 ? "0.05" : v);
+                setIncrement(Number.isFinite(n) && n < 0.01 ? "0.01" : v);
               }}
               onBlur={(e) => {
                 const n = Number(e.target.value);
-                if (!Number.isFinite(n) || n < 0.05) setIncrement("0.05");
+                if (!Number.isFinite(n) || n < 0.01) setIncrement("0.01");
               }}
               className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
