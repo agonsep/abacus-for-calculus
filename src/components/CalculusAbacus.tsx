@@ -832,11 +832,10 @@ export default function CalculusAbacus() {
       {/* Header */}
       <div className="pointer-events-none absolute left-6 top-[10%] z-10 w-[260px]">
         <div className="text-center">
-          <p className="text-sm uppercase tracking-[0.4em] text-muted-foreground">An abacus for</p>
-          <h1 className="mt-2 font-serif text-5xl font-semibold leading-none text-foreground md:text-6xl">
-            Calculus
+          <h1 className="font-serif text-4xl font-semibold leading-tight text-foreground md:text-5xl">
+            The Calculus Abacus
           </h1>
-          <p className="mt-2 text-sm uppercase tracking-[0.4em] text-muted-foreground">An Abacus For Differences</p>
+          <p className="mt-2 text-sm uppercase tracking-[0.4em] text-muted-foreground">an abacus for differences</p>
         </div>
       </div>
 
