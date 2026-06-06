@@ -836,6 +836,7 @@ export default function CalculusAbacus() {
           <h1 className="mt-2 font-serif text-5xl font-semibold leading-none text-foreground md:text-6xl">
             Calculus
           </h1>
+          <p className="mt-2 text-sm uppercase tracking-[0.4em] text-muted-foreground">An Abacus For Differences</p>
         </div>
       </div>
 
