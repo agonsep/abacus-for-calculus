@@ -1134,21 +1134,6 @@ export default function CalculusAbacus() {
               />
               <span className="text-foreground">Lefthand comparison</span>
             </label>
-            <div className="flex flex-col gap-1 border-t border-border/60 pt-2">
-              <label className="flex items-center justify-between gap-2">
-                <span className="text-foreground">Brightness</span>
-                <span className="font-mono text-muted-foreground">{brightness.toFixed(1)}×</span>
-              </label>
-              <input
-                type="range"
-                min={0.2}
-                max={2}
-                step={0.1}
-                value={brightness}
-                onChange={(e) => setBrightness(Number(e.target.value))}
-                className="accent-primary"
-              />
-            </div>
             <div className="flex items-center justify-between gap-2 border-t border-border/60 pt-2">
               <span className="text-foreground">Zoom</span>
               <div className="flex gap-1">
@@ -1169,21 +1154,6 @@ export default function CalculusAbacus() {
                   +
                 </button>
               </div>
-            </div>
-            <div className="flex flex-col gap-1 border-t border-border/60 pt-2">
-              <label className="flex items-center justify-between gap-2">
-                <span className="text-foreground">Vertical pan</span>
-                <span className="font-mono text-muted-foreground">{panY.toFixed(1)}</span>
-              </label>
-              <input
-                type="range"
-                min={-3}
-                max={5}
-                step={0.1}
-                value={panY}
-                onChange={(e) => setPanY(Number(e.target.value))}
-                className="accent-primary"
-              />
             </div>
             <div className="border-t border-border/60 pt-2">
               <button
