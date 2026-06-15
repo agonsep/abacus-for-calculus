@@ -856,7 +856,7 @@ export default function CalculusAbacus() {
                   >
                     −
                   </button>
-                  <span className="w-7 text-center font-mono text-foreground">
+                  <span className="w-10 text-center font-mono text-foreground">
                     {fmtCount(orange[i])}
                   </span>
                   <button
@@ -873,7 +873,7 @@ export default function CalculusAbacus() {
                   >
                     −
                   </button>
-                  <span className="w-7 text-center font-mono text-foreground">
+                  <span className="w-10 text-center font-mono text-foreground">
                     {fmtCount(red[i])}
                   </span>
                   <button
