@@ -805,7 +805,7 @@ export default function CalculusAbacus() {
   };
 
   const fmtCount = (v: number) =>
-    fractional ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v));
+    fractional ? (Math.round(v * 100) / 100).toFixed(2) : String(Math.round(v));
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
