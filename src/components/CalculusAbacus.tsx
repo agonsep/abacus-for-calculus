@@ -278,8 +278,11 @@ function Stacks({
         }
 
         const rVal = red[i] ?? 0;
-        const rFull = Math.floor(rVal);
-        const rFrac = rVal - rFull;
+        const rNeg = rVal < 0;
+        const rAbs = Math.abs(rVal);
+        const redStoneColor = rNeg ? BLACK : RED;
+        const rFull = Math.floor(rAbs);
+        const rFrac = rAbs - rFull;
         const redBase = yFull + (yFrac > 0.01 ? 1 : 0) + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
@@ -289,7 +292,7 @@ function Stacks({
               fromY={skyY + 2}
               targetY={slotY(redBase + k + off)}
               delay={i * 0.04 + (redBase + k) * 0.02}
-              color={RED}
+              color={redStoneColor}
               dim={rDim}
               highlighted={rH}
             />,
@@ -305,7 +308,7 @@ function Stacks({
               fromY={skyY + 2}
               targetY={targetY}
               delay={i * 0.04 + (redBase + rFull) * 0.02}
-              color={RED}
+              color={redStoneColor}
               heightScale={rFrac}
               dim={rDim}
               highlighted={rH}
@@ -731,10 +734,10 @@ export default function CalculusAbacus() {
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
         });
       } else {
-        const range = Math.max(yMax - yMin, 1e-9);
-        u = range / avail;
+        const maxAbs = Math.max(Math.abs(yMin), Math.abs(yMax), 1e-9);
+        u = maxAbs / avail;
         counts = ys.map((y) => {
-          const raw = (y - yMin) / u;
+          const raw = y / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
         });
@@ -745,9 +748,9 @@ export default function CalculusAbacus() {
       if (firstRunRef.current) {
         const initialRed = counts.map((v, i) => {
           if (leftCompare) {
-            return i === 0 ? 0 : Math.abs(v - counts[i - 1]);
+            return i === 0 ? 0 : v - counts[i - 1];
           }
-          return i === counts.length - 1 ? 0 : Math.abs(counts[i + 1] - v);
+          return i === counts.length - 1 ? 0 : counts[i + 1] - v;
         });
         setRed(initialRed);
         firstRunRef.current = false;
@@ -868,7 +871,7 @@ export default function CalculusAbacus() {
                 </div>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => bump(setRed, i, fractional ? -0.1 : -1)}
+                    onClick={() => bump(setRed, i, fractional ? -0.1 : -1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                   >
                     −
@@ -877,7 +880,7 @@ export default function CalculusAbacus() {
                     {fmtCount(red[i])}
                   </span>
                   <button
-                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1)}
+                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                   >
                     +
