@@ -745,9 +745,9 @@ export default function CalculusAbacus() {
       if (firstRunRef.current) {
         const initialRed = counts.map((v, i) => {
           if (leftCompare) {
-            return i === 0 ? 0 : Math.abs(v - counts[i - 1]);
+            return i === 0 ? 0 : v - counts[i - 1];
           }
-          return i === counts.length - 1 ? 0 : Math.abs(counts[i + 1] - v);
+          return i === counts.length - 1 ? 0 : counts[i + 1] - v;
         });
         setRed(initialRed);
         firstRunRef.current = false;
