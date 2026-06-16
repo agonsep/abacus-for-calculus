@@ -880,7 +880,7 @@ export default function CalculusAbacus() {
                     {fmtCount(red[i])}
                   </span>
                   <button
-                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1)}
+                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                   >
                     +
