@@ -731,10 +731,10 @@ export default function CalculusAbacus() {
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
         });
       } else {
-        const range = Math.max(yMax - yMin, 1e-9);
-        u = range / avail;
+        const maxAbs = Math.max(Math.abs(yMin), Math.abs(yMax), 1e-9);
+        u = maxAbs / avail;
         counts = ys.map((y) => {
-          const raw = (y - yMin) / u;
+          const raw = y / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
         });
