@@ -772,11 +772,13 @@ export default function CalculusAbacus() {
   };
 
   const calcDiff = () => {
-    const r = orange.map((v, i) => {
-      if (leftCompare) {
-        return i === 0 ? 0 : v - orange[i - 1];
-      }
-      return i === orange.length - 1 ? 0 : orange[i + 1] - v;
+    const r = yRaw.map((y, i) => {
+      const d = leftCompare
+        ? i === 0 ? 0 : y - yRaw[i - 1]
+        : i === yRaw.length - 1 ? 0 : yRaw[i + 1] - y;
+      const raw = unit === 0 ? 0 : d / unit;
+      const v = fractional ? raw : Math.round(raw);
+      return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
     });
     setRed(r);
   };
