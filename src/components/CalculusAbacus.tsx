@@ -278,8 +278,11 @@ function Stacks({
         }
 
         const rVal = red[i] ?? 0;
-        const rFull = Math.floor(rVal);
-        const rFrac = rVal - rFull;
+        const rNeg = rVal < 0;
+        const rAbs = Math.abs(rVal);
+        const redStoneColor = rNeg ? BLACK : RED;
+        const rFull = Math.floor(rAbs);
+        const rFrac = rAbs - rFull;
         const redBase = yFull + (yFrac > 0.01 ? 1 : 0) + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
@@ -289,7 +292,7 @@ function Stacks({
               fromY={skyY + 2}
               targetY={slotY(redBase + k + off)}
               delay={i * 0.04 + (redBase + k) * 0.02}
-              color={RED}
+              color={redStoneColor}
               dim={rDim}
               highlighted={rH}
             />,
@@ -305,7 +308,7 @@ function Stacks({
               fromY={skyY + 2}
               targetY={targetY}
               delay={i * 0.04 + (redBase + rFull) * 0.02}
-              color={RED}
+              color={redStoneColor}
               heightScale={rFrac}
               dim={rDim}
               highlighted={rH}
