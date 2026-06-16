@@ -16,6 +16,7 @@ const ORANGE = "#ff932a";
 const ORANGE_LIGHT = "#ffb56a";
 const ORANGE_DARK = "#dc5800";
 const BLACK = "#1a1a1a";
+const DARK_GREY = "#4a4a4a";
 const RED = "#e8352c";
 const LINE_COLOR = "#7dd3fc";
 
@@ -280,7 +281,7 @@ function Stacks({
         const rVal = red[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
-        const redStoneColor = rNeg ? BLACK : RED;
+        const redStoneColor = rNeg ? DARK_GREY : RED;
         const rFull = Math.floor(rAbs);
         const rFrac = rAbs - rFull;
         const redBase = yFull + (yFrac > 0.01 ? 1 : 0) + gap;
