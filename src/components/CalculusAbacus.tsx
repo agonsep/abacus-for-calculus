@@ -624,6 +624,7 @@ export default function CalculusAbacus() {
   );
   const [unit, setUnit] = useState(1);
   const [orange, setOrange] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [yRaw, setYRaw] = useState<number[]>(Array(COLUMNS).fill(0));
   const [red, setRed] = useState<number[]>(Array(COLUMNS).fill(0));
   const [shift, setShift] = useState<number[]>(Array(COLUMNS).fill(0));
   const [redGap, setRedGap] = useState<number[]>(Array(COLUMNS).fill(0));
