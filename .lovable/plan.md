@@ -1,25 +1,12 @@
-## Problem
+## Plan
 
-With y=sin(x), clicking **Add Red Stones** produces all-red stones even where differences are negative. The negative-→-dark-grey rendering already works for the initial fill, but the "Add Red Stones" button (`calcDiff`, lines 770–778 in `src/components/CalculusAbacus.tsx`) wraps each difference in `Math.abs`, discarding the sign before it ever reaches the `Pieces` component.
+1. Update the difference calculation to preserve the real sign of `y` changes, not the sign of the scaled orange stack heights.
+2. Store the sampled function values from `Fill Board` and use them when calculating red stones.
+3. Convert those signed function differences back into the current stone scale, so increasing intervals stay red and decreasing intervals become dark grey.
+4. Apply the same signed-difference logic to the initial red stones shown after the first fill.
 
-## Change
+## Technical notes
 
-In `src/components/CalculusAbacus.tsx`, `calcDiff`: drop `Math.abs` so negative differences flow through.
-
-```ts
-const calcDiff = () => {
-  const r = orange.map((v, i) => {
-    if (leftCompare) {
-      return i === 0 ? 0 : v - orange[i - 1];
-    }
-    return i === orange.length - 1 ? 0 : orange[i + 1] - v;
-  });
-  setRed(r);
-};
-```
-
-No other changes — `Pieces` already maps `rVal < 0` to `DARK_GREY`, and the red ± buttons already accept `-MAX_PIECES` as the min.
-
-## Verify
-
-With y=sin(x), midpoint 0, increment 1, click **Add Red Stones**: columns where sin decreases should now render dark-grey red stones.
+- The current red color logic already works: negative red values render dark grey.
+- The remaining issue is that for equations like `y = x - 5`, the board scales orange stones from a baseline, which can turn negative function values into positive stack counts. Differences calculated from those stack counts therefore lose the expected negative sign.
+- The fix is to calculate differences from raw sampled `y` values, then divide by `unit` for display.
