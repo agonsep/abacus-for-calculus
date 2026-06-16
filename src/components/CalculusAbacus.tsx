@@ -747,12 +747,15 @@ export default function CalculusAbacus() {
       setXValues(xs);
       setUnit(u);
       setOrange(counts);
+      setYRaw(ys);
       if (firstRunRef.current) {
-        const initialRed = counts.map((v, i) => {
-          if (leftCompare) {
-            return i === 0 ? 0 : v - counts[i - 1];
-          }
-          return i === counts.length - 1 ? 0 : counts[i + 1] - v;
+        const initialRed = ys.map((y, i) => {
+          const d = leftCompare
+            ? i === 0 ? 0 : y - ys[i - 1]
+            : i === ys.length - 1 ? 0 : ys[i + 1] - y;
+          const raw = d / u;
+          const v = fractional ? raw : Math.round(raw);
+          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
         });
         setRed(initialRed);
         firstRunRef.current = false;
