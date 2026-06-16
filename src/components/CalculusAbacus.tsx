@@ -448,8 +448,10 @@ function DragHandles({
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const oVal = orange[i] ?? 0;
         const rVal = red[i] ?? 0;
-        const oCount = Math.floor(oVal) + (oVal - Math.floor(oVal) > 0.01 ? 1 : 0);
-        const rCount = Math.floor(rVal) + (rVal - Math.floor(rVal) > 0.01 ? 1 : 0);
+        const oAbs = Math.abs(oVal);
+        const rAbs = Math.abs(rVal);
+        const oCount = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) > 0.01 ? 1 : 0);
+        const rCount = Math.floor(rAbs) + (rAbs - Math.floor(rAbs) > 0.01 ? 1 : 0);
         const off = shift[i] ?? 0;
         const gap = redGap[i] ?? 0;
 
