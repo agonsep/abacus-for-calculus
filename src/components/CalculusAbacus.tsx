@@ -648,8 +648,9 @@ export default function CalculusAbacus() {
   // the other color shoves it in the same direction.
   const dragColor = (i: number, color: "orange" | "red", delta: number) => {
     if (color === "orange") {
-      const rIsDarkGrey = (red[i] ?? 0) < 0;
-      if (delta > 0 && !rIsDarkGrey) {
+      {
+        // Orange moves: upper stack (red or dark-grey) stays put → compensate
+        // via redGap. If gap hits 0, remaining shift carries the upper stack.
         // Orange moving up: red rides along (relative position preserved)
         setShift((arr) => {
           const next = arr.slice();
