@@ -648,42 +648,29 @@ export default function CalculusAbacus() {
   // the other color shoves it in the same direction.
   const dragColor = (i: number, color: "orange" | "red", delta: number) => {
     if (color === "orange") {
-      const rIsDarkGrey = (red[i] ?? 0) < 0;
-      if (delta > 0 && !rIsDarkGrey) {
-        // Orange moving up: red rides along (relative position preserved)
-        setShift((arr) => {
+      // Orange moves: upper stack (red or dark-grey) stays put → compensate
+      // via redGap. If gap hits 0, remaining shift carries the upper stack.
+      setShift((curShift) => {
+        const oldOff = curShift[i];
+        const newOff = Math.max(0, Math.min(MAX_PIECES, oldOff + delta));
+        const actualDelta = newOff - oldOff;
+        if (actualDelta === 0) return curShift;
+        setRedGap((arr) => {
           const next = arr.slice();
-          next[i] = Math.max(0, Math.min(MAX_PIECES, next[i] + delta));
+          if (actualDelta < 0) {
+            // orange moved down → grow gap to keep upper stack in place
+            next[i] = Math.max(0, Math.min(MAX_PIECES * 2, arr[i] - actualDelta));
+          } else {
+            // orange moved up → shrink gap up to its current size
+            const reduce = Math.min(arr[i], actualDelta);
+            next[i] = arr[i] - reduce;
+          }
           return next;
         });
-      } else {
-        // Orange moving down, OR orange moving up while dark-grey sits above:
-        // the upper stack stays put → compensate via redGap. Clamp shift in
-        // range; only compensate redGap by the amount orange actually moved.
-        // If redGap hits 0 (orange would collide with dark grey), the
-        // remaining shift carries the dark grey along.
-        setShift((curShift) => {
-          const oldOff = curShift[i];
-          const newOff = Math.max(0, Math.min(MAX_PIECES, oldOff + delta));
-          const actualDelta = newOff - oldOff;
-          if (actualDelta === 0) return curShift;
-          setRedGap((arr) => {
-            const next = arr.slice();
-            if (actualDelta < 0) {
-              // orange moved down → grow gap to keep red/dark-grey in place
-              next[i] = Math.max(0, Math.min(MAX_PIECES * 2, arr[i] - actualDelta));
-            } else {
-              // orange moved up → shrink gap up to its current size
-              const reduce = Math.min(arr[i], actualDelta);
-              next[i] = arr[i] - reduce;
-            }
-            return next;
-          });
-          const next = curShift.slice();
-          next[i] = newOff;
-          return next;
-        });
-      }
+        const next = curShift.slice();
+        next[i] = newOff;
+        return next;
+      });
     } else {
       // Red drag
       if (delta > 0) {
