@@ -1020,7 +1020,7 @@ export default function CalculusAbacus() {
               </p>
               <p>Negative values are represented by black or dark gray stones.</p>
               <p className="pt-4 text-sm text-muted-foreground">
-                Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>.
+                Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>. Creative Commons BY license 2026
               </p>
             </div>
           </div>
