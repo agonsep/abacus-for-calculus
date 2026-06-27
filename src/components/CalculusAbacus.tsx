@@ -1018,6 +1018,7 @@ export default function CalculusAbacus() {
               <p>
                 You can also drag the orange or red portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
+              <p>Negative values are represented by black or dark gray stones.</p>
               <p className="pt-4 text-sm text-muted-foreground">
                 Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>.
               </p>
