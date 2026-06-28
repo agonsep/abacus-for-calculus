@@ -220,6 +220,7 @@ function Stacks({
   redGap,
   runId,
   highlight,
+  increment,
 }: {
   orange: number[];
   red: number[];
@@ -227,7 +228,9 @@ function Stacks({
   redGap: number[];
   runId: number;
   highlight: { i: number; color: "orange" | "red" } | null;
+  increment: number;
 }) {
+  const threshold = increment / 2;
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
@@ -260,7 +263,7 @@ function Stacks({
             />,
           );
         }
-        if (yFrac > 0.01) {
+        if (yFrac > threshold) {
           const baseY = slotY(yFull + off) - PIECE_HEIGHT / 2;
           const targetY = baseY + (PIECE_HEIGHT * yFrac) / 2;
           pieces.push(
@@ -284,7 +287,7 @@ function Stacks({
         const redStoneColor = rNeg ? DARK_GREY : RED;
         const rFull = Math.floor(rAbs);
         const rFrac = rAbs - rFull;
-        const redBase = yFull + (yFrac > 0.01 ? 1 : 0) + gap;
+        const redBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
@@ -299,7 +302,7 @@ function Stacks({
             />,
           );
         }
-        if (rFrac > 0.01) {
+        if (rFrac > threshold) {
           const baseY = slotY(redBase + rFull + off) - PIECE_HEIGHT / 2;
           const targetY = baseY + (PIECE_HEIGHT * rFrac) / 2;
           pieces.push(
@@ -356,6 +359,7 @@ function DragHandles({
   onDrag,
   setDragging,
   onHover,
+  increment,
 }: {
   orange: number[];
   red: number[];
@@ -364,7 +368,9 @@ function DragHandles({
   onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
   onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
+  increment: number;
 }) {
+  const threshold = increment / 2;
   const { camera, gl } = useThree();
   const dragRef = useRef<{
     i: number;
@@ -450,8 +456,8 @@ function DragHandles({
         const rVal = red[i] ?? 0;
         const oAbs = Math.abs(oVal);
         const rAbs = Math.abs(rVal);
-        const oCount = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) > 0.01 ? 1 : 0);
-        const rCount = Math.floor(rAbs) + (rAbs - Math.floor(rAbs) > 0.01 ? 1 : 0);
+        const oCount = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) > threshold ? 1 : 0);
+        const rCount = Math.floor(rAbs) + (rAbs - Math.floor(rAbs) > threshold ? 1 : 0);
         const off = shift[i] ?? 0;
         const gap = redGap[i] ?? 0;
 
@@ -517,6 +523,7 @@ function Scene({
   panY,
   highlight,
   onHover,
+  increment,
 }: {
   orange: number[];
   red: number[];
@@ -533,6 +540,7 @@ function Scene({
   panY: number;
   highlight: { i: number; color: "orange" | "red" } | null;
   onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
+  increment: number;
 }) {
   return (
     <>
@@ -564,6 +572,7 @@ function Scene({
           redGap={redGap}
           runId={runId}
           highlight={highlight}
+          increment={increment}
         />
         {showLine && <ConnectingLine orange={orange} shift={shift} />}
         <DragHandles
@@ -574,6 +583,7 @@ function Scene({
           onDrag={onDrag}
           setDragging={setDragging}
           onHover={onHover}
+          increment={increment}
         />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
           <planeGeometry args={[60, 60]} />
@@ -835,6 +845,7 @@ export default function CalculusAbacus() {
           panY={panY}
           highlight={highlight}
           onHover={setHighlight}
+          increment={Number(increment) || 0.5}
         />
       </Canvas>
 
