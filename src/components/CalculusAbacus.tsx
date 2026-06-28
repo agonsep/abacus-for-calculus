@@ -359,6 +359,7 @@ function DragHandles({
   onDrag,
   setDragging,
   onHover,
+  increment,
 }: {
   orange: number[];
   red: number[];
@@ -367,7 +368,9 @@ function DragHandles({
   onDrag: (i: number, color: "orange" | "red", delta: number) => void;
   setDragging: (b: boolean) => void;
   onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
+  increment: number;
 }) {
+  const threshold = increment / 2;
   const { camera, gl } = useThree();
   const dragRef = useRef<{
     i: number;
