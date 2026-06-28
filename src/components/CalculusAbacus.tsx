@@ -287,7 +287,7 @@ function Stacks({
         const redStoneColor = rNeg ? DARK_GREY : RED;
         const rFull = Math.floor(rAbs);
         const rFrac = rAbs - rFull;
-        const redBase = yFull + (yFrac > 0.01 ? 1 : 0) + gap;
+        const redBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
