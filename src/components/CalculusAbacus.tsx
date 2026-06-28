@@ -572,6 +572,7 @@ function Scene({
           redGap={redGap}
           runId={runId}
           highlight={highlight}
+          increment={increment}
         />
         {showLine && <ConnectingLine orange={orange} shift={shift} />}
         <DragHandles
