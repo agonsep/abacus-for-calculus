@@ -523,6 +523,7 @@ function Scene({
   panY,
   highlight,
   onHover,
+  increment,
 }: {
   orange: number[];
   red: number[];
@@ -539,6 +540,7 @@ function Scene({
   panY: number;
   highlight: { i: number; color: "orange" | "red" } | null;
   onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
+  increment: number;
 }) {
   return (
     <>
