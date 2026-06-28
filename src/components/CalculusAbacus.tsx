@@ -263,7 +263,7 @@ function Stacks({
             />,
           );
         }
-        if (yFrac > 0.01) {
+        if (yFrac > threshold) {
           const baseY = slotY(yFull + off) - PIECE_HEIGHT / 2;
           const targetY = baseY + (PIECE_HEIGHT * yFrac) / 2;
           pieces.push(
