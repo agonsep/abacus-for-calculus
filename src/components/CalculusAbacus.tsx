@@ -456,8 +456,8 @@ function DragHandles({
         const rVal = red[i] ?? 0;
         const oAbs = Math.abs(oVal);
         const rAbs = Math.abs(rVal);
-        const oCount = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) > 0.01 ? 1 : 0);
-        const rCount = Math.floor(rAbs) + (rAbs - Math.floor(rAbs) > 0.01 ? 1 : 0);
+        const oCount = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) > threshold ? 1 : 0);
+        const rCount = Math.floor(rAbs) + (rAbs - Math.floor(rAbs) > threshold ? 1 : 0);
         const off = shift[i] ?? 0;
         const gap = redGap[i] ?? 0;
 
