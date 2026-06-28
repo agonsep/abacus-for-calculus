@@ -583,6 +583,7 @@ function Scene({
           onDrag={onDrag}
           setDragging={setDragging}
           onHover={onHover}
+          increment={increment}
         />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
           <planeGeometry args={[60, 60]} />
