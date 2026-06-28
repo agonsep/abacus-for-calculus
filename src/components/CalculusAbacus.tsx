@@ -845,6 +845,7 @@ export default function CalculusAbacus() {
           panY={panY}
           highlight={highlight}
           onHover={setHighlight}
+          increment={Number(increment) || 0.5}
         />
       </Canvas>
 
