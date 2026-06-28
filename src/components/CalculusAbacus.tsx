@@ -220,6 +220,7 @@ function Stacks({
   redGap,
   runId,
   highlight,
+  increment,
 }: {
   orange: number[];
   red: number[];
@@ -227,7 +228,9 @@ function Stacks({
   redGap: number[];
   runId: number;
   highlight: { i: number; color: "orange" | "red" } | null;
+  increment: number;
 }) {
+  const threshold = increment / 2;
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
