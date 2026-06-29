@@ -208,8 +208,8 @@ function Board({ xValues }: { xValues: number[] }) {
 function formatNum(n: number) {
   if (!isFinite(n)) return "";
   const abs = Math.abs(n);
-  if (abs !== 0 && (abs < 0.01 || abs >= 10000)) return n.toExponential(1);
-  const r = Math.round(n * 1000) / 1000;
+  if (abs !== 0 && (abs < 0.001 || abs >= 10000)) return n.toExponential(1);
+  const r = Math.round(n * 10000) / 10000;
   return String(r);
 }
 
@@ -1085,18 +1085,17 @@ export default function CalculusAbacus() {
             <span className="font-mono text-sm text-muted-foreground">increment</span>
             <input
               type="number"
-              min={0.01}
-              step={0.01}
+              min={0.005}
+              step={0.005}
               value={increment}
               onChange={(e) => {
                 const v = e.target.value;
-                if (v === "") return setIncrement(v);
                 const n = Number(v);
-                setIncrement(Number.isFinite(n) && n < 0.01 ? "0.01" : v);
+                setIncrement(Number.isFinite(n) && n < 0.005 ? "0.005" : v);
               }}
-              onBlur={(e) => {
-                const n = Number(e.target.value);
-                if (!Number.isFinite(n) || n < 0.01) setIncrement("0.01");
+              onBlur={() => {
+                const n = Number(increment);
+                if (!Number.isFinite(n) || n < 0.005) setIncrement("0.005");
               }}
               className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
