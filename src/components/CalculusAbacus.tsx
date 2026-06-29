@@ -208,8 +208,8 @@ function Board({ xValues }: { xValues: number[] }) {
 function formatNum(n: number) {
   if (!isFinite(n)) return "";
   const abs = Math.abs(n);
-  if (abs !== 0 && (abs < 0.001 || abs >= 10000)) return n.toExponential(1);
-  const r = Math.round(n * 10000) / 10000;
+  if (abs !== 0 && (abs < 0.0001 || abs >= 10000)) return n.toExponential(1);
+  const r = Math.round(n * 100000) / 100000;
   return String(r);
 }
 
@@ -1085,20 +1085,21 @@ export default function CalculusAbacus() {
             <span className="font-mono text-sm text-muted-foreground">increment</span>
             <input
               type="number"
-              min={0.005}
-              step={0.005}
+              min={0.001}
+              step={0.001}
               value={increment}
               onChange={(e) => {
-                const v = e.target.value;
-                const n = Number(v);
-                setIncrement(Number.isFinite(n) && n < 0.005 ? "0.005" : v);
+                  const v = e.target.value;
+                  const n = Number(v);
+                  setIncrement(Number.isFinite(n) && n < 0.001 ? "0.001" : v);
               }}
               onBlur={() => {
                 const n = Number(increment);
-                if (!Number.isFinite(n) || n < 0.005) setIncrement("0.005");
+                if (!Number.isFinite(n) || n < 0.001) setIncrement("0.001");
               }}
               className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
+
           </label>
           <label className="flex items-center justify-between gap-2">
             <span className="font-mono text-sm text-muted-foreground">max stones</span>
