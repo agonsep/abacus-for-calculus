@@ -208,8 +208,8 @@ function Board({ xValues }: { xValues: number[] }) {
 function formatNum(n: number) {
   if (!isFinite(n)) return "";
   const abs = Math.abs(n);
-  if (abs !== 0 && (abs < 0.01 || abs >= 10000)) return n.toExponential(1);
-  const r = Math.round(n * 1000) / 1000;
+  if (abs !== 0 && (abs < 0.001 || abs >= 10000)) return n.toExponential(1);
+  const r = Math.round(n * 10000) / 10000;
   return String(r);
 }
 
