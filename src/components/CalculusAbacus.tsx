@@ -1087,13 +1087,19 @@ export default function CalculusAbacus() {
               type="number"
               min={0.001}
               step={0.001}
-...
+              value={increment}
+              onChange={(e) => {
+                  const v = e.target.value;
+                  const n = Number(v);
                   setIncrement(Number.isFinite(n) && n < 0.001 ? "0.001" : v);
-...
+              }}
+              onBlur={() => {
+                const n = Number(increment);
                 if (!Number.isFinite(n) || n < 0.001) setIncrement("0.001");
               }}
               className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
+
           </label>
           <label className="flex items-center justify-between gap-2">
             <span className="font-mono text-sm text-muted-foreground">max stones</span>
