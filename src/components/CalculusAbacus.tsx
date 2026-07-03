@@ -875,7 +875,7 @@ export default function CalculusAbacus() {
                 <div className="w-10 text-center">Change-Size</div>
                 <div className="h-5 w-5" />
               </div>
-              <div className="text-right">Est. Slope</div>
+              <div className="text-right">Slope estimate</div>
             </div>
             {xValues.map((xv, i) => (
               <div
