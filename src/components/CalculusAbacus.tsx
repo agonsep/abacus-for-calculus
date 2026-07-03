@@ -863,7 +863,7 @@ export default function CalculusAbacus() {
       {!uiHidden && (
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
-            <div className="grid grid-cols-[3.5rem_5.5rem_5.5rem_4.5rem] items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground">
+            <div className="grid grid-cols-[2.625rem_5.5rem_5.5rem_4.5rem] items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground">
               <div>x</div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
@@ -880,7 +880,7 @@ export default function CalculusAbacus() {
             {xValues.map((xv, i) => (
               <div
                 key={i}
-                className="grid grid-cols-[3.5rem_5.5rem_5.5rem_4.5rem] items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
+                className="grid grid-cols-[2.625rem_5.5rem_5.5rem_4.5rem] items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
               >
                 <div className="font-mono text-foreground">{formatNum(xv)}</div>
                 <div className="flex items-center justify-center gap-1">
