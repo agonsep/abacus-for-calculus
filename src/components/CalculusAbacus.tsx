@@ -865,8 +865,16 @@ export default function CalculusAbacus() {
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <div className="grid grid-cols-[3rem_auto_auto_auto] items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground">
               <div>x</div>
-              <div className="text-center">Size</div>
-              <div className="text-center">Change-Size</div>
+              <div className="flex items-center justify-center gap-1">
+                <div className="h-5 w-5" />
+                <div className="w-10 text-center">Size</div>
+                <div className="h-5 w-5" />
+              </div>
+              <div className="flex items-center justify-center gap-1">
+                <div className="h-5 w-5" />
+                <div className="w-10 text-center">Change-Size</div>
+                <div className="h-5 w-5" />
+              </div>
               <div className="text-right">Est. Slope</div>
             </div>
             {xValues.map((xv, i) => (
