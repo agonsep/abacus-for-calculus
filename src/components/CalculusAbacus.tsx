@@ -863,12 +863,18 @@ export default function CalculusAbacus() {
       {!uiHidden && (
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
+            <div className="grid grid-cols-[3rem_auto_auto_auto] items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground">
+              <div>x</div>
+              <div className="text-center">Size</div>
+              <div className="text-center">Change-Size</div>
+              <div className="text-right">Est. Slope</div>
+            </div>
             {xValues.map((xv, i) => (
               <div
                 key={i}
                 className="grid grid-cols-[3rem_auto_auto_auto] items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
               >
-                <div className="font-mono text-foreground">x={formatNum(xv)}</div>
+                <div className="font-mono text-foreground">{formatNum(xv)}</div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
