@@ -875,7 +875,7 @@ export default function CalculusAbacus() {
                 className="grid grid-cols-[3rem_auto_auto_auto] items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
               >
                 <div className="font-mono text-foreground">{formatNum(xv)}</div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center justify-center gap-1">
                   <button
                     onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
