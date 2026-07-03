@@ -1079,7 +1079,6 @@ export default function CalculusAbacus() {
           >
             ?
           </button>
-          <p className="pr-16 text-xs text-muted-foreground">
           <label className="flex items-center gap-2 pr-16">
             <span className="font-serif text-lg text-primary">y =</span>
             <input
