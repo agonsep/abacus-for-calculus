@@ -1074,7 +1074,7 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={() => setShowHelp(true)}
-            className="absolute right-2 top-2 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card font-serif text-5xl leading-none text-foreground hover:bg-muted"
+            className="absolute right-2 top-2 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card font-serif text-2xl leading-none text-foreground hover:bg-muted"
             title="How does this work?"
           >
             ?
