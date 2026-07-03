@@ -892,7 +892,7 @@ export default function CalculusAbacus() {
                     +
                   </button>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center justify-center gap-1">
                   <button
                     onClick={() => bump(setRed, i, fractional ? -0.1 : -1, -MAX_PIECES)}
                     className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
@@ -909,8 +909,8 @@ export default function CalculusAbacus() {
                     +
                   </button>
                 </div>
-                <div className="whitespace-nowrap font-mono text-foreground/80">
-                  est: {formatNum((red[i] ?? 0) * unit / (Number(increment) || 1))}
+                <div className="whitespace-nowrap text-right font-mono text-foreground/80">
+                  {formatNum((red[i] ?? 0) * unit / (Number(increment) || 1))}
                 </div>
               </div>
             ))}
