@@ -863,6 +863,9 @@ export default function CalculusAbacus() {
       {!uiHidden && (
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
+            <p className="px-2 text-[10px] text-muted-foreground">
+              One size stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
+            </p>
             <div className="grid grid-cols-[2.5rem_5.5rem_5.5rem_4.5rem] items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground">
               <div>x</div>
               <div className="flex items-center justify-center gap-1">
@@ -1077,8 +1080,6 @@ export default function CalculusAbacus() {
             ?
           </button>
           <p className="pr-16 text-xs text-muted-foreground">
-            One orange stone = <span className="font-mono text-primary">{formatNum(unit)}</span>.
-          </p>
           <label className="flex items-center gap-2 pr-16">
             <span className="font-serif text-lg text-primary">y =</span>
             <input
