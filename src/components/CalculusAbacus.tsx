@@ -1008,7 +1008,7 @@ export default function CalculusAbacus() {
                 The abacus automatically determines how many orange stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-primary">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
               </p>
               <p>
-                For every column the app evaluates <span className="font-mono text-primary">y(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one orange stone is worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in each column represents <span className="font-mono">y(x) − min</span>.
+                For every column the app evaluates <span className="font-mono text-primary">f(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one orange stone is worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in each column represents <span className="font-mono">f(x) − min</span>.
               </p>
               <p>
                 Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
@@ -1019,7 +1019,7 @@ export default function CalculusAbacus() {
                 When you click <strong>"Add Red Stones,"</strong> the app places red stones next to each column.
               </p>
               <p>The number of red stones represents:</p>
-              <p className="font-mono text-center">y(x + Δx) − y(x)</p>
+              <p className="font-mono text-center">f(x + Δx) − f(x)</p>
               <p>
                 The red stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
               </p>
