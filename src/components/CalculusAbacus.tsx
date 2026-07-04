@@ -961,7 +961,7 @@ export default function CalculusAbacus() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-start justify-between">
-              <h2 className="font-serif text-2xl text-foreground">How the abacus works</h2>
+              <h2 className="font-serif text-2xl text-foreground">About the Calculus Abacus</h2>
               <button
                 onClick={() => setShowHelp(false)}
                 className="rounded-md px-2 text-2xl leading-none text-muted-foreground hover:text-foreground"
