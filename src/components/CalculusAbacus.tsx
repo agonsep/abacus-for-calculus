@@ -875,7 +875,7 @@ export default function CalculusAbacus() {
               </div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
-                <div className="w-10 text-center text-[#ff932a]">Change-Size</div>
+                <div className="w-10 text-center text-[#e8352c]">Change-Size</div>
                 <div className="h-5 w-5" />
               </div>
               <div className="text-right">Slope estimate</div>
