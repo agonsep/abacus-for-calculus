@@ -1021,7 +1021,7 @@ export default function CalculusAbacus() {
               <p>The number of red stones represents:</p>
               <p className="font-mono text-center">f(x + Δx) − f(x)</p>
               <p>
-                The red stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
+                where Δx equals the chosen increment. The red stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
               </p>
               <p>
                 You can move the red stones to form a second curve above the orange curve. This red curve represents differences in the <span className="font-mono text-primary">y</span>-values for points along the curve rather than the <span className="font-mono text-primary">y</span>-values themselves.
