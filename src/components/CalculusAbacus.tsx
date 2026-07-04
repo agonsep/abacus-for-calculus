@@ -1019,7 +1019,7 @@ export default function CalculusAbacus() {
                 When you click <strong>"Add Red Stones,"</strong> the app places red stones next to each column.
               </p>
               <p>The number of red stones represents:</p>
-              <p className="font-mono text-center">y(x + Δx) − y(x)</p>
+              <p className="font-mono text-center">f(x + Δx) − f(x)</p>
               <p>
                 The red stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
               </p>
