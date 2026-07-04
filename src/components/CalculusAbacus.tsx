@@ -1147,20 +1147,20 @@ export default function CalculusAbacus() {
             <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
-                checked={showLine}
-                onChange={(e) => setShowLine(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className="text-foreground">Connect stones</span>
-            </label>
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
                 checked={fractional}
                 onChange={(e) => setFractional(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
               <span className="text-foreground">Fractional stones</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={showLine}
+                onChange={(e) => setShowLine(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className="text-foreground">Connect stones</span>
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
