@@ -1013,12 +1013,14 @@ export default function CalculusAbacus() {
               <p>
                 Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
               </p>
+              <p>Negative size values are represented by black stones.</p>
               <h3 className="font-serif text-lg text-foreground pt-2">How the Red Stones Work</h3>
               <p>
                 When you click <strong>"Add Red Stones,"</strong> the app places red stones next to each column.
               </p>
               <p>The number of red stones represents:</p>
-              <p className="font-mono text-center">|y(x + Δx) − y(x)|</p>
+              <p className="font-mono text-center">y(x + Δx) − y(x)</p>
+              <p>Negative change-size values are represented by dark grey stones.</p>
               <p>
                 In other words, the red stones show how much the function changes as you move one increment to the right.
               </p>
@@ -1046,7 +1048,7 @@ export default function CalculusAbacus() {
               <p>
                 You can also drag the orange or red portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
-              <p>Negative values are represented by black or dark gray stones.</p>
+              
               <p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
               <p className="pt-4 text-sm text-muted-foreground">
                 Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>. Creative Commons BY license 2026
