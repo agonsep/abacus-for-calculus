@@ -864,7 +864,7 @@ export default function CalculusAbacus() {
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
-              One <span className="text-[#ff932a]">size-stone</span> = <span className="font-mono">{formatNum(unit)}</span>.
+              One <span className="text-[#ff932a]">size-stone</span> = <span className="font-mono text-foreground">{formatNum(unit)}</span>.
             </p>
             <div className="grid grid-cols-[2.5rem_5.5rem_5.5rem_4.5rem] items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground">
               <div>x</div>
@@ -920,7 +920,7 @@ export default function CalculusAbacus() {
                     +
                   </button>
                 </div>
-                <div className="whitespace-nowrap text-right font-mono text-foreground/80">
+                <div className="whitespace-nowrap text-right font-mono text-foreground">
                   {formatNum((red[i] ?? 0) * unit / (Number(increment) || 1))}
                 </div>
               </div>
