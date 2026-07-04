@@ -640,6 +640,7 @@ export default function CalculusAbacus() {
   const [red, setRed] = useState<number[]>(Array(COLUMNS).fill(0));
   const [shift, setShift] = useState<number[]>(Array(COLUMNS).fill(0));
   const [redGap, setRedGap] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [floorValue, setFloorValue] = useState(0);
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showLine, setShowLine] = useState(false);
@@ -736,23 +737,27 @@ export default function CalculusAbacus() {
       const isConstant = ys.every((y) => y === ys[0]);
       let u: number;
       let counts: number[];
+      let floor: number;
       if (isConstant) {
         const a = ys[0];
         u = Math.abs(a) <= ms ? 1 : Math.abs(a) / ms;
+        floor = 0;
         counts = ys.map((y) => {
           const raw = y / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
         });
       } else {
-        const maxAbs = Math.max(Math.abs(yMin), Math.abs(yMax), 1e-9);
-        u = maxAbs / avail;
+        const range = Math.max(yMax - yMin, 1e-9);
+        u = range / avail;
+        floor = yMin;
         counts = ys.map((y) => {
-          const raw = y / u;
+          const raw = (y - yMin) / u;
           const v = fractional ? raw : Math.round(raw);
-          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+          return Math.max(0, Math.min(MAX_PIECES, v));
         });
       }
+      setFloorValue(floor);
       setXValues(xs);
       setUnit(u);
       setOrange(counts);
@@ -865,6 +870,9 @@ export default function CalculusAbacus() {
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
               One <span className="text-[#ff932a]">size-stone</span> = <span className="font-mono text-foreground">{formatNum(unit)}</span>.
+              {floorValue !== 0 && (
+                <> &nbsp;Floor: <span className="font-mono text-foreground">{formatNum(floorValue)}</span></>
+              )}
             </p>
             <div className="grid grid-cols-[2.5rem_5.5rem_5.5rem_4.5rem] items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground">
               <div>x</div>
