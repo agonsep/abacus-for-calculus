@@ -627,8 +627,8 @@ function CameraController({ trigger }: { trigger: { dir: number; n: number } }) 
 
 export default function CalculusAbacus() {
   const [formula, setFormula] = useState("x^3");
-  const [midpoint, setMidpoint] = useState("5");
-  const [increment, setIncrement] = useState("0.5");
+  const [midpoint, setMidpoint] = useState("2");
+  const [increment, setIncrement] = useState("0.25");
   const [maxStones, setMaxStones] = useState("50");
 
   const [xValues, setXValues] = useState<number[]>(
