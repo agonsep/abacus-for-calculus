@@ -877,17 +877,17 @@ export default function CalculusAbacus() {
             </p>
             <div
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
-              style={{ gridTemplateColumns: `2.1875rem 5.5rem 5.5rem ${slopeHighPrecision ? "6rem" : "2.1875rem"}` }}
+              style={{ gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "6rem" : "2rem"}` }}
             >
               <div>x</div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
-                <div className="w-[2.1875rem] text-center text-[#ff932a]">Size</div>
+                <div className="w-8 text-center text-[#ff932a]">Size</div>
                 <div className="h-5 w-5" />
               </div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
-                <div className="w-[2.1875rem] text-center text-[#e8352c]">Change-Size</div>
+                <div className="w-8 text-center text-[#e8352c]">Change-Size</div>
                 <div className="h-5 w-5" />
               </div>
               <div className="text-right">Slope estimate</div>
@@ -898,7 +898,7 @@ export default function CalculusAbacus() {
                 <div
                   key={i}
                   className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
-                  style={{ gridTemplateColumns: `2.1875rem 5.5rem 5.5rem ${slopeHighPrecision ? "6rem" : "2.1875rem"}` }}
+                  style={{ gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "6rem" : "2rem"}` }}
                 >
                   <div className="font-mono text-foreground">{formatNum(xv)}</div>
                   <div className="flex items-center justify-center gap-1">
@@ -908,7 +908,7 @@ export default function CalculusAbacus() {
                     >
                       −
                     </button>
-                    <span className="w-[2.1875rem] text-center font-mono text-foreground">
+                    <span className="w-8 text-center font-mono text-foreground">
                       {fmtCount(orange[i])}
                     </span>
                     <button
@@ -925,7 +925,7 @@ export default function CalculusAbacus() {
                     >
                       −
                     </button>
-                    <span className="w-[2.1875rem] text-center font-mono text-foreground">
+                    <span className="w-8 text-center font-mono text-foreground">
                       {fmtCount(red[i])}
                     </span>
                     <button
