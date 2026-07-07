@@ -875,15 +875,6 @@ export default function CalculusAbacus() {
                 <> &nbsp;Floor: <span className="font-mono text-foreground">{formatNum(floorValue)}</span></>
               )}
             </p>
-            <label className="flex cursor-pointer items-center gap-2 px-2 text-xs text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={slopeHighPrecision}
-                onChange={(e) => setSlopeHighPrecision(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border bg-background text-foreground"
-              />
-              High-precision slope
-            </label>
             <div
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
               style={{ gridTemplateColumns: `2.5rem 5.5rem 5.5rem ${slopeHighPrecision ? "8rem" : "4.5rem"}` }}
@@ -1195,6 +1186,15 @@ export default function CalculusAbacus() {
                 className="accent-[hsl(199_89%_70%)]"
               />
               <span className="text-foreground">Lefthand comparison</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={slopeHighPrecision}
+                onChange={(e) => setSlopeHighPrecision(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className="text-foreground">High-precision slope</span>
             </label>
             <div className="flex items-center justify-between gap-2 border-t border-border/60 pt-2">
               <span className="text-foreground">Zoom</span>
