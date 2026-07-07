@@ -879,7 +879,7 @@ export default function CalculusAbacus() {
             </p>
             <div
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
-              style={{ gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "5rem" : "2rem"}` }}
+              style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
             >
               <div>x</div>
               <div className="flex items-center justify-center gap-1">
