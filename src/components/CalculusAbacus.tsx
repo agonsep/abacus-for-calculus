@@ -646,6 +646,7 @@ export default function CalculusAbacus() {
   const [showLine, setShowLine] = useState(false);
   const [fractional, setFractional] = useState(false);
   const [leftCompare, setLeftCompare] = useState(false);
+  const [slopeHighPrecision, setSlopeHighPrecision] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
@@ -874,7 +875,19 @@ export default function CalculusAbacus() {
                 <> &nbsp;Floor: <span className="font-mono text-foreground">{formatNum(floorValue)}</span></>
               )}
             </p>
-            <div className="grid grid-cols-[2.5rem_5.5rem_5.5rem_4.5rem] items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground">
+            <label className="flex cursor-pointer items-center gap-2 px-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={slopeHighPrecision}
+                onChange={(e) => setSlopeHighPrecision(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-border bg-background text-foreground"
+              />
+              High-precision slope
+            </label>
+            <div
+              className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
+              style={{ gridTemplateColumns: `2.5rem 5.5rem 5.5rem ${slopeHighPrecision ? "8rem" : "4.5rem"}` }}
+            >
               <div>x</div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
@@ -888,51 +901,55 @@ export default function CalculusAbacus() {
               </div>
               <div className="text-right">Slope estimate</div>
             </div>
-            {xValues.map((xv, i) => (
-              <div
-                key={i}
-                className="grid grid-cols-[2.5rem_5.5rem_5.5rem_4.5rem] items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
-              >
-                <div className="font-mono text-foreground">{formatNum(xv)}</div>
-                <div className="flex items-center justify-center gap-1">
-                  <button
-                    onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                  >
-                    −
-                  </button>
-                  <span className="w-10 text-center font-mono text-foreground">
-                    {fmtCount(orange[i])}
-                  </span>
-                  <button
-                    onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                  >
-                    +
-                  </button>
+            {xValues.map((xv, i) => {
+              const slopeValue = (red[i] ?? 0) * unit / (Number(increment) || 1);
+              return (
+                <div
+                  key={i}
+                  className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
+                  style={{ gridTemplateColumns: `2.5rem 5.5rem 5.5rem ${slopeHighPrecision ? "8rem" : "4.5rem"}` }}
+                >
+                  <div className="font-mono text-foreground">{formatNum(xv)}</div>
+                  <div className="flex items-center justify-center gap-1">
+                    <button
+                      onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                    >
+                      −
+                    </button>
+                    <span className="w-10 text-center font-mono text-foreground">
+                      {fmtCount(orange[i])}
+                    </span>
+                    <button
+                      onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-center gap-1">
+                    <button
+                      onClick={() => bump(setRed, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                    >
+                      −
+                    </button>
+                    <span className="w-10 text-center font-mono text-foreground">
+                      {fmtCount(red[i])}
+                    </span>
+                    <button
+                      onClick={() => bump(setRed, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="whitespace-nowrap text-right font-mono text-foreground">
+                    {slopeHighPrecision ? slopeValue.toFixed(10) : formatNum(slopeValue)}
+                  </div>
                 </div>
-                <div className="flex items-center justify-center gap-1">
-                  <button
-                    onClick={() => bump(setRed, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                  >
-                    −
-                  </button>
-                  <span className="w-10 text-center font-mono text-foreground">
-                    {fmtCount(red[i])}
-                  </span>
-                  <button
-                    onClick={() => bump(setRed, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                    className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                  >
-                    +
-                  </button>
-                </div>
-                <div className="whitespace-nowrap text-right font-mono text-foreground">
-                  {formatNum((red[i] ?? 0) * unit / (Number(increment) || 1))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
