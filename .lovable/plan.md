@@ -1,23 +1,9 @@
-## Plan
+Update the numeric readout widths in the left-hand control panel of the Calculus Abacus so every readout cell is 35 px wide by default.
 
-Add a checkbox near the per-column controls labelled something like "High-precision slope". When checked:
-- The slope estimate column widens from `4.5rem` to a larger value (e.g. `8rem`) so 10 decimal digits fit.
-- Only the slope estimate values are formatted to 10 decimal places using `.toFixed(10)`.
-- All other numeric columns keep the existing `formatNum` behaviour.
+Changes in `src/components/CalculusAbacus.tsx`:
 
-## Technical details
+1. **x column**: shrink grid width from `2.5rem` to `2.1875rem` (35 px).
+2. **Size and Change-size readouts**: replace the inner `w-10` (40 px) spans with `w-[2.1875rem]` (35 px).
+3. **Slope estimate column**: change default width from `3.5rem` to `2.1875rem` (35 px) when "10 decimals" is unchecked; keep the expanded width when the checkbox is checked so the full precision value remains visible.
 
-In `src/components/CalculusAbacus.tsx`:
-1. Add state: `const [slopeHighPrecision, setSlopeHighPrecision] = useState(false)`.
-2. Add a checkbox row just above the column header in the left panel, tied to that state.
-3. Make the slope column width conditional in both the header grid and the row grid, e.g. `slopeHighPrecision ? "8rem" : "4.5rem"`.
-4. In the slope estimate cell, use:
-   ```tsx
-   {slopeHighPrecision
-     ? slopeValue.toFixed(10)
-     : formatNum(slopeValue)}
-   ```
-   where `slopeValue = (red[i] ?? 0) * unit / (Number(increment) || 1)`.
-5. Keep `formatNum` unchanged so other columns are unaffected.
-
-No new dependencies are needed.
+All four numeric readouts will then be 35 px wide in the default state.
