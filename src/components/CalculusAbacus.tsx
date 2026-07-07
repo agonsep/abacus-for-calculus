@@ -877,7 +877,7 @@ export default function CalculusAbacus() {
             </p>
             <div
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
-              style={{ gridTemplateColumns: `2.5rem 5.5rem 5.5rem ${slopeHighPrecision ? "8rem" : "4.5rem"}` }}
+              style={{ gridTemplateColumns: `2.5rem 5.5rem 5.5rem ${slopeHighPrecision ? "6rem" : "3.5rem"}` }}
             >
               <div>x</div>
               <div className="flex items-center justify-center gap-1">
@@ -898,7 +898,7 @@ export default function CalculusAbacus() {
                 <div
                   key={i}
                   className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
-                  style={{ gridTemplateColumns: `2.5rem 5.5rem 5.5rem ${slopeHighPrecision ? "8rem" : "4.5rem"}` }}
+                  style={{ gridTemplateColumns: `2.5rem 5.5rem 5.5rem ${slopeHighPrecision ? "6rem" : "3.5rem"}` }}
                 >
                   <div className="font-mono text-foreground">{formatNum(xv)}</div>
                   <div className="flex items-center justify-center gap-1">
@@ -936,7 +936,7 @@ export default function CalculusAbacus() {
                     </button>
                   </div>
                   <div className="whitespace-nowrap text-right font-mono text-foreground">
-                    {slopeHighPrecision ? slopeValue.toFixed(10) : formatNum(slopeValue)}
+                    {slopeHighPrecision ? slopeValue.toFixed(10) : slopeValue.toFixed(2)}
                   </div>
                 </div>
               );
