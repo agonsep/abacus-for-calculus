@@ -872,9 +872,9 @@ export default function CalculusAbacus() {
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
-              One <span className="text-[#ff932a]">size-stone</span> = <span className="font-mono text-foreground">{formatNum(unit)}</span>.
+              One <span className="text-[#ff932a]">size-stone</span> = <span className="font-mono text-foreground">{slopeHighPrecision ? unit.toFixed(10) : formatNum(unit)}</span>.
               {floorValue !== 0 && (
-                <> &nbsp;Floor: <span className="font-mono text-foreground">{formatNum(floorValue)}</span></>
+                <> &nbsp;Floor: <span className="font-mono text-foreground">{slopeHighPrecision ? floorValue.toFixed(10) : formatNum(floorValue)}</span></>
               )}
             </p>
             <div
