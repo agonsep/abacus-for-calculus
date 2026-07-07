@@ -1,9 +1,11 @@
-Update the numeric readout widths in the left-hand control panel of the Calculus Abacus so every readout cell is 35 px wide by default.
+Update all numeric readout widths in `src/components/CalculusAbacus.tsx` from `2.1875rem` to `2rem` (32px) for cleaner, round rem values.
 
-Changes in `src/components/CalculusAbacus.tsx`:
+Changes:
+- x column grid width: `2.1875rem` → `2rem` in both header and row grid templates.
+- Size and Change-size header cells: `w-[2.1875rem]` → `w-8`.
+- Size and Change-size numeric readouts: `w-[2.1875rem]` → `w-8`.
+- Slope estimate column default width: `2.1875rem` → `2rem` when "10 decimals" is unchecked; keep `6rem` expanded width when checked.
 
-1. **x column**: shrink grid width from `2.5rem` to `2.1875rem` (35 px).
-2. **Size and Change-size readouts**: replace the inner `w-10` (40 px) spans with `w-[2.1875rem]` (35 px).
-3. **Slope estimate column**: change default width from `3.5rem` to `2.1875rem` (35 px) when "10 decimals" is unchecked; keep the expanded width when the checkbox is checked so the full precision value remains visible.
-
-All four numeric readouts will then be 35 px wide in the default state.
+Verification:
+- Confirm build passes.
+- Confirm via browser inspection that the four numeric readout columns render at 32px in the default state and the slope column still expands when "10 decimals" is checked.
