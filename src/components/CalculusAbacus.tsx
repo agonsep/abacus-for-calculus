@@ -1194,7 +1194,7 @@ export default function CalculusAbacus() {
                 onChange={(e) => setSlopeHighPrecision(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className="text-foreground">High-precision slope</span>
+              <span className="text-foreground">10 decimals</span>
             </label>
             <div className="flex items-center justify-between gap-2 border-t border-border/60 pt-2">
               <span className="text-foreground">Zoom</span>
