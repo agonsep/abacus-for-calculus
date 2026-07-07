@@ -910,7 +910,7 @@ export default function CalculusAbacus() {
                     >
                       −
                     </button>
-                    <span className="w-8 text-center font-mono text-foreground">
+                    <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
                       {fmtCount(orange[i])}
                     </span>
                     <button
