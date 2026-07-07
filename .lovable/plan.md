@@ -1,11 +1,23 @@
-Update all numeric readout widths in `src/components/CalculusAbacus.tsx` from `2.1875rem` to `2rem` (32px) for cleaner, round rem values.
+## Change Slope estimate expanded width to 5rem
 
-Changes:
-- x column grid width: `2.1875rem` → `2rem` in both header and row grid templates.
-- Size and Change-size header cells: `w-[2.1875rem]` → `w-8`.
-- Size and Change-size numeric readouts: `w-[2.1875rem]` → `w-8`.
-- Slope estimate column default width: `2.1875rem` → `2rem` when "10 decimals" is unchecked; keep `6rem` expanded width when checked.
+When the "10 decimals" checkbox is checked, the Slope estimate column currently expands to `6rem`. Update it to `5rem` to reduce unused width.
 
-Verification:
+### Change
+In `src/components/CalculusAbacus.tsx`, replace the two conditional `6rem` values with `5rem`:
+- Header grid row (line 880)
+- Data grid rows (line 901)
+
+Both currently read:
+```
+gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "6rem" : "2rem"}`
+```
+
+Update to:
+```
+gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "5rem" : "2rem"}`
+```
+
+### Verification
+- Confirm no `6rem` values remain for the Slope estimate column.
 - Confirm build passes.
-- Confirm via browser inspection that the four numeric readout columns render at 32px in the default state and the slope column still expands when "10 decimals" is checked.
+- Confirm in the preview that checking "10 decimals" expands the Slope estimate column to 5rem (80px at default root font size) and the full value still fits without clipping.
