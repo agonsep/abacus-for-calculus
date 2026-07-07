@@ -830,7 +830,9 @@ export default function CalculusAbacus() {
   };
 
   const fmtCount = (v: number) =>
-    fractional ? (Math.round(v * 100) / 100).toFixed(2) : String(Math.round(v));
+    slopeHighPrecision
+      ? v.toFixed(10)
+      : fractional ? (Math.round(v * 100) / 100).toFixed(2) : String(Math.round(v));
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
@@ -877,7 +879,7 @@ export default function CalculusAbacus() {
             </p>
             <div
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
-              style={{ gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "5rem" : "2rem"}` }}
+              style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
             >
               <div>x</div>
               <div className="flex items-center justify-center gap-1">
@@ -898,7 +900,7 @@ export default function CalculusAbacus() {
                 <div
                   key={i}
                   className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
-                  style={{ gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "5rem" : "2rem"}` }}
+                  style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
                 >
                   <div className="font-mono text-foreground">{formatNum(xv)}</div>
                   <div className="flex items-center justify-center gap-1">
@@ -908,7 +910,7 @@ export default function CalculusAbacus() {
                     >
                       −
                     </button>
-                    <span className="w-8 text-center font-mono text-foreground">
+                    <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
                       {fmtCount(orange[i])}
                     </span>
                     <button
@@ -925,7 +927,7 @@ export default function CalculusAbacus() {
                     >
                       −
                     </button>
-                    <span className="w-8 text-center font-mono text-foreground">
+                    <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
                       {fmtCount(red[i])}
                     </span>
                     <button

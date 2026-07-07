@@ -1,23 +1,31 @@
-## Change Slope estimate expanded width to 5rem
+## Show 10 decimals for Size and Change-Size columns too
 
-When the "10 decimals" checkbox is checked, the Slope estimate column currently expands to `6rem`. Update it to `5rem` to reduce unused width.
+**Difficulty: easy.** All changes stay in `src/components/CalculusAbacus.tsx`, in the same block already used by the "10 decimals" toggle. No new state, no math changes — just formatting and column widths.
 
-### Change
-In `src/components/CalculusAbacus.tsx`, replace the two conditional `6rem` values with `5rem`:
-- Header grid row (line 880)
-- Data grid rows (line 901)
+### What changes
 
-Both currently read:
-```
-gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "6rem" : "2rem"}`
-```
+When the "10 decimals" checkbox (`slopeHighPrecision`) is checked:
+1. The Size cell (`fmtCount(orange[i])`) shows 10 decimals.
+2. The Change-Size cell (`fmtCount(red[i])`) shows 10 decimals.
+3. The Slope estimate cell keeps its existing 10-decimal behavior.
+4. All three columns expand; the two other panel columns (x, and the current 5.5rem stone columns) stay put.
 
-Update to:
-```
-gridTemplateColumns: `2rem 5.5rem 5.5rem ${slopeHighPrecision ? "5rem" : "2rem"}`
-```
+When unchecked, everything renders exactly as it does today.
+
+### Implementation details
+
+In `src/components/CalculusAbacus.tsx`:
+
+- **`fmtCount` (line 832)**: extend to take precision from `slopeHighPrecision`. When true, return `v.toFixed(10)`; otherwise keep current behavior (integer, or 2-decimal in fractional mode).
+- **Grid template (lines 880 and 901)**: widen the 2nd and 3rd tracks when `slopeHighPrecision` is true so the wider number + the two +/− buttons fit on one line. Proposed:
+  - unchecked: `2rem 5.5rem 5.5rem 2rem` (unchanged)
+  - checked: `2rem 10rem 10rem 5rem`
+- **Middle number span** inside Size and Change-Size cells (lines 911 and 928): the current `w-8` clips a 10-decimal string. Switch to `slopeHighPrecision ? "w-24" : "w-8"` (or equivalent) so the value has room while the buttons stay pinned to the sides.
+
+The header labels ("Size", "Change-Size") don't need changes; their center `w-8` sits comfortably inside the wider track.
 
 ### Verification
-- Confirm no `6rem` values remain for the Slope estimate column.
-- Confirm build passes.
-- Confirm in the preview that checking "10 decimals" expands the Slope estimate column to 5rem (80px at default root font size) and the full value still fits without clipping.
+
+- Build passes.
+- With "10 decimals" unchecked: panel looks identical to today.
+- With "10 decimals" checked: Size, Change-Size, and Slope estimate all show 10 decimals; no clipping; +/− buttons still aligned; panel widens but stays within the viewport at normal zoom.
