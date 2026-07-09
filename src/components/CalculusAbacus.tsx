@@ -246,7 +246,7 @@ function Stacks({
 
         const neg = yVal < 0;
         const absVal = Math.abs(yVal);
-        const stoneColor = neg ? BLACK : ORANGE;
+        const stoneColor = neg ? BLACK : RED;
         const yFull = Math.floor(absVal);
         const yFrac = absVal - yFull;
         for (let k = 0; k < yFull; k++) {
@@ -284,7 +284,7 @@ function Stacks({
         const rVal = red[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
-        const redStoneColor = rNeg ? DARK_GREY : RED;
+        const redStoneColor = rNeg ? DARK_GREY : ORANGE;
         const rFull = Math.floor(rAbs);
         const rFrac = rAbs - rFull;
         const redBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
