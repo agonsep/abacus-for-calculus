@@ -248,7 +248,7 @@ function Stacks({
 
         const neg = yVal < 0;
         const absVal = Math.abs(yVal);
-        const stoneColor = neg ? BLACK : RED;
+        const stoneColor = neg ? BLACK : BLUE;
         const yFull = Math.floor(absVal);
         const yFrac = absVal - yFull;
         for (let k = 0; k < yFull; k++) {
