@@ -18,6 +18,8 @@ const ORANGE_DARK = "#dc5800";
 const BLACK = "#1a1a1a";
 const DARK_GREY = "#4a4a4a";
 const RED = "#e8352c";
+const BLUE = "#2563eb";
+const LIGHT_BLUE = "#60a5fa";
 const LINE_COLOR = "#7dd3fc";
 
 let _orangeGradTex: THREE.CanvasTexture | null = null;
@@ -246,7 +248,7 @@ function Stacks({
 
         const neg = yVal < 0;
         const absVal = Math.abs(yVal);
-        const stoneColor = neg ? BLACK : RED;
+        const stoneColor = neg ? BLACK : BLUE;
         const yFull = Math.floor(absVal);
         const yFrac = absVal - yFull;
         for (let k = 0; k < yFull; k++) {
@@ -284,7 +286,7 @@ function Stacks({
         const rVal = red[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
-        const redStoneColor = rNeg ? DARK_GREY : ORANGE;
+        const redStoneColor = rNeg ? DARK_GREY : LIGHT_BLUE;
         const rFull = Math.floor(rAbs);
         const rFrac = rAbs - rFull;
         const redBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
