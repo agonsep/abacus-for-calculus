@@ -18,6 +18,8 @@ const ORANGE_DARK = "#dc5800";
 const BLACK = "#1a1a1a";
 const DARK_GREY = "#4a4a4a";
 const RED = "#e8352c";
+const BLUE = "#2563eb";
+const LIGHT_BLUE = "#60a5fa";
 const LINE_COLOR = "#7dd3fc";
 
 let _orangeGradTex: THREE.CanvasTexture | null = null;
