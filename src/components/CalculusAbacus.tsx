@@ -286,7 +286,7 @@ function Stacks({
         const rVal = red[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
-        const redStoneColor = rNeg ? DARK_GREY : ORANGE;
+        const redStoneColor = rNeg ? DARK_GREY : LIGHT_BLUE;
         const rFull = Math.floor(rAbs);
         const rFrac = rAbs - rFull;
         const redBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
