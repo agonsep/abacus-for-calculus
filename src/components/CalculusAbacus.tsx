@@ -12,12 +12,12 @@ const PIECE_DEPTH = 1.1875 / 1.618;
 const MAX_PIECES = 80;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
-const ORANGE = "#e8352c";
+const ORANGE = "#ff932a";
 const ORANGE_LIGHT = "#ffb56a";
 const ORANGE_DARK = "#dc5800";
 const BLACK = "#1a1a1a";
 const DARK_GREY = "#4a4a4a";
-const RED = "#ff932a";
+const RED = "#e8352c";
 const BLUE = "#2563eb";
 const LIGHT_BLUE = "#60a5fa";
 const LINE_COLOR = "#7dd3fc";
