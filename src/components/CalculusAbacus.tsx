@@ -12,12 +12,12 @@ const PIECE_DEPTH = 1.1875 / 1.618;
 const MAX_PIECES = 80;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
-const ORANGE = "#ff932a";
+const ORANGE = "#e8352c";
 const ORANGE_LIGHT = "#ffb56a";
 const ORANGE_DARK = "#dc5800";
 const BLACK = "#1a1a1a";
 const DARK_GREY = "#4a4a4a";
-const RED = "#e8352c";
+const RED = "#ff932a";
 const BLUE = "#2563eb";
 const LIGHT_BLUE = "#60a5fa";
 const LINE_COLOR = "#7dd3fc";
@@ -216,39 +216,39 @@ function formatNum(n: number) {
 }
 
 function Stacks({
-  orange,
-  red,
+  size,
+  change,
   shift,
-  redGap,
+  changeGap,
   runId,
   highlight,
   increment,
 }: {
-  orange: number[];
-  red: number[];
+  size: number[];
+  change: number[];
   shift: number[];
-  redGap: number[];
+  changeGap: number[];
   runId: number;
-  highlight: { i: number; color: "orange" | "red" } | null;
+  highlight: { i: number; color: "size" | "change" } | null;
   increment: number;
 }) {
   const threshold = increment / 2;
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
-      {orange.map((yVal, i) => {
+      {size.map((yVal, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const off = shift[i] ?? 0;
-        const gap = redGap[i] ?? 0;
+        const gap = changeGap[i] ?? 0;
         const pieces: ReactNode[] = [];
-        const oH = highlight?.i === i && highlight.color === "orange";
-        const rH = highlight?.i === i && highlight.color === "red";
+        const oH = highlight?.i === i && highlight.color === "size";
+        const rH = highlight?.i === i && highlight.color === "change";
         const oDim = highlight !== null && !oH;
         const rDim = highlight !== null && !rH;
 
         const neg = yVal < 0;
         const absVal = Math.abs(yVal);
-        const stoneColor = neg ? BLACK : BLUE;
+        const stoneColor = neg ? BLACK : RED;
         const yFull = Math.floor(absVal);
         const yFrac = absVal - yFull;
         for (let k = 0; k < yFull; k++) {
@@ -283,29 +283,29 @@ function Stacks({
           );
         }
 
-        const rVal = red[i] ?? 0;
+        const rVal = change[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
-        const redStoneColor = rNeg ? DARK_GREY : LIGHT_BLUE;
+        const changeStoneColor = rNeg ? DARK_GREY : ORANGE;
         const rFull = Math.floor(rAbs);
         const rFrac = rAbs - rFull;
-        const redBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
+        const changeBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
               key={`r-${runId}-${i}-${k}`}
               x={x}
               fromY={skyY + 2}
-              targetY={slotY(redBase + k + off)}
-              delay={i * 0.04 + (redBase + k) * 0.02}
-              color={redStoneColor}
+              targetY={slotY(changeBase + k + off)}
+              delay={i * 0.04 + (changeBase + k) * 0.02}
+              color={changeStoneColor}
               dim={rDim}
               highlighted={rH}
             />,
           );
         }
         if (rFrac > threshold) {
-          const baseY = slotY(redBase + rFull + off) - PIECE_HEIGHT / 2;
+          const baseY = slotY(changeBase + rFull + off) - PIECE_HEIGHT / 2;
           const targetY = baseY + (PIECE_HEIGHT * rFrac) / 2;
           pieces.push(
             <Piece
@@ -313,8 +313,8 @@ function Stacks({
               x={x}
               fromY={skyY + 2}
               targetY={targetY}
-              delay={i * 0.04 + (redBase + rFull) * 0.02}
-              color={redStoneColor}
+              delay={i * 0.04 + (changeBase + rFull) * 0.02}
+              color={changeStoneColor}
               heightScale={rFrac}
               dim={rDim}
               highlighted={rH}
@@ -328,16 +328,16 @@ function Stacks({
   );
 }
 
-function ConnectingLine({ orange, shift }: { orange: number[]; shift: number[] }) {
+function ConnectingLine({ size, shift }: { size: number[]; shift: number[] }) {
   const points = useMemo<[number, number, number][]>(
     () =>
-      orange.map((v, i) => {
+      size.map((v, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const off = shift[i] ?? 0;
         const top = PIECE_HEIGHT * (Math.abs(v) + off) + 0.05;
         return [x, top + 0.04, PIECE_DEPTH / 2 + 0.02];
       }),
-    [orange, shift],
+    [size, shift],
   );
   if (points.length < 2) return null;
   return (
@@ -354,29 +354,29 @@ function ConnectingLine({ orange, shift }: { orange: number[]; shift: number[] }
 }
 
 function DragHandles({
-  orange,
-  red,
+  size,
+  change,
   shift,
-  redGap,
+  changeGap,
   onDrag,
   setDragging,
   onHover,
   increment,
 }: {
-  orange: number[];
-  red: number[];
+  size: number[];
+  change: number[];
   shift: number[];
-  redGap: number[];
-  onDrag: (i: number, color: "orange" | "red", delta: number) => void;
+  changeGap: number[];
+  onDrag: (i: number, color: "size" | "change", delta: number) => void;
   setDragging: (b: boolean) => void;
-  onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
+  onHover: (h: { i: number; color: "size" | "change" } | null) => void;
   increment: number;
 }) {
   const threshold = increment / 2;
   const { camera, gl } = useThree();
   const dragRef = useRef<{
     i: number;
-    color: "orange" | "red";
+    color: "size" | "change";
     startY: number;
     accSlots: number;
     cleanup: () => void;
@@ -398,7 +398,7 @@ function DragHandles({
     return point.y;
   };
 
-  const makeHandlers = (i: number, color: "orange" | "red") => ({
+  const makeHandlers = (i: number, color: "size" | "change") => ({
     onPointerDown: (e: PointerEvent) => {
       e.stopPropagation();
       const startY = pointerWorldY(e.clientX, e.clientY);
@@ -454,34 +454,34 @@ function DragHandles({
     <>
       {Array.from({ length: COLUMNS }).map((_, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
-        const oVal = orange[i] ?? 0;
-        const rVal = red[i] ?? 0;
+        const oVal = size[i] ?? 0;
+        const rVal = change[i] ?? 0;
         const oAbs = Math.abs(oVal);
         const rAbs = Math.abs(rVal);
         const oCount = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) > threshold ? 1 : 0);
         const rCount = Math.floor(rAbs) + (rAbs - Math.floor(rAbs) > threshold ? 1 : 0);
         const off = shift[i] ?? 0;
-        const gap = redGap[i] ?? 0;
+        const gap = changeGap[i] ?? 0;
 
-        const orangeTopY = slotY(oCount + off) - PIECE_HEIGHT / 2;
+        const sizeTopY = slotY(oCount + off) - PIECE_HEIGHT / 2;
         const minY = 0.05;
         const maxY = SEPARATOR_HEIGHT + 0.05;
 
-        // Orange handle covers floor → top of orange (or whole column if no orange)
-        let oTop = oCount > 0 ? orangeTopY : rCount > 0 ? minY : maxY;
+        // Size handle covers floor → top of size stack (or whole column if no size stack)
+        let oTop = oCount > 0 ? sizeTopY : rCount > 0 ? minY : maxY;
         const oBottom = minY;
         if (oCount > 0 && oTop - oBottom < MIN_H) {
-          // grow upward (cap before red zone) so small stacks are still grabbable
+          // grow upward (cap before change zone) so small stacks are still grabbable
           const cap = rCount > 0 ? oTop + (MIN_H - (oTop - oBottom)) * 0.5 : oTop + MIN_H;
           oTop = Math.min(cap, maxY);
         }
         const oHeight = Math.max(0.1, oTop - oBottom);
         const oCenter = (oTop + oBottom) / 2;
 
-        // Red handle covers from top of orange upward
-        const rBottom = oCount > 0 ? orangeTopY : minY;
-        const redTopY = slotY(oCount + gap + rCount + off) - PIECE_HEIGHT / 2;
-        let rTop = rCount > 0 ? redTopY : oCount > 0 ? maxY : maxY;
+        // Change handle covers from top of size stack upward
+        const rBottom = oCount > 0 ? sizeTopY : minY;
+        const changeTopY = slotY(oCount + gap + rCount + off) - PIECE_HEIGHT / 2;
+        let rTop = rCount > 0 ? changeTopY : oCount > 0 ? maxY : maxY;
         if (rCount > 0 && rTop - rBottom < MIN_H) {
           rTop = Math.min(rBottom + MIN_H, maxY);
         }
@@ -491,13 +491,13 @@ function DragHandles({
         return (
           <group key={`drag-${i}`}>
             {oCount > 0 && (
-              <mesh position={[x, oCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "orange")}>
+              <mesh position={[x, oCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "size")}>
                 <boxGeometry args={[HIT_W, oHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}
             {rCount > 0 && (
-              <mesh position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "red")}>
+              <mesh position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "change")}>
                 <boxGeometry args={[HIT_W, rHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
@@ -510,10 +510,10 @@ function DragHandles({
 }
 
 function Scene({
-  orange,
-  red,
+  size,
+  change,
   shift,
-  redGap,
+  changeGap,
   xValues,
   runId,
   showLine,
@@ -527,21 +527,21 @@ function Scene({
   onHover,
   increment,
 }: {
-  orange: number[];
-  red: number[];
+  size: number[];
+  change: number[];
   shift: number[];
-  redGap: number[];
+  changeGap: number[];
   xValues: number[];
   runId: number;
   showLine: boolean;
-  onDrag: (i: number, color: "orange" | "red", delta: number) => void;
+  onDrag: (i: number, color: "size" | "change", delta: number) => void;
   setDragging: (b: boolean) => void;
   dragging: boolean;
   brightness: number;
   zoomTrigger: { dir: number; n: number };
   panY: number;
-  highlight: { i: number; color: "orange" | "red" } | null;
-  onHover: (h: { i: number; color: "orange" | "red" } | null) => void;
+  highlight: { i: number; color: "size" | "change" } | null;
+  onHover: (h: { i: number; color: "size" | "change" } | null) => void;
   increment: number;
 }) {
   return (
@@ -568,20 +568,20 @@ function Scene({
       <group position={[0, -panY, 0]}>
         <Board xValues={xValues} />
         <Stacks
-          orange={orange}
-          red={red}
+          size={size}
+          change={change}
           shift={shift}
-          redGap={redGap}
+          changeGap={changeGap}
           runId={runId}
           highlight={highlight}
           increment={increment}
         />
-        {showLine && <ConnectingLine orange={orange} shift={shift} />}
+        {showLine && <ConnectingLine size={size} shift={shift} />}
         <DragHandles
-          orange={orange}
-          red={red}
+          size={size}
+          change={change}
           shift={shift}
-          redGap={redGap}
+          changeGap={changeGap}
           onDrag={onDrag}
           setDragging={setDragging}
           onHover={onHover}
@@ -637,11 +637,11 @@ export default function CalculusAbacus() {
     Array.from({ length: COLUMNS }, (_, i) => i - 5),
   );
   const [unit, setUnit] = useState(1);
-  const [orange, setOrange] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [size, setSize] = useState<number[]>(Array(COLUMNS).fill(0));
   const [yRaw, setYRaw] = useState<number[]>(Array(COLUMNS).fill(0));
-  const [red, setRed] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [change, setChange] = useState<number[]>(Array(COLUMNS).fill(0));
   const [shift, setShift] = useState<number[]>(Array(COLUMNS).fill(0));
-  const [redGap, setRedGap] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [changeGap, setChangeGap] = useState<number[]>(Array(COLUMNS).fill(0));
   const [floorValue, setFloorValue] = useState(0);
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -655,27 +655,27 @@ export default function CalculusAbacus() {
   const [zoomTrigger, setZoomTrigger] = useState({ dir: 0, n: 0 });
   const [panY, setPanY] = useState(-1.0);
   const [uiHidden, setUiHidden] = useState(true);
-  const [highlight, setHighlight] = useState<{ i: number; color: "orange" | "red" } | null>(null);
+  const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
-  // Drag handler: orange and red move independently, but pushing into
+  // Drag handler: size and change stacks move independently, but pushing into
   // the other color shoves it in the same direction.
-  const dragColor = (i: number, color: "orange" | "red", delta: number) => {
-    if (color === "orange") {
-      // Orange moves: upper stack (red or dark-grey) stays put → compensate
-      // via redGap. If gap hits 0, remaining shift carries the upper stack.
+  const dragColor = (i: number, color: "size" | "change", delta: number) => {
+    if (color === "size") {
+      // Size moves: upper stack (change or dark-grey) stays put → compensate
+      // via changeGap. If gap hits 0, remaining shift carries the upper stack.
       setShift((curShift) => {
         const oldOff = curShift[i];
         const newOff = Math.max(0, Math.min(MAX_PIECES, oldOff + delta));
         const actualDelta = newOff - oldOff;
         if (actualDelta === 0) return curShift;
-        setRedGap((arr) => {
+        setChangeGap((arr) => {
           const next = arr.slice();
           if (actualDelta < 0) {
-            // orange moved down → grow gap to keep upper stack in place
+            // size stack moved down → grow gap to keep upper stack in place
             next[i] = Math.max(0, Math.min(MAX_PIECES * 2, arr[i] - actualDelta));
           } else {
-            // orange moved up → shrink gap up to its current size
+            // size stack moved up → shrink gap up to its current size
             const reduce = Math.min(arr[i], actualDelta);
             next[i] = arr[i] - reduce;
           }
@@ -686,18 +686,18 @@ export default function CalculusAbacus() {
         return next;
       });
     } else {
-      // Red drag
+      // Change drag
       if (delta > 0) {
-        // Red moving up: just grows the gap, orange stays
-        setRedGap((arr) => {
+        // Change moving up: just grows the gap, size stack stays
+        setChangeGap((arr) => {
           const next = arr.slice();
           next[i] = Math.max(0, Math.min(MAX_PIECES * 2, next[i] + delta));
           return next;
         });
       } else {
-        // Red moving down: shrink the gap; if it would go negative,
-        // push orange down by the overflow (but not below the board).
-        setRedGap((curGap) => {
+        // Change moving down: shrink the gap; if it would go negative,
+        // push size stack down by the overflow (but not below the board).
+        setChangeGap((curGap) => {
           setShift((curShift) => {
             const newGap = curGap[i] + delta;
             if (newGap < 0) {
@@ -763,10 +763,10 @@ export default function CalculusAbacus() {
       setFloorValue(floor);
       setXValues(xs);
       setUnit(u);
-      setOrange(counts);
+      setSize(counts);
       setYRaw(ys);
       if (firstRunRef.current) {
-        const initialRed = ys.map((y, i) => {
+        const initialChange = ys.map((y, i) => {
           const d = leftCompare
             ? i === 0 ? 0 : y - ys[i - 1]
             : i === ys.length - 1 ? 0 : ys[i + 1] - y;
@@ -774,13 +774,13 @@ export default function CalculusAbacus() {
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
         });
-        setRed(initialRed);
+        setChange(initialChange);
         firstRunRef.current = false;
       } else {
-        setRed(Array(COLUMNS).fill(0));
+        setChange(Array(COLUMNS).fill(0));
       }
       setShift(Array(COLUMNS).fill(0));
-      setRedGap(Array(COLUMNS).fill(0));
+      setChangeGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
       setError(null);
     } catch {
@@ -797,7 +797,7 @@ export default function CalculusAbacus() {
       const v = fractional ? raw : Math.round(raw);
       return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
     });
-    setRed(r);
+    setChange(r);
   };
 
   useEffect(() => {
@@ -840,10 +840,10 @@ export default function CalculusAbacus() {
     <div className="relative h-screen w-full overflow-hidden bg-background">
       <Canvas shadows camera={{ position: [0, 8, 23.6], fov: 45 }} dpr={[1, 2]}>
         <Scene
-          orange={orange}
-          red={red}
+          size={size}
+          change={change}
           shift={shift}
-          redGap={redGap}
+          changeGap={changeGap}
           xValues={xValues}
           runId={runId}
           showLine={showLine}
@@ -874,7 +874,7 @@ export default function CalculusAbacus() {
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
-              One <span className="text-[#ff932a]">size-stone</span> = <span className="font-mono text-foreground">{slopeHighPrecision ? unit.toFixed(10) : formatNum(unit)}</span>.
+              One <span className="text-[#e8352c]">size-stone</span> = <span className="font-mono text-foreground">{slopeHighPrecision ? unit.toFixed(10) : formatNum(unit)}</span>.
               {floorValue !== 0 && (
                 <> &nbsp;Floor: <span className="font-mono text-foreground">{slopeHighPrecision ? floorValue.toFixed(10) : formatNum(floorValue)}</span></>
               )}
@@ -886,18 +886,18 @@ export default function CalculusAbacus() {
               <div>x</div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
-                <div className="w-8 text-center text-[#ff932a]">Size</div>
+                <div className="w-8 text-center text-[#e8352c]">Size</div>
                 <div className="h-5 w-5" />
               </div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
-                <div className="w-8 text-center text-[#e8352c]">Change-Size</div>
+                <div className="w-8 text-center text-[#ff932a]">Change-Size</div>
                 <div className="h-5 w-5" />
               </div>
               <div className="text-right">Slope estimate</div>
             </div>
             {xValues.map((xv, i) => {
-              const slopeValue = (red[i] ?? 0) * unit / (Number(increment) || 1);
+              const slopeValue = (change[i] ?? 0) * unit / (Number(increment) || 1);
               return (
                 <div
                   key={i}
@@ -907,34 +907,34 @@ export default function CalculusAbacus() {
                   <div className="font-mono text-foreground">{formatNum(xv)}</div>
                   <div className="flex items-center justify-center gap-1">
                     <button
-                      onClick={() => bump(setOrange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                      onClick={() => bump(setSize, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                     >
                       −
                     </button>
                     <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
-                      {fmtCount(orange[i])}
+                      {fmtCount(size[i])}
                     </span>
                     <button
-                      onClick={() => bump(setOrange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                      onClick={() => bump(setSize, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                     >
                       +
                     </button>
                   </div>
                   <div className="flex items-center justify-center gap-1">
                     <button
-                      onClick={() => bump(setRed, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                      onClick={() => bump(setChange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
                     >
                       −
                     </button>
                     <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
-                      {fmtCount(red[i])}
+                      {fmtCount(change[i])}
                     </span>
                     <button
-                      onClick={() => bump(setRed, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                      onClick={() => bump(setChange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
                     >
                       +
                     </button>
@@ -994,7 +994,7 @@ export default function CalculusAbacus() {
                 The Calculus Abacus lets you explore curves, rates of change, and areas using stacks of stones.
               </p>
               <p>
-                The <span className="text-[#ff932a]">orange stones</span> (or size-stones) represent amounts. Columns of orange stones represent values of <span className="font-mono text-primary">y</span> along a given curve. The <span className="text-[#e8352c]">red stones</span> (or change-size-stones) represent the differences between neighboring columns of orange stones. Experiment with succesively smaller increments. Do the red stones approach a limit as the increment approaches zero? What would happen if the increment were infinitely small?
+                The <span className="text-[#e8352c]">red stones</span> (or size-stones) represent amounts. Columns of red stones represent values of <span className="font-mono text-primary">y</span> along a given curve. The <span className="text-[#ff932a]">orange stones</span> (or change-size-stones) represent the differences between neighboring columns of red stones. Experiment with succesively smaller increments. Do the orange stones approach a limit as the increment approaches zero? What would happen if the increment were infinitely small?
               </p>
               <p>The abacus can be used to:</p>
               <ul className="list-disc space-y-1 pl-6">
@@ -1015,43 +1015,43 @@ export default function CalculusAbacus() {
                 The abacus displays 11 columns centered on the selected midpoint.
               </p>
               <p>
-                Click <strong>"Add Red Stones"</strong> to display the differences between neighboring columns.
+                Click <strong>"Add Orange Stones"</strong> to display the differences between neighboring columns.
               </p>
               <p>
-                Drag red stones up into the empty area to form a new curve.
+                Drag orange stones up into the empty area to form a new curve.
               </p>
-              <h3 className="font-serif text-lg text-foreground pt-2">How the Orange Stones Work</h3>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Red (Size) Stones Work</h3>
               <p>
                 Each of the 11 columns represents a <span className="font-mono text-primary">y</span>-value for each <span className="font-mono text-primary">x</span>. The columns are centered on the chosen midpoint and spaced according to the selected increment.
               </p>
               <p>
-                The abacus automatically determines how many orange stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-primary">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
+                The abacus automatically determines how many red stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-primary">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
               </p>
               <p>
-                For every column the app evaluates <span className="font-mono text-primary">f(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one orange stone is worth <span className="font-mono">(max − min) / 50</span>. The number of orange stones in each column represents <span className="font-mono">f(x) − min</span>.
+                For every column the app evaluates <span className="font-mono text-primary">f(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one red stone is worth <span className="font-mono">(max − min) / 50</span>. The number of red stones in each column represents <span className="font-mono">f(x) − min</span>.
               </p>
               <p>
                 Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
               </p>
               <p>Negative size values are represented by black stones.</p>
-              <h3 className="font-serif text-lg text-foreground pt-2">How the Red Stones Work</h3>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Orange (Change-Size) Stones Work</h3>
               <p>
-                When you click <strong>"Add Red Stones,"</strong> the app places red stones next to each column.
+                When you click <strong>"Add Orange Stones,"</strong> the app places orange stones next to each column.
               </p>
-              <p>The number of red stones represents:</p>
+              <p>The number of orange stones represents:</p>
               <p className="font-mono text-center">f(x + Δx) − f(x)</p>
               <p>
-                where Δx equals the chosen increment. The red stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
+                where Δx equals the chosen increment. The orange stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
               </p>
               <p>
-                You can move the red stones to form a second curve above the orange curve. This red curve represents differences in the <span className="font-mono text-primary">y</span>-values for points along the curve rather than the <span className="font-mono text-primary">y</span>-values themselves.
+                You can move the orange stones to form a second curve above the red curve. This orange curve represents differences in the <span className="font-mono text-primary">y</span>-values for points along the curve rather than the <span className="font-mono text-primary">y</span>-values themselves.
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Estimating the Slope of a Tangent</h3>
-              <p>The red stones can be used to estimate the slope of a tangent line.</p>
+              <p>The orange stones can be used to estimate the slope of a tangent line.</p>
               <p>For a particular column:</p>
               <ol className="list-decimal space-y-1 pl-6">
-                <li>Count the red stones.</li>
-                <li>Multiply by the value represented by one orange stone.</li>
+                <li>Count the orange stones.</li>
+                <li>Multiply by the value represented by one red stone.</li>
                 <li>Divide by the increment.</li>
               </ol>
               <p>
@@ -1059,13 +1059,13 @@ export default function CalculusAbacus() {
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Interacting with the Abacus</h3>
               <p>
-                <strong>"Connect stones"</strong> traces a line through the tops of the orange stacks, making the shape of the curve easier to see.
+                <strong>"Connect stones"</strong> traces a line through the tops of the red stacks, making the shape of the curve easier to see.
               </p>
               <p>
                 The <strong>+</strong> and <strong>−</strong> buttons let you add or remove stones manually.
               </p>
               <p>
-                You can also drag the orange or red portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
+                You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
               
               <p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
@@ -1158,9 +1158,9 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={calcDiff}
-            className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
+            className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a]"
           >
-            Add Red Stones
+            Add Orange Stones
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
