@@ -1051,7 +1051,7 @@ export default function CalculusAbacus() {
               <p>For a particular column:</p>
               <ol className="list-decimal space-y-1 pl-6">
                 <li>Count the orange stones.</li>
-                <li>Multiply by the value represented by one change stone.</li>
+                <li>Multiply by the value represented by one red stone.</li>
                 <li>Divide by the increment.</li>
               </ol>
               <p>
@@ -1059,7 +1059,7 @@ export default function CalculusAbacus() {
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Interacting with the Abacus</h3>
               <p>
-                <strong>"Connect stones"</strong> traces a line through the tops of the change stacks, making the shape of the curve easier to see.
+                <strong>"Connect stones"</strong> traces a line through the tops of the red stacks, making the shape of the curve easier to see.
               </p>
               <p>
                 The <strong>+</strong> and <strong>−</strong> buttons let you add or remove stones manually.
