@@ -1151,7 +1151,7 @@ export default function CalculusAbacus() {
           </label>
           <button
             type="submit"
-            className="rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:opacity-90"
+            className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
           >
             Fill Board
           </button>
