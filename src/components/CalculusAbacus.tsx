@@ -686,7 +686,7 @@ export default function CalculusAbacus() {
         return next;
       });
     } else {
-      // Red drag
+      // Change drag
       if (delta > 0) {
         // Change moving up: just grows the gap, size stack stays
         setChangeGap((arr) => {
@@ -695,7 +695,7 @@ export default function CalculusAbacus() {
           return next;
         });
       } else {
-        // Red moving down: shrink the gap; if it would go negative,
+        // Change moving down: shrink the gap; if it would go negative,
         // push size stack down by the overflow (but not below the board).
         setChangeGap((curGap) => {
           setShift((curShift) => {
@@ -994,7 +994,7 @@ export default function CalculusAbacus() {
                 The Calculus Abacus lets you explore curves, rates of change, and areas using stacks of stones.
               </p>
               <p>
-                The <span className="text-[#e8352c]">size stones</span> (or size-stones) represent amounts. Columns of size stones represent values of <span className="font-mono text-primary">y</span> along a given curve. The <span className="text-[#ff932a]">change stones</span> (or change-size-stones) represent the differences between neighboring columns of size stones. Experiment with succesively smaller increments. Do the change stones approach a limit as the increment approaches zero? What would happen if the increment were infinitely small?
+                The <span className="text-[#e8352c]">red stones</span> (or size-stones) represent amounts. Columns of red stones represent values of <span className="font-mono text-primary">y</span> along a given curve. The <span className="text-[#ff932a]">orange stones</span> (or change-size-stones) represent the differences between neighboring columns of red stones. Experiment with succesively smaller increments. Do the orange stones approach a limit as the increment approaches zero? What would happen if the increment were infinitely small?
               </p>
               <p>The abacus can be used to:</p>
               <ul className="list-disc space-y-1 pl-6">
@@ -1018,39 +1018,39 @@ export default function CalculusAbacus() {
                 Click <strong>"Add Orange Stones"</strong> to display the differences between neighboring columns.
               </p>
               <p>
-                Drag change stones up into the empty area to form a new curve.
+                Drag orange stones up into the empty area to form a new curve.
               </p>
-              <h3 className="font-serif text-lg text-foreground pt-2">How the Red Stones Work</h3>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Red (Size) Stones Work</h3>
               <p>
                 Each of the 11 columns represents a <span className="font-mono text-primary">y</span>-value for each <span className="font-mono text-primary">x</span>. The columns are centered on the chosen midpoint and spaced according to the selected increment.
               </p>
               <p>
-                The abacus automatically determines how many size stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-primary">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
+                The abacus automatically determines how many red stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-primary">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
               </p>
               <p>
-                For every column the app evaluates <span className="font-mono text-primary">f(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one change stone is worth <span className="font-mono">(max − min) / 50</span>. The number of size stones in each column represents <span className="font-mono">f(x) − min</span>.
+                For every column the app evaluates <span className="font-mono text-primary">f(x)</span> to get 11 <span className="font-mono text-primary">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-primary">y</span>-values and pick a unit so that one red stone is worth <span className="font-mono">(max − min) / 50</span>. The number of red stones in each column represents <span className="font-mono">f(x) − min</span>.
               </p>
               <p>
                 Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
               </p>
               <p>Negative size values are represented by black stones.</p>
-              <h3 className="font-serif text-lg text-foreground pt-2">How the Orange Stones Work</h3>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Orange (Change-Size) Stones Work</h3>
               <p>
-                When you click <strong>"Add Orange Stones,"</strong> the app places change stones next to each column.
+                When you click <strong>"Add Orange Stones,"</strong> the app places orange stones next to each column.
               </p>
-              <p>The number of change stones represents:</p>
+              <p>The number of orange stones represents:</p>
               <p className="font-mono text-center">f(x + Δx) − f(x)</p>
               <p>
-                where Δx equals the chosen increment. The change stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
+                where Δx equals the chosen increment. The orange stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
               </p>
               <p>
-                You can move the change stones to form a second curve above the change curve. This size curve represents differences in the <span className="font-mono text-primary">y</span>-values for points along the curve rather than the <span className="font-mono text-primary">y</span>-values themselves.
+                You can move the orange stones to form a second curve above the red curve. This orange curve represents differences in the <span className="font-mono text-primary">y</span>-values for points along the curve rather than the <span className="font-mono text-primary">y</span>-values themselves.
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Estimating the Slope of a Tangent</h3>
-              <p>The change stones can be used to estimate the slope of a tangent line.</p>
+              <p>The orange stones can be used to estimate the slope of a tangent line.</p>
               <p>For a particular column:</p>
               <ol className="list-decimal space-y-1 pl-6">
-                <li>Count the change stones.</li>
+                <li>Count the orange stones.</li>
                 <li>Multiply by the value represented by one change stone.</li>
                 <li>Divide by the increment.</li>
               </ol>
@@ -1065,7 +1065,7 @@ export default function CalculusAbacus() {
                 The <strong>+</strong> and <strong>−</strong> buttons let you add or remove stones manually.
               </p>
               <p>
-                You can also drag the change or size portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
+                You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
               
               <p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
