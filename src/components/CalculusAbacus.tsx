@@ -1101,7 +1101,7 @@ export default function CalculusAbacus() {
             ?
           </button>
           <label className="flex items-center gap-2 pr-16">
-            <span className="font-serif text-lg text-primary">y =</span>
+            <span className="font-serif text-lg text-white">y =</span>
             <input
               value={formula}
               onChange={(e) => setFormula(e.target.value)}
