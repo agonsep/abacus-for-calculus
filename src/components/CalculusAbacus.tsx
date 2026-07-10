@@ -1160,7 +1160,7 @@ export default function CalculusAbacus() {
             onClick={calcDiff}
             className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a]"
           >
-            Add Orange Stones
+            Find Differences
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
