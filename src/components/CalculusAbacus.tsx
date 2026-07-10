@@ -1015,7 +1015,7 @@ export default function CalculusAbacus() {
                 The abacus displays 11 columns centered on the selected midpoint.
               </p>
               <p>
-                Click <strong>"Add Orange Stones"</strong> to display the differences between neighboring columns.
+                Click <strong>"Find Differences"</strong> to display the differences between neighboring columns.
               </p>
               <p>
                 Drag orange stones up into the empty area to form a new curve.
@@ -1036,7 +1036,7 @@ export default function CalculusAbacus() {
               <p>Negative size values are represented by black stones.</p>
               <h3 className="font-serif text-lg text-foreground pt-2">How the Orange (Change-Size) Stones Work</h3>
               <p>
-                When you click <strong>"Add Orange Stones,"</strong> the app places orange stones next to each column.
+                When you click <strong>"Find Differences,"</strong> the app places orange stones next to each column.
               </p>
               <p>The number of orange stones represents:</p>
               <p className="font-mono text-center">f(x + Δx) − f(x)</p>
