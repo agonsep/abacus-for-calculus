@@ -517,7 +517,6 @@ function Scene({
   panY,
   highlight,
   onHover,
-  increment,
   unit,
   tangentSlope,
 }: {
@@ -536,7 +535,6 @@ function Scene({
   panY: number;
   highlight: { i: number; color: "size" | "change" } | null;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
-  increment: number;
   unit: number;
   tangentSlope: number;
 }) {
@@ -570,7 +568,6 @@ function Scene({
           changeGap={changeGap}
           runId={runId}
           highlight={highlight}
-          increment={increment}
         />
         {showLine && (
           <>
@@ -592,7 +589,6 @@ function Scene({
           onDrag={onDrag}
           setDragging={setDragging}
           onHover={onHover}
-          increment={increment}
         />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
           <planeGeometry args={[60, 60]} />
