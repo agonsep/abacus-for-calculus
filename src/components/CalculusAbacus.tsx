@@ -21,6 +21,7 @@ const RED = "#e8352c";
 const BLUE = "#2563eb";
 const LIGHT_BLUE = "#60a5fa";
 const LINE_COLOR = "#7dd3fc";
+const TANGENT_COLOR = "#facc15";
 
 let _orangeGradTex: THREE.CanvasTexture | null = null;
 function getOrangeGradTex(): THREE.CanvasTexture {
@@ -353,6 +354,36 @@ function ConnectingLine({ size, shift }: { size: number[]; shift: number[] }) {
   );
 }
 
+function TangentLine({
+  size,
+  shift,
+  increment,
+  unit,
+  tangentSlope,
+}: {
+  size: number[];
+  shift: number[];
+  increment: number;
+  unit: number;
+  tangentSlope: number;
+}) {
+  const points = useMemo<[number, number, number][]>(() => {
+    if (unit === 0 || increment === 0 || !isFinite(tangentSlope)) return [];
+    const mid = Math.floor(COLUMNS / 2);
+    const off = shift[mid] ?? 0;
+    const midCount = Math.abs(size[mid]) + off;
+    return size.map((_, i) => {
+      const x = (i - mid) * COL_SPACING;
+      const stoneOffset = (tangentSlope * increment) / unit * (i - mid);
+      const count = midCount + stoneOffset;
+      const y = PIECE_HEIGHT * count + 0.05;
+      return [x, y + 0.04, PIECE_DEPTH / 2 + 0.02];
+    });
+  }, [size, shift, increment, unit, tangentSlope]);
+  if (points.length < 2) return null;
+  return <Line points={points} color={TANGENT_COLOR} lineWidth={3} />;
+}
+
 function DragHandles({
   size,
   change,
@@ -526,6 +557,8 @@ function Scene({
   highlight,
   onHover,
   increment,
+  unit,
+  tangentSlope,
 }: {
   size: number[];
   change: number[];
@@ -543,6 +576,8 @@ function Scene({
   highlight: { i: number; color: "size" | "change" } | null;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
   increment: number;
+  unit: number;
+  tangentSlope: number;
 }) {
   return (
     <>
@@ -576,7 +611,18 @@ function Scene({
           highlight={highlight}
           increment={increment}
         />
-        {showLine && <ConnectingLine size={size} shift={shift} />}
+        {showLine && (
+          <>
+            <ConnectingLine size={size} shift={shift} />
+            <TangentLine
+              size={size}
+              shift={shift}
+              increment={Number(increment)}
+              unit={unit}
+              tangentSlope={tangentSlope}
+            />
+          </>
+        )}
         <DragHandles
           size={size}
           change={change}
@@ -657,6 +703,21 @@ export default function CalculusAbacus() {
   const [uiHidden, setUiHidden] = useState(true);
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
+
+  const tangentSlope = useMemo(() => {
+    try {
+      const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
+      const m = Number(midpoint);
+      if (!isFinite(m)) return 0;
+      const eps = Math.max(1e-7, Math.abs(m) * 1e-7);
+      const yPlus = evaluate(cleaned, { x: m + eps });
+      const yMinus = evaluate(cleaned, { x: m - eps });
+      if (typeof yPlus !== "number" || !isFinite(yPlus) || typeof yMinus !== "number" || !isFinite(yMinus)) return 0;
+      return (yPlus - yMinus) / (2 * eps);
+    } catch {
+      return 0;
+    }
+  }, [formula, midpoint]);
 
   // Drag handler: size and change stacks move independently, but pushing into
   // the other color shoves it in the same direction.
@@ -856,6 +917,8 @@ export default function CalculusAbacus() {
           highlight={highlight}
           onHover={setHighlight}
           increment={Number(increment) || 0.5}
+          unit={unit}
+          tangentSlope={tangentSlope}
         />
       </Canvas>
 
@@ -1059,7 +1122,7 @@ export default function CalculusAbacus() {
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Interacting with the Abacus</h3>
               <p>
-                <strong>"Connect stones"</strong> traces a line through the tops of the red stacks, making the shape of the curve easier to see.
+                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the red stacks and adds a straight line tangent to that curve at the midpoint column.
               </p>
               <p>
                 The <strong>+</strong> and <strong>−</strong> buttons let you add or remove stones manually.
@@ -1180,7 +1243,7 @@ export default function CalculusAbacus() {
                 onChange={(e) => setShowLine(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className="text-foreground">Connect stones</span>
+              <span className="text-foreground">Midpoint Tangent</span>
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
