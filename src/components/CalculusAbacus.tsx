@@ -223,7 +223,6 @@ function Stacks({
   changeGap,
   runId,
   highlight,
-  increment,
 }: {
   size: number[];
   change: number[];
@@ -231,9 +230,7 @@ function Stacks({
   changeGap: number[];
   runId: number;
   highlight: { i: number; color: "size" | "change" } | null;
-  increment: number;
 }) {
-  const threshold = increment / 2;
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
@@ -251,7 +248,6 @@ function Stacks({
         const absVal = Math.abs(yVal);
         const stoneColor = neg ? BLACK : RED;
         const yFull = Math.floor(absVal);
-        const yFrac = absVal - yFull;
         for (let k = 0; k < yFull; k++) {
           pieces.push(
             <Piece
@@ -266,31 +262,13 @@ function Stacks({
             />,
           );
         }
-        if (yFrac > threshold) {
-          const baseY = slotY(yFull + off) - PIECE_HEIGHT / 2;
-          const targetY = baseY + (PIECE_HEIGHT * yFrac) / 2;
-          pieces.push(
-            <Piece
-              key={`yf-${runId}-${i}`}
-              x={x}
-              fromY={skyY}
-              targetY={targetY}
-              delay={i * 0.04 + yFull * 0.02}
-              color={stoneColor}
-              heightScale={yFrac}
-              dim={oDim}
-              highlighted={oH}
-            />,
-          );
-        }
 
         const rVal = change[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
         const changeStoneColor = rNeg ? DARK_GREY : ORANGE;
         const rFull = Math.floor(rAbs);
-        const rFrac = rAbs - rFull;
-        const changeBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
+        const changeBase = yFull + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
@@ -300,23 +278,6 @@ function Stacks({
               targetY={slotY(changeBase + k + off)}
               delay={i * 0.04 + (changeBase + k) * 0.02}
               color={changeStoneColor}
-              dim={rDim}
-              highlighted={rH}
-            />,
-          );
-        }
-        if (rFrac > threshold) {
-          const baseY = slotY(changeBase + rFull + off) - PIECE_HEIGHT / 2;
-          const targetY = baseY + (PIECE_HEIGHT * rFrac) / 2;
-          pieces.push(
-            <Piece
-              key={`rf-${runId}-${i}`}
-              x={x}
-              fromY={skyY + 2}
-              targetY={targetY}
-              delay={i * 0.04 + (changeBase + rFull) * 0.02}
-              color={changeStoneColor}
-              heightScale={rFrac}
               dim={rDim}
               highlighted={rH}
             />,
