@@ -1173,7 +1173,7 @@ export default function CalculusAbacus() {
             />
           </label>
           <label className="flex items-center justify-between gap-2">
-            <span className="font-mono text-sm text-muted-foreground">midpoint</span>
+            <span className="font-mono text-sm text-muted-foreground">Midpoint</span>
             <input
               value={midpoint}
               onChange={(e) => setMidpoint(e.target.value)}
@@ -1181,7 +1181,7 @@ export default function CalculusAbacus() {
             />
           </label>
           <label className="flex items-center justify-between gap-2">
-            <span className="font-mono text-sm text-muted-foreground">increment</span>
+            <span className="font-mono text-sm text-muted-foreground">Increment</span>
             <input
               type="number"
               min={0.001}
@@ -1201,7 +1201,7 @@ export default function CalculusAbacus() {
 
           </label>
           <label className="flex items-center justify-between gap-2">
-            <span className="font-mono text-sm text-muted-foreground">max stones</span>
+            <span className="font-mono text-sm text-muted-foreground">Max Stones</span>
             <input
               type="number"
               min={25}
