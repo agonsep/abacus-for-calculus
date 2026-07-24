@@ -1,25 +1,17 @@
 ## Problem
 
-Toggling the **Fractional stones** checkbox currently calls `setup()`, which resets the `change` array to all zeros (because it isn't the first run). Result: the slope estimate column drops to 0 (or whatever the user last dragged) and doesn't visibly re-round to reflect the checkbox. The user has to click **Find Differences** again to see any change, so it looks like the checkbox has no effect on the estimate.
+The re-round effect at lines 840–865 in `src/components/CalculusAbacus.tsx` unconditionally rebuilds the `change` array from `yRaw` whenever **Fractional stones** is toggled. So if the board has red size-stones but no orange change-size stones yet, checking the box populates `change` and orange stones appear — which shouldn't happen until the user clicks **Find Differences**.
 
 ## Fix
 
-Stop tying the fractional toggle to a full `setup()` refresh. Instead, when `fractional` changes, recompute the `change` array from the existing `yRaw` and `unit` using the same formula as `calcDiff`, rounding or not based on the new value. Also re-round the `size` array from the current `yRaw` and `unit` (and `floorValue`) so the size column and stones update in lockstep.
+Gate the `change` rebuild on whether any orange stones already exist. Only re-round `change` if `change.some(v => v !== 0)`; otherwise leave it alone. `size` continues to re-round unconditionally (red stones are always on the board once filled).
 
-### Steps
+### Change in `src/components/CalculusAbacus.tsx` (fractional effect, ~lines 840–865)
 
-1. In `src/components/CalculusAbacus.tsx`, split the current effect
-   ```ts
-   useEffect(() => { ... setup() ... }, [maxStones, fractional])
-   ```
-   into two:
-   - `[maxStones]` still calls `setup()` (full recompute — unit may change).
-   - `[fractional]` calls a new lightweight `reround()` that:
-     - rebuilds `size` from `yRaw`, `unit`, `floorValue` (constant vs. floor case handled the same way as `setup`), rounding iff `!fractional`.
-     - rebuilds `change` from `yRaw` and `unit` the same way `calcDiff` does, rounding iff `!fractional`.
-     - leaves `shift`, `changeGap`, `xValues`, `unit`, `floorValue`, and formula state untouched.
-2. Keep the existing `skipRefillRef` guard so the initial mount doesn't trigger `reround()`.
+- Compute `newSize` as today and always `setSize(newSize)`.
+- Compute `newChange` only when `change.some(v => v !== 0)`; then `setChange(newChange)`. Skip otherwise.
+- Add `change` to the effect's closure (still suppress the exhaustive-deps lint as today; the effect key stays `[fractional]` so toggling is what triggers it).
 
 ## Result
 
-Toggling **Fractional stones** immediately re-rounds both size and change columns in place, so the slope estimate (`change * unit / increment`) reflects whole-stone values when the box is off and fractional values when it is on — without wiping user state or requiring a click on **Find Differences**.
+Toggling **Fractional stones** re-rounds the size column and the slope estimates for existing orange stones, but never spawns orange stones on a board that has none.
