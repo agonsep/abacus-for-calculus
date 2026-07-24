@@ -851,16 +851,18 @@ export default function CalculusAbacus() {
       const lo = isConstant ? -MAX_PIECES : 0;
       return Math.max(lo, Math.min(MAX_PIECES, v));
     });
-    const newChange = yRaw.map((y, i) => {
-      const d = leftCompare
-        ? i === 0 ? 0 : y - yRaw[i - 1]
-        : i === yRaw.length - 1 ? 0 : yRaw[i + 1] - y;
-      const raw = d / unit;
-      const v = fractional ? raw : Math.round(raw);
-      return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
-    });
     setSize(newSize);
-    setChange(newChange);
+    if (change.some((v) => v !== 0)) {
+      const newChange = yRaw.map((y, i) => {
+        const d = leftCompare
+          ? i === 0 ? 0 : y - yRaw[i - 1]
+          : i === yRaw.length - 1 ? 0 : yRaw[i + 1] - y;
+        const raw = d / unit;
+        const v = fractional ? raw : Math.round(raw);
+        return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+      });
+      setChange(newChange);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fractional]);
 
