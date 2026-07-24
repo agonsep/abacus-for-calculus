@@ -607,7 +607,18 @@ function Scene({
           highlight={highlight}
           increment={increment}
         />
-        {showLine && <ConnectingLine size={size} shift={shift} />}
+        {showLine && (
+          <>
+            <ConnectingLine size={size} shift={shift} />
+            <TangentLine
+              size={size}
+              shift={shift}
+              increment={Number(increment)}
+              unit={unit}
+              tangentSlope={tangentSlope}
+            />
+          </>
+        )}
         <DragHandles
           size={size}
           change={change}
