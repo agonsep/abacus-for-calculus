@@ -354,6 +354,36 @@ function ConnectingLine({ size, shift }: { size: number[]; shift: number[] }) {
   );
 }
 
+function TangentLine({
+  size,
+  shift,
+  increment,
+  unit,
+  tangentSlope,
+}: {
+  size: number[];
+  shift: number[];
+  increment: number;
+  unit: number;
+  tangentSlope: number;
+}) {
+  const points = useMemo<[number, number, number][]>(() => {
+    if (unit === 0 || increment === 0 || !isFinite(tangentSlope)) return [];
+    const mid = Math.floor(COLUMNS / 2);
+    const off = shift[mid] ?? 0;
+    const midCount = Math.abs(size[mid]) + off;
+    return size.map((_, i) => {
+      const x = (i - mid) * COL_SPACING;
+      const stoneOffset = (tangentSlope * increment) / unit * (i - mid);
+      const count = midCount + stoneOffset;
+      const y = PIECE_HEIGHT * count + 0.05;
+      return [x, y + 0.04, PIECE_DEPTH / 2 + 0.02];
+    });
+  }, [size, shift, increment, unit, tangentSlope]);
+  if (points.length < 2) return null;
+  return <Line points={points} color={TANGENT_COLOR} lineWidth={3} />;
+}
+
 function DragHandles({
   size,
   change,
