@@ -1122,7 +1122,7 @@ export default function CalculusAbacus() {
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Interacting with the Abacus</h3>
               <p>
-                <strong>"Connect stones"</strong> traces a line through the tops of the red stacks, making the shape of the curve easier to see.
+                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the red stacks and adds a straight line tangent to that curve at the midpoint column.
               </p>
               <p>
                 The <strong>+</strong> and <strong>−</strong> buttons let you add or remove stones manually.
@@ -1243,7 +1243,7 @@ export default function CalculusAbacus() {
                 onChange={(e) => setShowLine(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className="text-foreground">Connect stones</span>
+              <span className="text-foreground">Midpoint Tangent</span>
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
