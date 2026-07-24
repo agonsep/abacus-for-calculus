@@ -332,7 +332,7 @@ function TangentLine({
     if (unit === 0 || increment === 0 || !isFinite(tangentSlope)) return [];
     const mid = Math.floor(COLUMNS / 2);
     const off = shift[mid] ?? 0;
-    const midCount = Math.abs(size[mid]) + off;
+    const midCount = Math.floor(Math.abs(size[mid])) + off;
     return size.map((_, i) => {
       const x = (i - mid) * COL_SPACING;
       const stoneOffset = (tangentSlope * increment) / unit * (i - mid);
