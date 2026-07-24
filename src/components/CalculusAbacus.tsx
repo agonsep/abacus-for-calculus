@@ -223,7 +223,6 @@ function Stacks({
   changeGap,
   runId,
   highlight,
-  increment,
 }: {
   size: number[];
   change: number[];
@@ -231,9 +230,7 @@ function Stacks({
   changeGap: number[];
   runId: number;
   highlight: { i: number; color: "size" | "change" } | null;
-  increment: number;
 }) {
-  const threshold = increment / 2;
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
@@ -251,7 +248,6 @@ function Stacks({
         const absVal = Math.abs(yVal);
         const stoneColor = neg ? BLACK : RED;
         const yFull = Math.floor(absVal);
-        const yFrac = absVal - yFull;
         for (let k = 0; k < yFull; k++) {
           pieces.push(
             <Piece
@@ -266,31 +262,13 @@ function Stacks({
             />,
           );
         }
-        if (yFrac > threshold) {
-          const baseY = slotY(yFull + off) - PIECE_HEIGHT / 2;
-          const targetY = baseY + (PIECE_HEIGHT * yFrac) / 2;
-          pieces.push(
-            <Piece
-              key={`yf-${runId}-${i}`}
-              x={x}
-              fromY={skyY}
-              targetY={targetY}
-              delay={i * 0.04 + yFull * 0.02}
-              color={stoneColor}
-              heightScale={yFrac}
-              dim={oDim}
-              highlighted={oH}
-            />,
-          );
-        }
 
         const rVal = change[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
         const changeStoneColor = rNeg ? DARK_GREY : ORANGE;
         const rFull = Math.floor(rAbs);
-        const rFrac = rAbs - rFull;
-        const changeBase = yFull + (yFrac > threshold ? 1 : 0) + gap;
+        const changeBase = yFull + gap;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
@@ -300,23 +278,6 @@ function Stacks({
               targetY={slotY(changeBase + k + off)}
               delay={i * 0.04 + (changeBase + k) * 0.02}
               color={changeStoneColor}
-              dim={rDim}
-              highlighted={rH}
-            />,
-          );
-        }
-        if (rFrac > threshold) {
-          const baseY = slotY(changeBase + rFull + off) - PIECE_HEIGHT / 2;
-          const targetY = baseY + (PIECE_HEIGHT * rFrac) / 2;
-          pieces.push(
-            <Piece
-              key={`rf-${runId}-${i}`}
-              x={x}
-              fromY={skyY + 2}
-              targetY={targetY}
-              delay={i * 0.04 + (changeBase + rFull) * 0.02}
-              color={changeStoneColor}
-              heightScale={rFrac}
               dim={rDim}
               highlighted={rH}
             />,
@@ -335,7 +296,7 @@ function ConnectingLine({ size, shift }: { size: number[]; shift: number[] }) {
       size.map((v, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const off = shift[i] ?? 0;
-        const top = PIECE_HEIGHT * (Math.abs(v) + off) + 0.05;
+        const top = PIECE_HEIGHT * (Math.floor(Math.abs(v)) + off) + 0.05;
         return [x, top + 0.04, PIECE_DEPTH / 2 + 0.02];
       }),
     [size, shift],
@@ -371,7 +332,7 @@ function TangentLine({
     if (unit === 0 || increment === 0 || !isFinite(tangentSlope)) return [];
     const mid = Math.floor(COLUMNS / 2);
     const off = shift[mid] ?? 0;
-    const midCount = Math.abs(size[mid]) + off;
+    const midCount = Math.floor(Math.abs(size[mid])) + off;
     return size.map((_, i) => {
       const x = (i - mid) * COL_SPACING;
       const stoneOffset = (tangentSlope * increment) / unit * (i - mid);
@@ -392,7 +353,6 @@ function DragHandles({
   onDrag,
   setDragging,
   onHover,
-  increment,
 }: {
   size: number[];
   change: number[];
@@ -401,9 +361,7 @@ function DragHandles({
   onDrag: (i: number, color: "size" | "change", delta: number) => void;
   setDragging: (b: boolean) => void;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
-  increment: number;
 }) {
-  const threshold = increment / 2;
   const { camera, gl } = useThree();
   const dragRef = useRef<{
     i: number;
@@ -489,8 +447,8 @@ function DragHandles({
         const rVal = change[i] ?? 0;
         const oAbs = Math.abs(oVal);
         const rAbs = Math.abs(rVal);
-        const oCount = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) > threshold ? 1 : 0);
-        const rCount = Math.floor(rAbs) + (rAbs - Math.floor(rAbs) > threshold ? 1 : 0);
+        const oCount = Math.floor(oAbs);
+        const rCount = Math.floor(rAbs);
         const off = shift[i] ?? 0;
         const gap = changeGap[i] ?? 0;
 
@@ -609,7 +567,6 @@ function Scene({
           changeGap={changeGap}
           runId={runId}
           highlight={highlight}
-          increment={increment}
         />
         {showLine && (
           <>
@@ -631,7 +588,6 @@ function Scene({
           onDrag={onDrag}
           setDragging={setDragging}
           onHover={onHover}
-          increment={increment}
         />
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
           <planeGeometry args={[60, 60]} />
