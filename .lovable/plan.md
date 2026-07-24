@@ -1,26 +1,25 @@
-The user wants to stop rendering fractional stones on the 3D board, but keep the `Fractional stones` checkbox and its effect on the numeric values in the left panel. The connecting/tangent line should snap to the top of the visible whole-stone stacks.
+## Problem
 
-## Changes to make
+Toggling the **Fractional stones** checkbox currently calls `setup()`, which resets the `change` array to all zeros (because it isn't the first run). Result: the slope estimate column drops to 0 (or whatever the user last dragged) and doesn't visibly re-round to reflect the checkbox. The user has to click **Find Differences** again to see any change, so it looks like the checkbox has no effect on the estimate.
 
-1. **Stop rendering fractional stones in `Stacks`**
-   - Remove the two `if (yFrac > threshold)` and `if (rFrac > threshold)` blocks that render partial-height `Piece`s.
-   - Keep the whole-stone loops using `Math.floor(absVal)` and `Math.floor(rAbs)` unchanged.
-   - The `increment` prop will no longer be needed in `Stacks`; remove it from `Stacks` and update the `Scene` call site accordingly.
+## Fix
 
-2. **Adjust change-stone base position**
-   - In `Stacks`, set `changeBase = yFull + gap` (no longer adding 1 for a fractional size stone).
+Stop tying the fractional toggle to a full `setup()` refresh. Instead, when `fractional` changes, recompute the `change` array from the existing `yRaw` and `unit` using the same formula as `calcDiff`, rounding or not based on the new value. Also re-round the `size` array from the current `yRaw` and `unit` (and `floorValue`) so the size column and stones update in lockstep.
 
-3. **Adjust drag handles to match visible stacks**
-   - In `DragHandles`, compute `oCount = Math.floor(oAbs)` and `rCount = Math.floor(rAbs)` instead of adding the threshold-based partial stone.
-   - Remove the `increment` prop from `DragHandles` since it is only used for the threshold.
+### Steps
 
-4. **Snap the connecting/tangent line to whole-stone tops**
-   - In `ConnectingLine`, use `Math.floor(Math.abs(v))` for the stack height instead of `Math.abs(v)`.
-   - In `TangentLine`, compute the midpoint height using `Math.floor(Math.abs(size[mid]))` and add the same slope-based offset, so the line still follows the original slope but starts at the visible midpoint stone top.
-
-5. **Leave the left panel and fractional checkbox logic unchanged**
-   - `fmtCount`, `bump` step sizes, and the `fractional` state all continue to show and manipulate fractional values as they do now.
+1. In `src/components/CalculusAbacus.tsx`, split the current effect
+   ```ts
+   useEffect(() => { ... setup() ... }, [maxStones, fractional])
+   ```
+   into two:
+   - `[maxStones]` still calls `setup()` (full recompute — unit may change).
+   - `[fractional]` calls a new lightweight `reround()` that:
+     - rebuilds `size` from `yRaw`, `unit`, `floorValue` (constant vs. floor case handled the same way as `setup`), rounding iff `!fractional`.
+     - rebuilds `change` from `yRaw` and `unit` the same way `calcDiff` does, rounding iff `!fractional`.
+     - leaves `shift`, `changeGap`, `xValues`, `unit`, `floorValue`, and formula state untouched.
+2. Keep the existing `skipRefillRef` guard so the initial mount doesn't trigger `reround()`.
 
 ## Result
 
-The board will display only whole stones, but the left panel still shows precise fractional values (and the `10 decimals` / `Fractional stones` toggles still affect the panel). The connecting line and midpoint tangent line will sit cleanly on top of the visible stacks rather than floating above them.
+Toggling **Fractional stones** immediately re-rounds both size and change columns in place, so the slope estimate (`change * unit / increment`) reflects whole-stone values when the box is off and fractional values when it is on — without wiping user state or requiring a click on **Find Differences**.
