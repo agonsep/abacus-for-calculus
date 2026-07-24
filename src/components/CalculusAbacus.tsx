@@ -21,6 +21,7 @@ const RED = "#e8352c";
 const BLUE = "#2563eb";
 const LIGHT_BLUE = "#60a5fa";
 const LINE_COLOR = "#7dd3fc";
+const TANGENT_COLOR = "#facc15";
 
 let _orangeGradTex: THREE.CanvasTexture | null = null;
 function getOrangeGradTex(): THREE.CanvasTexture {
