@@ -517,6 +517,7 @@ function Scene({
   panY,
   highlight,
   onHover,
+  increment,
   unit,
   tangentSlope,
 }: {
@@ -535,6 +536,7 @@ function Scene({
   panY: number;
   highlight: { i: number; color: "size" | "change" } | null;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
+  increment: number;
   unit: number;
   tangentSlope: number;
 }) {
