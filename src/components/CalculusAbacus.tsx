@@ -917,6 +917,8 @@ export default function CalculusAbacus() {
           highlight={highlight}
           onHover={setHighlight}
           increment={Number(increment) || 0.5}
+          unit={unit}
+          tangentSlope={tangentSlope}
         />
       </Canvas>
 
