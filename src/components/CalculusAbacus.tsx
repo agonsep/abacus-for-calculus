@@ -832,7 +832,38 @@ export default function CalculusAbacus() {
     }
     setup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxStones, fractional]);
+  }, [maxStones]);
+
+  // Re-round existing size/change in place when the fractional toggle flips,
+  // without wiping user drags/shifts or recomputing unit.
+  const skipRerollRef = useRef(true);
+  useEffect(() => {
+    if (skipRerollRef.current) {
+      skipRerollRef.current = false;
+      return;
+    }
+    if (!yRaw.length || unit === 0) return;
+    const isConstant = yRaw.every((y) => y === yRaw[0]);
+    const baseline = isConstant ? 0 : floorValue;
+    const newSize = yRaw.map((y) => {
+      const raw = (y - baseline) / unit;
+      const v = fractional ? raw : Math.round(raw);
+      const lo = isConstant ? -MAX_PIECES : 0;
+      return Math.max(lo, Math.min(MAX_PIECES, v));
+    });
+    const newChange = yRaw.map((y, i) => {
+      const d = leftCompare
+        ? i === 0 ? 0 : y - yRaw[i - 1]
+        : i === yRaw.length - 1 ? 0 : yRaw[i + 1] - y;
+      const raw = d / unit;
+      const v = fractional ? raw : Math.round(raw);
+      return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+    });
+    setSize(newSize);
+    setChange(newChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fractional]);
+
 
   const bump = (
     setter: React.Dispatch<React.SetStateAction<number[]>>,
