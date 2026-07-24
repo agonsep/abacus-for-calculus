@@ -296,7 +296,7 @@ function ConnectingLine({ size, shift }: { size: number[]; shift: number[] }) {
       size.map((v, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const off = shift[i] ?? 0;
-        const top = PIECE_HEIGHT * (Math.abs(v) + off) + 0.05;
+        const top = PIECE_HEIGHT * (Math.floor(Math.abs(v)) + off) + 0.05;
         return [x, top + 0.04, PIECE_DEPTH / 2 + 0.02];
       }),
     [size, shift],
