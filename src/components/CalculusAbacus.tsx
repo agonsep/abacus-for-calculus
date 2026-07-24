@@ -689,6 +689,21 @@ export default function CalculusAbacus() {
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
+  const tangentSlope = useMemo(() => {
+    try {
+      const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
+      const m = Number(midpoint);
+      if (!isFinite(m)) return 0;
+      const eps = Math.max(1e-7, Math.abs(m) * 1e-7);
+      const yPlus = evaluate(cleaned, { x: m + eps });
+      const yMinus = evaluate(cleaned, { x: m - eps });
+      if (typeof yPlus !== "number" || !isFinite(yPlus) || typeof yMinus !== "number" || !isFinite(yMinus)) return 0;
+      return (yPlus - yMinus) / (2 * eps);
+    } catch {
+      return 0;
+    }
+  }, [formula, midpoint]);
+
   // Drag handler: size and change stacks move independently, but pushing into
   // the other color shoves it in the same direction.
   const dragColor = (i: number, color: "size" | "change", delta: number) => {
