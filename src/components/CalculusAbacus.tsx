@@ -647,6 +647,9 @@ export default function CalculusAbacus() {
   const [floorValue, setFloorValue] = useState(0);
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
+  const [defined, setDefined] = useState<boolean[]>(Array(COLUMNS).fill(true));
+
   const [showLine, setShowLine] = useState(false);
   const [fractional, setFractional] = useState(false);
   const [leftCompare, setLeftCompare] = useState(false);
