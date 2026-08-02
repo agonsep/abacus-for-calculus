@@ -557,6 +557,7 @@ function Scene({
   increment,
   unit,
   tangentSlope,
+  defined,
 }: {
   size: number[];
   change: number[];
@@ -576,6 +577,7 @@ function Scene({
   increment: number;
   unit: number;
   tangentSlope: number;
+  defined: boolean[];
 }) {
   return (
     <>
@@ -599,7 +601,7 @@ function Scene({
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
-        <Board xValues={xValues} />
+        <Board xValues={xValues} defined={defined} />
         <Stacks
           size={size}
           change={change}
@@ -607,16 +609,18 @@ function Scene({
           changeGap={changeGap}
           runId={runId}
           highlight={highlight}
+          defined={defined}
         />
         {showLine && (
           <>
-            <ConnectingLine size={size} shift={shift} />
+            <ConnectingLine size={size} shift={shift} defined={defined} />
             <TangentLine
               size={size}
               shift={shift}
               increment={Number(increment)}
               unit={unit}
               tangentSlope={tangentSlope}
+              defined={defined}
             />
           </>
         )}
@@ -628,7 +632,9 @@ function Scene({
           onDrag={onDrag}
           setDragging={setDragging}
           onHover={onHover}
+          defined={defined}
         />
+
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
           <planeGeometry args={[60, 60]} />
           <shadowMaterial opacity={0.3} />
