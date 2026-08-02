@@ -186,6 +186,16 @@ function Board({ xValues, defined }: { xValues: number[]; defined: boolean[] }) 
         );
       })}
       {xValues.map((xv, i) => {
+        if (defined[i] === false) return null;
+        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        return (
+          <mesh key={`undef-${i}`} position={[x, sepHeight / 2 + 0.05, 0.05]}>
+            <boxGeometry args={[COL_SPACING - sepThickness, sepHeight, sepDepth - 0.05]} />
+            <meshStandardMaterial color="#8a8a8a" transparent opacity={0.28} roughness={1} depthWrite={false} />
+          </mesh>
+        );
+      })}
+      {xValues.map((xv, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const label = formatNum(xv);
         return (
@@ -195,7 +205,7 @@ function Board({ xValues, defined }: { xValues: number[]; defined: boolean[] }) 
             rotation={[0, 0, 0]}
             fontSize={0.32}
             renderOrder={2}
-            color="#f5e8c8"
+            color={defined[i] === false ? "#9a9a9a" : "#f5e8c8"}
             anchorX="center"
             anchorY="middle"
             material-depthTest={false}
@@ -204,6 +214,7 @@ function Board({ xValues, defined }: { xValues: number[]; defined: boolean[] }) 
           </Text>
         );
       })}
+
     </group>
   );
 }
