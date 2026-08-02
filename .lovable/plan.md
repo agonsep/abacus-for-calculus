@@ -1,17 +1,27 @@
-## Problem
+# Improve the "undefined f(x)" error message
 
-The re-round effect at lines 840–865 in `src/components/CalculusAbacus.tsx` unconditionally rebuilds the `change` array from `yRaw` whenever **Fractional stones** is toggled. So if the board has red size-stones but no orange change-size stones yet, checking the box populates `change` and orange stones appear — which shouldn't happen until the user clicks **Find Differences**.
+## Goal
+Replace the generic error message `"Check your formula, midpoint, and increment."` with a specific, actionable message that names the offending x value and suggests a remedy.
 
-## Fix
+## Change
+In `src/components/CalculusAbacus.tsx`, in `setup()` (lines ~745–805):
 
-Gate the `change` rebuild on whether any orange stones already exist. Only re-round `change` if `change.some(v => v !== 0)`; otherwise leave it alone. `size` continues to re-round unconditionally (red stones are always on the board once filled).
+1. **Throw a descriptive error** at line 748. Instead of `throw new Error("not numeric")`, throw with the offending x value, e.g.:
+   ```ts
+   throw new Error(`undefined@${xv}`);
+   ```
+   Use a sentinel-prefixed string so the catch block can distinguish "f(x) undefined at an x" from other failures (bad midpoint/increment, parse errors, etc.).
 
-### Change in `src/components/CalculusAbacus.tsx` (fractional effect, ~lines 840–865)
+2. **Update the catch block** (line 803–804) to inspect the error:
+   - If the message starts with the sentinel, show:
+     `f(x) is undefined at x = 10.5 — try a smaller increment or a different midpoint`
+     (formatting `xv` with the existing `formatNum` helper so small/large x values render cleanly).
+   - Otherwise, fall back to the current generic message for other failure types (non-numeric midpoint/increment, formula parse errors, etc.).
 
-- Compute `newSize` as today and always `setSize(newSize)`.
-- Compute `newChange` only when `change.some(v => v !== 0)`; then `setChange(newChange)`. Skip otherwise.
-- Add `change` to the effect's closure (still suppress the exhaustive-deps lint as today; the effect key stays `[fractional]` so toggling is what triggers it).
+## Files
+- `src/components/CalculusAbacus.tsx` — only the `setup()` function's throw + catch.
 
-## Result
-
-Toggling **Fractional stones** re-rounds the size column and the slope estimates for existing orange stones, but never spawns orange stones on a board that has none.
+## Verification
+- y=√(100−x²), midpoint 6, increment 0.9 → expect message naming x = 10.5.
+- y=√(100−x²), midpoint 6, increment 0.8 → no error (x stays ≤ 10).
+- A malformed formula (e.g. `y=foo(`) → still shows the generic fallback message.
