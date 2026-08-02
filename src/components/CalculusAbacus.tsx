@@ -800,8 +800,14 @@ export default function CalculusAbacus() {
       setChangeGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
       setError(null);
-    } catch {
-      setError("Check your formula, midpoint, and increment.");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      if (msg.startsWith("undefined@")) {
+        const xv = Number(msg.slice("undefined@".length));
+        setError(`f(x) is undefined at x = ${formatNum(xv)} — try a smaller increment or a different midpoint`);
+      } else {
+        setError("Check your formula, midpoint, and increment.");
+      }
     }
   };
 
