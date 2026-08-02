@@ -305,22 +305,40 @@ function Stacks({
   );
 }
 
-function ConnectingLine({ size, shift }: { size: number[]; shift: number[] }) {
-  const points = useMemo<[number, number, number][]>(
-    () =>
-      size.map((v, i) => {
-        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
-        const off = shift[i] ?? 0;
-        const top = PIECE_HEIGHT * (Math.floor(Math.abs(v)) + off) + 0.05;
-        return [x, top + 0.04, PIECE_DEPTH / 2 + 0.02];
-      }),
-    [size, shift],
-  );
-  if (points.length < 2) return null;
+function ConnectingLine({
+  size,
+  shift,
+  defined,
+}: {
+  size: number[];
+  shift: number[];
+  defined: boolean[];
+}) {
+  const segments = useMemo<[number, number, number][][]>(() => {
+    const segs: [number, number, number][][] = [];
+    let cur: [number, number, number][] = [];
+    size.forEach((v, i) => {
+      if (defined[i] === false) {
+        if (cur.length) segs.push(cur);
+        cur = [];
+        return;
+      }
+      const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+      const off = shift[i] ?? 0;
+      const top = PIECE_HEIGHT * (Math.floor(Math.abs(v)) + off) + 0.05;
+      cur.push([x, top + 0.04, PIECE_DEPTH / 2 + 0.02]);
+    });
+    if (cur.length) segs.push(cur);
+    return segs;
+  }, [size, shift, defined]);
+  const dots = segments.flat();
+  if (!dots.length) return null;
   return (
     <>
-      <Line points={points} color={LINE_COLOR} lineWidth={3} />
-      {points.map((p, i) => (
+      {segments.map((pts, s) =>
+        pts.length >= 2 ? <Line key={`seg-${s}`} points={pts} color={LINE_COLOR} lineWidth={3} /> : null,
+      )}
+      {dots.map((p, i) => (
         <mesh key={i} position={p}>
           <sphereGeometry args={[0.07, 16, 16]} />
           <meshStandardMaterial color={LINE_COLOR} emissive={LINE_COLOR} emissiveIntensity={0.5} />
@@ -336,16 +354,19 @@ function TangentLine({
   increment,
   unit,
   tangentSlope,
+  defined,
 }: {
   size: number[];
   shift: number[];
   increment: number;
   unit: number;
   tangentSlope: number;
+  defined: boolean[];
 }) {
   const points = useMemo<[number, number, number][]>(() => {
     if (unit === 0 || increment === 0 || !isFinite(tangentSlope)) return [];
     const mid = Math.floor(COLUMNS / 2);
+    if (defined[mid] === false) return [];
     const off = shift[mid] ?? 0;
     const midCount = Math.floor(Math.abs(size[mid])) + off;
     return size.map((_, i) => {
@@ -355,10 +376,11 @@ function TangentLine({
       const y = PIECE_HEIGHT * count + 0.05;
       return [x, y + 0.04, PIECE_DEPTH / 2 + 0.02];
     });
-  }, [size, shift, increment, unit, tangentSlope]);
+  }, [size, shift, increment, unit, tangentSlope, defined]);
   if (points.length < 2) return null;
   return <Line points={points} color={TANGENT_COLOR} lineWidth={3} />;
 }
+
 
 function DragHandles({
   size,
