@@ -390,6 +390,7 @@ function DragHandles({
   onDrag,
   setDragging,
   onHover,
+  defined,
 }: {
   size: number[];
   change: number[];
@@ -398,6 +399,7 @@ function DragHandles({
   onDrag: (i: number, color: "size" | "change", delta: number) => void;
   setDragging: (b: boolean) => void;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
+  defined: boolean[];
 }) {
   const { camera, gl } = useThree();
   const dragRef = useRef<{
