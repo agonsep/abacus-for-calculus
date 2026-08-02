@@ -742,27 +742,41 @@ export default function CalculusAbacus() {
       if (!isFinite(m) || !isFinite(h) || h === 0) throw new Error("bad m/h");
       const xs: number[] = [];
       const ys: number[] = [];
+      const def: boolean[] = [];
+      let parseFailures = 0;
       for (let i = 0; i < COLUMNS; i++) {
         const xv = m + (i - 5) * h;
-        const y = evaluate(cleaned, { x: xv });
-        if (typeof y !== "number" || !isFinite(y)) throw new Error(`undefined@${xv}`);
+        let y: unknown;
+        try {
+          y = evaluate(cleaned, { x: xv });
+        } catch {
+          y = null;
+          parseFailures++;
+        }
+        const ok = typeof y === "number" && isFinite(y);
         xs.push(xv);
-        ys.push(y);
+        ys.push(ok ? (y as number) : 0);
+        def.push(ok);
       }
-      const yMin = Math.min(...ys);
-      const yMax = Math.max(...ys);
+      const definedYs = ys.filter((_, i) => def[i]);
+      if (definedYs.length === 0) {
+        throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
+      }
+      const yMin = Math.min(...definedYs);
+      const yMax = Math.max(...definedYs);
       const ms = Math.max(25, Math.min(80, Math.round(Number(maxStones)) || 50));
       const avail = Math.min(ms, MAX_PIECES);
-      // Special case: y = constant (all sampled y values are identical).
-      const isConstant = ys.every((y) => y === ys[0]);
+      // Special case: y = constant (all defined y values are identical).
+      const isConstant = definedYs.every((y) => y === definedYs[0]);
       let u: number;
       let counts: number[];
       let floor: number;
       if (isConstant) {
-        const a = ys[0];
+        const a = definedYs[0];
         u = Math.abs(a) <= ms ? 1 : Math.abs(a) / ms;
         floor = 0;
-        counts = ys.map((y) => {
+        counts = ys.map((y, i) => {
+          if (!def[i]) return 0;
           const raw = y / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
@@ -771,7 +785,8 @@ export default function CalculusAbacus() {
         const range = Math.max(yMax - yMin, 1e-9);
         u = range / avail;
         floor = yMin;
-        counts = ys.map((y) => {
+        counts = ys.map((y, i) => {
+          if (!def[i]) return 0;
           const raw = (y - yMin) / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(0, Math.min(MAX_PIECES, v));
@@ -779,14 +794,15 @@ export default function CalculusAbacus() {
       }
       setFloorValue(floor);
       setXValues(xs);
+      setDefined(def);
       setUnit(u);
       setSize(counts);
       setYRaw(ys);
       if (firstRunRef.current) {
         const initialChange = ys.map((y, i) => {
-          const d = leftCompare
-            ? i === 0 ? 0 : y - ys[i - 1]
-            : i === ys.length - 1 ? 0 : ys[i + 1] - y;
+          const j = leftCompare ? i - 1 : i + 1;
+          if (j < 0 || j >= ys.length || !def[i] || !def[j]) return 0;
+          const d = leftCompare ? y - ys[j] : ys[j] - y;
           const raw = d / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
@@ -799,17 +815,28 @@ export default function CalculusAbacus() {
       setShift(Array(COLUMNS).fill(0));
       setChangeGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
+      const missing = xs.filter((_, i) => !def[i]);
+      if (missing.length === 0) {
+        setNote(null);
+      } else {
+        const list = missing.map((xv) => formatNum(xv)).join(", ");
+        const midUndefined = !def[Math.floor(COLUMNS / 2)];
+        setNote(
+          `f(x) is undefined at x = ${list}${midUndefined ? " — including the midpoint, so no tangent line can be drawn" : ""}`,
+        );
+      }
       setError(null);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
-      if (msg.startsWith("undefined@")) {
-        const xv = Number(msg.slice("undefined@".length));
-        setError(`f(x) is undefined at x = ${formatNum(xv)} — try a smaller increment or a different midpoint`);
+      setNote(null);
+      if (msg === "all undefined") {
+        setError("f(x) is undefined at every x in this range — try a different midpoint or increment.");
       } else {
         setError("Check your formula, midpoint, and increment.");
       }
     }
   };
+
 
   const calcDiff = () => {
     const r = yRaw.map((y, i) => {
