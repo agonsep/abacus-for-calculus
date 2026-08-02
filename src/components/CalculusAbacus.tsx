@@ -995,6 +995,7 @@ export default function CalculusAbacus() {
           increment={Number(increment) || 0.5}
           unit={unit}
           tangentSlope={tangentSlope}
+          defined={defined}
         />
       </Canvas>
 
