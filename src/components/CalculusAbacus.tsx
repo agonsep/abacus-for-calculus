@@ -1232,11 +1232,16 @@ export default function CalculusAbacus() {
         </div>
       )}
 
-      {!uiHidden && error && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-sm text-destructive">
-          {error}
+      {!uiHidden && (error || note) && (
+        <div
+          className={`pointer-events-none absolute inset-x-0 bottom-4 text-center text-sm ${
+            error ? "text-destructive" : "text-muted-foreground"
+          }`}
+        >
+          {error ?? note}
         </div>
       )}
+
 
       {/* Right-side equation / inputs panel */}
       {!uiHidden && (
