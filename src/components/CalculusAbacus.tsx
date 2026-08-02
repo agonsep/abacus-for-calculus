@@ -186,7 +186,7 @@ function Board({ xValues, defined }: { xValues: number[]; defined: boolean[] }) 
         );
       })}
       {xValues.map((_, i) => {
-        if (defined[i] === false) return null;
+        if (defined[i] !== false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         return (
           <mesh key={`undef-${i}`} position={[x, sepHeight / 2 + 0.05, 0.05]}>
