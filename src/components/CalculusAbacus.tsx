@@ -843,15 +843,16 @@ export default function CalculusAbacus() {
 
   const calcDiff = () => {
     const r = yRaw.map((y, i) => {
-      const d = leftCompare
-        ? i === 0 ? 0 : y - yRaw[i - 1]
-        : i === yRaw.length - 1 ? 0 : yRaw[i + 1] - y;
+      const j = leftCompare ? i - 1 : i + 1;
+      if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
+      const d = leftCompare ? y - yRaw[j] : yRaw[j] - y;
       const raw = unit === 0 ? 0 : d / unit;
       const v = fractional ? raw : Math.round(raw);
       return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
     });
     setChange(r);
   };
+
 
   useEffect(() => {
     const t = setTimeout(setup, 400);
