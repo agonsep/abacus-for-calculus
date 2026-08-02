@@ -234,6 +234,7 @@ function Stacks({
   changeGap,
   runId,
   highlight,
+  defined,
 }: {
   size: number[];
   change: number[];
@@ -241,12 +242,15 @@ function Stacks({
   changeGap: number[];
   runId: number;
   highlight: { i: number; color: "size" | "change" } | null;
+  defined: boolean[];
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
       {size.map((yVal, i) => {
+        if (defined[i] === false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+
         const off = shift[i] ?? 0;
         const gap = changeGap[i] ?? 0;
         const pieces: ReactNode[] = [];
