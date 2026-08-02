@@ -481,6 +481,7 @@ function DragHandles({
   return (
     <>
       {Array.from({ length: COLUMNS }).map((_, i) => {
+        if (defined[i] === false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const oVal = size[i] ?? 0;
         const rVal = change[i] ?? 0;
