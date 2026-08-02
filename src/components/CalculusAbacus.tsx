@@ -185,7 +185,7 @@ function Board({ xValues, defined }: { xValues: number[]; defined: boolean[] }) 
           </RoundedBox>
         );
       })}
-      {xValues.map((xv, i) => {
+      {xValues.map((_, i) => {
         if (defined[i] === false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         return (
