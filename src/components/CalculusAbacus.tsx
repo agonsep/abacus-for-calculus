@@ -1223,7 +1223,8 @@ export default function CalculusAbacus() {
                 You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
               
-              <p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
+<p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
+              <p>A grey column means that the equation is undefined at that particular value of x.</p>
               <p className="pt-4 text-sm text-muted-foreground">
                 Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>. Creative Commons BY license 2026
               </p>
