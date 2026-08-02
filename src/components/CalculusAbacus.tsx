@@ -745,7 +745,7 @@ export default function CalculusAbacus() {
       for (let i = 0; i < COLUMNS; i++) {
         const xv = m + (i - 5) * h;
         const y = evaluate(cleaned, { x: xv });
-        if (typeof y !== "number" || !isFinite(y)) throw new Error("not numeric");
+        if (typeof y !== "number" || !isFinite(y)) throw new Error(`undefined@${xv}`);
         xs.push(xv);
         ys.push(y);
       }
