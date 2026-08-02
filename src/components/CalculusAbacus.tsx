@@ -131,7 +131,7 @@ function Piece({
   );
 }
 
-function Board({ xValues }: { xValues: number[] }) {
+function Board({ xValues, defined }: { xValues: number[]; defined: boolean[] }) {
   const width = COLUMNS * COL_SPACING + 0.6;
   const depth = 1.6;
   const sepThickness = 0.22;
@@ -185,6 +185,16 @@ function Board({ xValues }: { xValues: number[] }) {
           </RoundedBox>
         );
       })}
+      {xValues.map((_, i) => {
+        if (defined[i] !== false) return null;
+        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        return (
+          <mesh key={`undef-${i}`} position={[x, sepHeight / 2 + 0.05, 0.05]}>
+            <boxGeometry args={[COL_SPACING - sepThickness, sepHeight, sepDepth - 0.05]} />
+            <meshStandardMaterial color="#8a8a8a" transparent opacity={0.28} roughness={1} depthWrite={false} />
+          </mesh>
+        );
+      })}
       {xValues.map((xv, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const label = formatNum(xv);
@@ -195,7 +205,7 @@ function Board({ xValues }: { xValues: number[] }) {
             rotation={[0, 0, 0]}
             fontSize={0.32}
             renderOrder={2}
-            color="#f5e8c8"
+            color={defined[i] === false ? "#9a9a9a" : "#f5e8c8"}
             anchorX="center"
             anchorY="middle"
             material-depthTest={false}
@@ -204,6 +214,7 @@ function Board({ xValues }: { xValues: number[] }) {
           </Text>
         );
       })}
+
     </group>
   );
 }
@@ -223,6 +234,7 @@ function Stacks({
   changeGap,
   runId,
   highlight,
+  defined,
 }: {
   size: number[];
   change: number[];
@@ -230,12 +242,15 @@ function Stacks({
   changeGap: number[];
   runId: number;
   highlight: { i: number; color: "size" | "change" } | null;
+  defined: boolean[];
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   return (
     <>
       {size.map((yVal, i) => {
+        if (defined[i] === false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+
         const off = shift[i] ?? 0;
         const gap = changeGap[i] ?? 0;
         const pieces: ReactNode[] = [];
@@ -290,22 +305,40 @@ function Stacks({
   );
 }
 
-function ConnectingLine({ size, shift }: { size: number[]; shift: number[] }) {
-  const points = useMemo<[number, number, number][]>(
-    () =>
-      size.map((v, i) => {
-        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
-        const off = shift[i] ?? 0;
-        const top = PIECE_HEIGHT * (Math.floor(Math.abs(v)) + off) + 0.05;
-        return [x, top + 0.04, PIECE_DEPTH / 2 + 0.02];
-      }),
-    [size, shift],
-  );
-  if (points.length < 2) return null;
+function ConnectingLine({
+  size,
+  shift,
+  defined,
+}: {
+  size: number[];
+  shift: number[];
+  defined: boolean[];
+}) {
+  const segments = useMemo<[number, number, number][][]>(() => {
+    const segs: [number, number, number][][] = [];
+    let cur: [number, number, number][] = [];
+    size.forEach((v, i) => {
+      if (defined[i] === false) {
+        if (cur.length) segs.push(cur);
+        cur = [];
+        return;
+      }
+      const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+      const off = shift[i] ?? 0;
+      const top = PIECE_HEIGHT * (Math.floor(Math.abs(v)) + off) + 0.05;
+      cur.push([x, top + 0.04, PIECE_DEPTH / 2 + 0.02]);
+    });
+    if (cur.length) segs.push(cur);
+    return segs;
+  }, [size, shift, defined]);
+  const dots = segments.flat();
+  if (!dots.length) return null;
   return (
     <>
-      <Line points={points} color={LINE_COLOR} lineWidth={3} />
-      {points.map((p, i) => (
+      {segments.map((pts, s) =>
+        pts.length >= 2 ? <Line key={`seg-${s}`} points={pts} color={LINE_COLOR} lineWidth={3} /> : null,
+      )}
+      {dots.map((p, i) => (
         <mesh key={i} position={p}>
           <sphereGeometry args={[0.07, 16, 16]} />
           <meshStandardMaterial color={LINE_COLOR} emissive={LINE_COLOR} emissiveIntensity={0.5} />
@@ -321,16 +354,19 @@ function TangentLine({
   increment,
   unit,
   tangentSlope,
+  defined,
 }: {
   size: number[];
   shift: number[];
   increment: number;
   unit: number;
   tangentSlope: number;
+  defined: boolean[];
 }) {
   const points = useMemo<[number, number, number][]>(() => {
     if (unit === 0 || increment === 0 || !isFinite(tangentSlope)) return [];
     const mid = Math.floor(COLUMNS / 2);
+    if (defined[mid] === false) return [];
     const off = shift[mid] ?? 0;
     const midCount = Math.floor(Math.abs(size[mid])) + off;
     return size.map((_, i) => {
@@ -340,10 +376,11 @@ function TangentLine({
       const y = PIECE_HEIGHT * count + 0.05;
       return [x, y + 0.04, PIECE_DEPTH / 2 + 0.02];
     });
-  }, [size, shift, increment, unit, tangentSlope]);
+  }, [size, shift, increment, unit, tangentSlope, defined]);
   if (points.length < 2) return null;
   return <Line points={points} color={TANGENT_COLOR} lineWidth={3} />;
 }
+
 
 function DragHandles({
   size,
@@ -353,6 +390,7 @@ function DragHandles({
   onDrag,
   setDragging,
   onHover,
+  defined,
 }: {
   size: number[];
   change: number[];
@@ -361,6 +399,7 @@ function DragHandles({
   onDrag: (i: number, color: "size" | "change", delta: number) => void;
   setDragging: (b: boolean) => void;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
+  defined: boolean[];
 }) {
   const { camera, gl } = useThree();
   const dragRef = useRef<{
@@ -442,6 +481,7 @@ function DragHandles({
   return (
     <>
       {Array.from({ length: COLUMNS }).map((_, i) => {
+        if (defined[i] === false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const oVal = size[i] ?? 0;
         const rVal = change[i] ?? 0;
@@ -517,6 +557,7 @@ function Scene({
   increment,
   unit,
   tangentSlope,
+  defined,
 }: {
   size: number[];
   change: number[];
@@ -536,6 +577,7 @@ function Scene({
   increment: number;
   unit: number;
   tangentSlope: number;
+  defined: boolean[];
 }) {
   return (
     <>
@@ -559,7 +601,7 @@ function Scene({
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
-        <Board xValues={xValues} />
+        <Board xValues={xValues} defined={defined} />
         <Stacks
           size={size}
           change={change}
@@ -567,16 +609,18 @@ function Scene({
           changeGap={changeGap}
           runId={runId}
           highlight={highlight}
+          defined={defined}
         />
         {showLine && (
           <>
-            <ConnectingLine size={size} shift={shift} />
+            <ConnectingLine size={size} shift={shift} defined={defined} />
             <TangentLine
               size={size}
               shift={shift}
               increment={Number(increment)}
               unit={unit}
               tangentSlope={tangentSlope}
+              defined={defined}
             />
           </>
         )}
@@ -588,7 +632,9 @@ function Scene({
           onDrag={onDrag}
           setDragging={setDragging}
           onHover={onHover}
+          defined={defined}
         />
+
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
           <planeGeometry args={[60, 60]} />
           <shadowMaterial opacity={0.3} />
@@ -647,6 +693,9 @@ export default function CalculusAbacus() {
   const [floorValue, setFloorValue] = useState(0);
   const [runId, setRunId] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
+  const [defined, setDefined] = useState<boolean[]>(Array(COLUMNS).fill(true));
+
   const [showLine, setShowLine] = useState(false);
   const [fractional, setFractional] = useState(false);
   const [leftCompare, setLeftCompare] = useState(false);
@@ -742,27 +791,41 @@ export default function CalculusAbacus() {
       if (!isFinite(m) || !isFinite(h) || h === 0) throw new Error("bad m/h");
       const xs: number[] = [];
       const ys: number[] = [];
+      const def: boolean[] = [];
+      let parseFailures = 0;
       for (let i = 0; i < COLUMNS; i++) {
         const xv = m + (i - 5) * h;
-        const y = evaluate(cleaned, { x: xv });
-        if (typeof y !== "number" || !isFinite(y)) throw new Error(`undefined@${xv}`);
+        let y: unknown;
+        try {
+          y = evaluate(cleaned, { x: xv });
+        } catch {
+          y = null;
+          parseFailures++;
+        }
+        const ok = typeof y === "number" && isFinite(y);
         xs.push(xv);
-        ys.push(y);
+        ys.push(ok ? (y as number) : 0);
+        def.push(ok);
       }
-      const yMin = Math.min(...ys);
-      const yMax = Math.max(...ys);
+      const definedYs = ys.filter((_, i) => def[i]);
+      if (definedYs.length === 0) {
+        throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
+      }
+      const yMin = Math.min(...definedYs);
+      const yMax = Math.max(...definedYs);
       const ms = Math.max(25, Math.min(80, Math.round(Number(maxStones)) || 50));
       const avail = Math.min(ms, MAX_PIECES);
-      // Special case: y = constant (all sampled y values are identical).
-      const isConstant = ys.every((y) => y === ys[0]);
+      // Special case: y = constant (all defined y values are identical).
+      const isConstant = definedYs.every((y) => y === definedYs[0]);
       let u: number;
       let counts: number[];
       let floor: number;
       if (isConstant) {
-        const a = ys[0];
+        const a = definedYs[0];
         u = Math.abs(a) <= ms ? 1 : Math.abs(a) / ms;
         floor = 0;
-        counts = ys.map((y) => {
+        counts = ys.map((y, i) => {
+          if (!def[i]) return 0;
           const raw = y / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
@@ -771,7 +834,8 @@ export default function CalculusAbacus() {
         const range = Math.max(yMax - yMin, 1e-9);
         u = range / avail;
         floor = yMin;
-        counts = ys.map((y) => {
+        counts = ys.map((y, i) => {
+          if (!def[i]) return 0;
           const raw = (y - yMin) / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(0, Math.min(MAX_PIECES, v));
@@ -779,14 +843,15 @@ export default function CalculusAbacus() {
       }
       setFloorValue(floor);
       setXValues(xs);
+      setDefined(def);
       setUnit(u);
       setSize(counts);
       setYRaw(ys);
       if (firstRunRef.current) {
         const initialChange = ys.map((y, i) => {
-          const d = leftCompare
-            ? i === 0 ? 0 : y - ys[i - 1]
-            : i === ys.length - 1 ? 0 : ys[i + 1] - y;
+          const j = leftCompare ? i - 1 : i + 1;
+          if (j < 0 || j >= ys.length || !def[i] || !def[j]) return 0;
+          const d = leftCompare ? y - ys[j] : ys[j] - y;
           const raw = d / u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
@@ -799,29 +864,41 @@ export default function CalculusAbacus() {
       setShift(Array(COLUMNS).fill(0));
       setChangeGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
+      const missing = xs.filter((_, i) => !def[i]);
+      if (missing.length === 0) {
+        setNote(null);
+      } else {
+        const list = missing.map((xv) => formatNum(xv)).join(", ");
+        const midUndefined = !def[Math.floor(COLUMNS / 2)];
+        setNote(
+          `f(x) is undefined at x = ${list}${midUndefined ? " — including the midpoint, so no tangent line can be drawn" : ""}`,
+        );
+      }
       setError(null);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
-      if (msg.startsWith("undefined@")) {
-        const xv = Number(msg.slice("undefined@".length));
-        setError(`f(x) is undefined at x = ${formatNum(xv)} — try a smaller increment or a different midpoint`);
+      setNote(null);
+      if (msg === "all undefined") {
+        setError("f(x) is undefined at every x in this range — try a different midpoint or increment.");
       } else {
         setError("Check your formula, midpoint, and increment.");
       }
     }
   };
 
+
   const calcDiff = () => {
     const r = yRaw.map((y, i) => {
-      const d = leftCompare
-        ? i === 0 ? 0 : y - yRaw[i - 1]
-        : i === yRaw.length - 1 ? 0 : yRaw[i + 1] - y;
+      const j = leftCompare ? i - 1 : i + 1;
+      if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
+      const d = leftCompare ? y - yRaw[j] : yRaw[j] - y;
       const raw = unit === 0 ? 0 : d / unit;
       const v = fractional ? raw : Math.round(raw);
       return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
     });
     setChange(r);
   };
+
 
   useEffect(() => {
     const t = setTimeout(setup, 400);
@@ -849,9 +926,12 @@ export default function CalculusAbacus() {
       return;
     }
     if (!yRaw.length || unit === 0) return;
-    const isConstant = yRaw.every((y) => y === yRaw[0]);
+    const definedYs = yRaw.filter((_, i) => defined[i]);
+    if (!definedYs.length) return;
+    const isConstant = definedYs.every((y) => y === definedYs[0]);
     const baseline = isConstant ? 0 : floorValue;
-    const newSize = yRaw.map((y) => {
+    const newSize = yRaw.map((y, i) => {
+      if (!defined[i]) return 0;
       const raw = (y - baseline) / unit;
       const v = fractional ? raw : Math.round(raw);
       const lo = isConstant ? -MAX_PIECES : 0;
@@ -860,15 +940,16 @@ export default function CalculusAbacus() {
     setSize(newSize);
     if (change.some((v) => v !== 0)) {
       const newChange = yRaw.map((y, i) => {
-        const d = leftCompare
-          ? i === 0 ? 0 : y - yRaw[i - 1]
-          : i === yRaw.length - 1 ? 0 : yRaw[i + 1] - y;
+        const j = leftCompare ? i - 1 : i + 1;
+        if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
+        const d = leftCompare ? y - yRaw[j] : yRaw[j] - y;
         const raw = d / unit;
         const v = fractional ? raw : Math.round(raw);
         return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
       });
       setChange(newChange);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fractional]);
 
@@ -914,6 +995,7 @@ export default function CalculusAbacus() {
           increment={Number(increment) || 0.5}
           unit={unit}
           tangentSlope={tangentSlope}
+          defined={defined}
         />
       </Canvas>
 
@@ -956,53 +1038,68 @@ export default function CalculusAbacus() {
             </div>
             {xValues.map((xv, i) => {
               const slopeValue = (change[i] ?? 0) * unit / (Number(increment) || 1);
+              const isDef = defined[i] !== false;
+              const nb = leftCompare ? i - 1 : i + 1;
+              const diffDef =
+                isDef && nb >= 0 && nb < xValues.length && defined[nb] !== false;
               return (
                 <div
                   key={i}
                   className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
                   style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
                 >
-                  <div className="font-mono text-foreground">{formatNum(xv)}</div>
-                  <div className="flex items-center justify-center gap-1">
-                    <button
-                      onClick={() => bump(setSize, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                    >
-                      −
-                    </button>
-                    <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
-                      {fmtCount(size[i])}
-                    </span>
-                    <button
-                      onClick={() => bump(setSize, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                      className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-center gap-1">
-                    <button
-                      onClick={() => bump(setChange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                    >
-                      −
-                    </button>
-                    <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
-                      {fmtCount(change[i])}
-                    </span>
-                    <button
-                      onClick={() => bump(setChange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                      className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <div className="whitespace-nowrap text-right font-mono text-foreground">
-                    {slopeHighPrecision ? slopeValue.toFixed(10) : slopeValue.toFixed(2)}
+                  <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatNum(xv)}</div>
+                  {isDef ? (
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => bump(setSize, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                        className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                      >
+                        −
+                      </button>
+                      <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
+                        {fmtCount(size[i])}
+                      </span>
+                      <button
+                        onClick={() => bump(setSize, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                        className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                      >
+                        +
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center font-mono text-muted-foreground">undefined</div>
+                  )}
+                  {diffDef ? (
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => bump(setChange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                        className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                      >
+                        −
+                      </button>
+                      <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
+                        {fmtCount(change[i])}
+                      </span>
+                      <button
+                        onClick={() => bump(setChange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                        className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                      >
+                        +
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center font-mono text-muted-foreground">undefined</div>
+                  )}
+                  <div className={`whitespace-nowrap text-right font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
+                    {diffDef
+                      ? slopeHighPrecision ? slopeValue.toFixed(10) : slopeValue.toFixed(2)
+                      : "undefined"}
                   </div>
                 </div>
               );
             })}
+
           </div>
         </div>
       )}
@@ -1135,11 +1232,16 @@ export default function CalculusAbacus() {
         </div>
       )}
 
-      {!uiHidden && error && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-sm text-destructive">
-          {error}
+      {!uiHidden && (error || note) && (
+        <div
+          className={`pointer-events-none absolute inset-x-0 bottom-4 text-center text-sm ${
+            error ? "text-destructive" : "text-muted-foreground"
+          }`}
+        >
+          {error ?? note}
         </div>
       )}
+
 
       {/* Right-side equation / inputs panel */}
       {!uiHidden && (
