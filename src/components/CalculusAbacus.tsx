@@ -880,9 +880,12 @@ export default function CalculusAbacus() {
       return;
     }
     if (!yRaw.length || unit === 0) return;
-    const isConstant = yRaw.every((y) => y === yRaw[0]);
+    const definedYs = yRaw.filter((_, i) => defined[i]);
+    if (!definedYs.length) return;
+    const isConstant = definedYs.every((y) => y === definedYs[0]);
     const baseline = isConstant ? 0 : floorValue;
-    const newSize = yRaw.map((y) => {
+    const newSize = yRaw.map((y, i) => {
+      if (!defined[i]) return 0;
       const raw = (y - baseline) / unit;
       const v = fractional ? raw : Math.round(raw);
       const lo = isConstant ? -MAX_PIECES : 0;
@@ -891,15 +894,16 @@ export default function CalculusAbacus() {
     setSize(newSize);
     if (change.some((v) => v !== 0)) {
       const newChange = yRaw.map((y, i) => {
-        const d = leftCompare
-          ? i === 0 ? 0 : y - yRaw[i - 1]
-          : i === yRaw.length - 1 ? 0 : yRaw[i + 1] - y;
+        const j = leftCompare ? i - 1 : i + 1;
+        if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
+        const d = leftCompare ? y - yRaw[j] : yRaw[j] - y;
         const raw = d / unit;
         const v = fractional ? raw : Math.round(raw);
         return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
       });
       setChange(newChange);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fractional]);
 
