@@ -917,7 +917,8 @@ export default function CalculusAbacus() {
       setShift(Array(COLUMNS).fill(0));
       setChangeGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
-      const missing = xs.filter((_, i) => !def[i]);
+      const missingIdx = xs.map((_, i) => i).filter((i) => !def[i]);
+      const missing = missingIdx;
       if (isW) {
         setNote(
           approx
@@ -927,7 +928,7 @@ export default function CalculusAbacus() {
       } else if (missing.length === 0) {
         setNote(null);
       } else {
-        const list = missing.map((xv, k) => formatDual(xv, xws[k] ?? 0, formatNum)).join(", ");
+        const list = missingIdx.map((i) => formatDual(xs[i], xws[i], formatNum)).join(", ");
         const midUndefined = !def[Math.floor(COLUMNS / 2)];
         setNote(
           `f(x) is undefined at x = ${list}${midUndefined ? " — including the midpoint, so no tangent line can be drawn" : ""}`,
@@ -1027,6 +1028,11 @@ export default function CalculusAbacus() {
     });
   };
 
+  const incParsed = parseIncrement(increment);
+  const incValue = incParsed ? incParsed.value : 0.5;
+
+  const fmtVal = (v: number) => (slopeHighPrecision ? v.toFixed(10) : formatNum(v));
+
   const fmtCount = (v: number) =>
     slopeHighPrecision
       ? v.toFixed(10)
@@ -1041,6 +1047,7 @@ export default function CalculusAbacus() {
           shift={shift}
           changeGap={changeGap}
           xValues={xValues}
+          xW={xW}
           runId={runId}
           showLine={showLine}
           onDrag={dragColor}
@@ -1051,7 +1058,7 @@ export default function CalculusAbacus() {
           panY={panY}
           highlight={highlight}
           onHover={setHighlight}
-          increment={Number(increment) || 0.5}
+          increment={incValue}
           unit={unit}
           tangentSlope={tangentSlope}
           defined={defined}
@@ -1073,9 +1080,9 @@ export default function CalculusAbacus() {
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
-              One <span className="text-[#e8352c]">size-stone</span> = <span className="font-mono text-foreground">{slopeHighPrecision ? unit.toFixed(10) : formatNum(unit)}</span>.
-              {floorValue !== 0 && (
-                <> &nbsp;Floor: <span className="font-mono text-foreground">{slopeHighPrecision ? floorValue.toFixed(10) : formatNum(floorValue)}</span></>
+              One <span className="text-[#e8352c]">size-stone</span> = <span className="font-mono text-foreground">{wMode ? formatDual(0, unit, fmtVal) : fmtVal(unit)}</span>.
+              {(floorValue !== 0 || (wMode && wBase !== 0)) && (
+                <> &nbsp;Floor: <span className="font-mono text-foreground">{wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
               )}
             </p>
             <div
@@ -1096,7 +1103,7 @@ export default function CalculusAbacus() {
               <div className="text-right">Slope estimate</div>
             </div>
             {xValues.map((xv, i) => {
-              const slopeValue = (change[i] ?? 0) * unit / (Number(increment) || 1);
+              const slopeValue = (change[i] ?? 0) * unit / (incValue || 1);
               const isDef = defined[i] !== false;
               const nb = leftCompare ? i - 1 : i + 1;
               const diffDef =
@@ -1107,7 +1114,7 @@ export default function CalculusAbacus() {
                   className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
                   style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
                 >
-                  <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatNum(xv)}</div>
+                  <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatDual(xv, xW[i] ?? 0, formatNum)}</div>
                   {isDef ? (
                     <div className="flex items-center justify-center gap-1">
                       <button
@@ -1284,6 +1291,9 @@ export default function CalculusAbacus() {
               
 <p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
               <p>A grey column means that the equation is undefined at that particular value of x.</p>
+              <p>
+                You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The columns then stand at <span className="font-mono">x = m − 5w</span> up to <span className="font-mono">x = m + 5w</span>, and because <span className="font-mono">w × w</span> is negligible the change-size stones are all the same height and the slope estimate stops being an estimate — it is the exact derivative. Steps such as <span className="font-mono text-foreground">2w</span> or <span className="font-mono text-foreground">0.5w</span> work too.
+              </p>
               <p className="pt-4 text-sm text-muted-foreground">
                 Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>. Creative Commons BY license 2026
               </p>
@@ -1340,18 +1350,17 @@ export default function CalculusAbacus() {
           <label className="flex items-center justify-between gap-2">
             <span className="font-mono text-sm text-muted-foreground">Increment</span>
             <input
-              type="number"
-              min={0.001}
-              step={0.001}
+              type="text"
+              inputMode="text"
               value={increment}
-              onChange={(e) => {
-                  const v = e.target.value;
-                  const n = Number(v);
-                  setIncrement(Number.isFinite(n) && n < 0.001 ? "0.001" : v);
-              }}
+              onChange={(e) => setIncrement(e.target.value)}
               onBlur={() => {
-                const n = Number(increment);
-                if (!Number.isFinite(n) || n < 0.001) setIncrement("0.001");
+                const p = parseIncrement(increment);
+                if (!p) {
+                  setIncrement("0.001");
+                } else if (!p.infinitesimal && Math.abs(p.value) < 0.001) {
+                  setIncrement("0.001");
+                }
               }}
               className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
