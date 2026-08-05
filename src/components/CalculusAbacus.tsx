@@ -198,7 +198,7 @@ function Board({ xValues, xW, defined }: { xValues: number[]; xW: number[]; defi
       })}
       {xValues.map((xv, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
-        const label = formatNum(xv);
+        const label = formatDual(xv, xW[i] ?? 0, formatNum);
         return (
           <Text
             key={`lbl-${i}`}
