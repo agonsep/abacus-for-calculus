@@ -2,6 +2,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { OrbitControls, Text, RoundedBox, Line } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluate } from "mathjs";
+import { evalDual, formatDual, parseIncrement } from "@/lib/dual";
 import * as THREE from "three";
 
 const COLUMNS = 11;
