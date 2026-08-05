@@ -545,6 +545,7 @@ function Scene({
   shift,
   changeGap,
   xValues,
+  xW,
   runId,
   showLine,
   onDrag,
@@ -565,6 +566,7 @@ function Scene({
   shift: number[];
   changeGap: number[];
   xValues: number[];
+  xW: number[];
   runId: number;
   showLine: boolean;
   onDrag: (i: number, color: "size" | "change", delta: number) => void;
@@ -602,7 +604,7 @@ function Scene({
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
-        <Board xValues={xValues} defined={defined} />
+        <Board xValues={xValues} xW={xW} defined={defined} />
         <Stacks
           size={size}
           change={change}
