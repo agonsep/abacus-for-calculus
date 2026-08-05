@@ -687,6 +687,9 @@ export default function CalculusAbacus() {
   const [xValues, setXValues] = useState<number[]>(
     Array.from({ length: COLUMNS }, (_, i) => i - 5),
   );
+  const [xW, setXW] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [wMode, setWMode] = useState(false);
+  const [wBase, setWBase] = useState(0);
   const [unit, setUnit] = useState(1);
   const [size, setSize] = useState<number[]>(Array(COLUMNS).fill(0));
   const [yRaw, setYRaw] = useState<number[]>(Array(COLUMNS).fill(0));
@@ -717,6 +720,11 @@ export default function CalculusAbacus() {
       const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
       const m = Number(midpoint);
       if (!isFinite(m)) return 0;
+      try {
+        return evalDual(cleaned, { a: m, b: 1 }).b;
+      } catch {
+        /* fall back to a numeric derivative below */
+      }
       const eps = Math.max(1e-7, Math.abs(m) * 1e-7);
       const yPlus = evaluate(cleaned, { x: m + eps });
       const yMinus = evaluate(cleaned, { x: m - eps });
@@ -790,25 +798,64 @@ export default function CalculusAbacus() {
     try {
       const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
       const m = Number(midpoint);
-      const h = Number(increment);
-      if (!isFinite(m) || !isFinite(h) || h === 0) throw new Error("bad m/h");
+      const inc = parseIncrement(increment);
+      if (!isFinite(m) || !inc) throw new Error("bad m/h");
+      const h = inc.value;
+      const isW = inc.infinitesimal;
       const xs: number[] = [];
+      const xws: number[] = [];
       const ys: number[] = [];
       const def: boolean[] = [];
       let parseFailures = 0;
-      for (let i = 0; i < COLUMNS; i++) {
-        const xv = m + (i - 5) * h;
-        let y: unknown;
+      let base = 0;
+      let approx = false;
+      if (isW) {
+        // Infinitesimal step: every column shares the real part f(m) and
+        // differs only in its w-coefficient, which is (i - 5) * h * f'(m).
+        let deriv = 0;
         try {
-          y = evaluate(cleaned, { x: xv });
+          const r = evalDual(cleaned, { a: m, b: 1 });
+          base = r.a;
+          deriv = r.b;
         } catch {
-          y = null;
-          parseFailures++;
+          const eps = Math.max(1e-7, Math.abs(m) * 1e-7);
+          const y0 = evaluate(cleaned, { x: m });
+          const yp = evaluate(cleaned, { x: m + eps });
+          const ym = evaluate(cleaned, { x: m - eps });
+          if (
+            typeof y0 !== "number" ||
+            typeof yp !== "number" ||
+            typeof ym !== "number"
+          ) {
+            throw new Error("all undefined");
+          }
+          base = y0;
+          deriv = (yp - ym) / (2 * eps);
+          approx = true;
         }
-        const ok = typeof y === "number" && isFinite(y);
-        xs.push(xv);
-        ys.push(ok ? (y as number) : 0);
-        def.push(ok);
+        if (!isFinite(base) || !isFinite(deriv)) throw new Error("all undefined");
+        for (let i = 0; i < COLUMNS; i++) {
+          xs.push(m);
+          xws.push((i - 5) * h);
+          ys.push((i - 5) * h * deriv);
+          def.push(true);
+        }
+      } else {
+        for (let i = 0; i < COLUMNS; i++) {
+          const xv = m + (i - 5) * h;
+          let y: unknown;
+          try {
+            y = evaluate(cleaned, { x: xv });
+          } catch {
+            y = null;
+            parseFailures++;
+          }
+          const ok = typeof y === "number" && isFinite(y);
+          xs.push(xv);
+          xws.push(0);
+          ys.push(ok ? (y as number) : 0);
+          def.push(ok);
+        }
       }
       const definedYs = ys.filter((_, i) => def[i]);
       if (definedYs.length === 0) {
@@ -845,7 +892,10 @@ export default function CalculusAbacus() {
         });
       }
       setFloorValue(floor);
+      setWMode(isW);
+      setWBase(isW ? base : 0);
       setXValues(xs);
+      setXW(xws);
       setDefined(def);
       setUnit(u);
       setSize(counts);
@@ -868,10 +918,16 @@ export default function CalculusAbacus() {
       setChangeGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
       const missing = xs.filter((_, i) => !def[i]);
-      if (missing.length === 0) {
+      if (isW) {
+        setNote(
+          approx
+            ? "w is an infinitesimal step. Exact arithmetic isn't available for this formula, so the slope is computed numerically."
+            : "w is an infinitesimal step, so the slope estimate is the exact derivative.",
+        );
+      } else if (missing.length === 0) {
         setNote(null);
       } else {
-        const list = missing.map((xv) => formatNum(xv)).join(", ");
+        const list = missing.map((xv, k) => formatDual(xv, xws[k] ?? 0, formatNum)).join(", ");
         const midUndefined = !def[Math.floor(COLUMNS / 2)];
         setNote(
           `f(x) is undefined at x = ${list}${midUndefined ? " — including the midpoint, so no tangent line can be drawn" : ""}`,
