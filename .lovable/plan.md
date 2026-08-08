@@ -6,6 +6,12 @@ Turning the abacus into a repeatable difference machine: each promotion moves fr
 
 Dividing the change-size stones by the increment before they become size stones keeps the promoted stacks tall when the increment is small. With a small increment, raw differences are tiny, so the shape would be nearly invisible. The quotient is the slope (or the next-order derivative estimate), which is the quantity the eye is actually looking for.
 
+## When this is not allowed
+
+- The checkbox is **disabled** when the increment is `w` (or any `k·w`) and a tooltip or message says why.
+- If the user somehow triggers it in `w` mode, an error message appears — the same style used for an invalid equation — explaining that promotion requires a real increment, not an infinitesimal one.
+- The rest of the board stays unchanged; no state transition occurs.
+
 ## Issues to be aware of
 
 1. **The numbers no longer match the old change-size numbers.** A change-size value of 3 with increment 0.25 becomes 12. This is intentional — the left panel now shows the quotient, not the raw difference. The headings will make that explicit.
@@ -18,8 +24,6 @@ Dividing the change-size stones by the increment before they become size stones 
 
 5. **Rounding error amplification.** Promotion must divide the *raw* y-differences, not the rounded stone counts. Dividing rounded counts by 0.001 can turn a half-stone rounding error into 500 stones of error. The app already keeps `yRaw`, so this is a matter of using it and never promoting from `size`.
 
-6. **Infinitesimal `w`.** You cannot divide by `w` numerically. In `w` mode the change-size stones already carry the coefficient of `w`, so promotion divides by that coefficient. Level 2 is all zeros — correct, because the exact derivative is constant across the columns. A short note will explain the empty board.
-
 7. **Columns shrink.** Each promotion loses one edge column (right, or left when the compare direction is flipped) because a difference needs two neighbours. Undefined columns propagate the same way. After several levels the board is visibly narrower.
 
 8. **Reversibility.** Unchecking the box must restore the previous level exactly — including its unit, floor, drags and gaps — so levels are pushed on a stack rather than recomputed. Fill Board returns to level 0. Fractional stones, drags, and the per-row +/− buttons must work against the current level's unit and floor.
@@ -30,6 +34,7 @@ Dividing the change-size stones by the increment before they become size stones 
 
 **The checkbox**
 - Label **Remove Stones**, placed with the other checkboxes, disabled unless change-size stones are on the board.
+- In `w` mode it is also disabled, with a tooltip: "Promotion needs a real increment, not w."
 - Checking it: red size stones disappear; the orange stones fall to the board floor, turn red, and are rescaled to `Δ(y)/Δx` fitted to Max Stones.
 - Unchecking it: the previous level returns exactly as it was.
 - Repeatable: check again for level 2, 3, … while differences still exist.
@@ -46,13 +51,15 @@ Dividing the change-size stones by the increment before they become size stones 
 
 **Help panel**
 - One paragraph: removing the size stones and dividing the differences by the increment turns the board into the slope curve; do it twice and you are looking at curvature.
+- Note that this is not available when the increment is `w`, because `w` already makes the first differences exact and the second differences are zero.
 
 ## Technical notes
 
 All in `src/components/CalculusAbacus.tsx`.
 
 - New `level` state plus a `levelStack` ref of snapshots `{ yRaw, size, change, shift, changeGap, unit, floorValue, defined, wBase }`.
-- Promote: `newYRaw[i] = (leftCompare ? yRaw[i] − yRaw[i−1] : yRaw[i+1] − yRaw[i]) / h`, where `h` is the numeric increment (the `w` coefficient in `w` mode); `newDefined[i] = defined[i] && defined[neighbour]`.
+- Promote only if `wMode` is false. If `wMode` is true, set `error` (or `note`) to a message like "Remove Stones cannot be used with the infinitesimal increment w." and return.
+- Promote: `newYRaw[i] = (leftCompare ? yRaw[i] − yRaw[i−1] : yRaw[i+1] − yRaw[i]) / h`, where `h` is the numeric increment; `newDefined[i] = defined[i] && defined[neighbour]`.
 - Re-run the existing min/max/unit/floor block from `setup()` on `newYRaw` so counts fit Max Stones, with the floor rule from issue 4; zero `change`, `shift`, `changeGap`; bump `runId` to replay the drop animation.
 - Size clamping widens to `[−MAX_PIECES, MAX_PIECES]` whenever the floor is 0 and values are signed (the branch the constant-y case already uses).
 - `calcDiff`, the `fractional` re-round effect, and the slope cell read the current level's `unit`/`floorValue`; the slope divisor stays `unit / increment` at every level.
