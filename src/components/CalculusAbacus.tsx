@@ -228,6 +228,53 @@ function formatNum(n: number) {
   return String(r);
 }
 
+function computeCounts(
+  ys: number[],
+  def: boolean[],
+  fractional: boolean,
+  maxStones: string,
+) {
+  const definedYs = ys.filter((_, i) => def[i]);
+  if (definedYs.length === 0) return null;
+  const yMin = Math.min(...definedYs);
+  const yMax = Math.max(...definedYs);
+  const ms = Math.max(25, Math.min(80, Math.round(Number(maxStones)) || 50));
+  const avail = Math.min(ms, MAX_PIECES);
+  const isConstant = definedYs.every((y) => y === definedYs[0]);
+  if (isConstant) {
+    const a = definedYs[0];
+    const u = Math.abs(a) <= ms ? 1 : Math.abs(a) / ms;
+    const counts = ys.map((y, i) => {
+      if (!def[i]) return 0;
+      const raw = y / u;
+      const v = fractional ? raw : Math.round(raw);
+      return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+    });
+    return { u, floor: 0, counts };
+  }
+  const allPositive = definedYs.every((y) => y > 0);
+  const range = Math.max(yMax - yMin, 1e-9);
+  const u = range / avail;
+  if (allPositive) {
+    const counts = ys.map((y, i) => {
+      if (!def[i]) return 0;
+      const raw = (y - yMin) / u;
+      const v = fractional ? raw : Math.round(raw);
+      return Math.max(0, Math.min(MAX_PIECES, v));
+    });
+    return { u, floor: yMin, counts };
+  }
+  // Signed values or all negative: keep 0 as the floor so negatives become black stones.
+  const counts = ys.map((y, i) => {
+    if (!def[i]) return 0;
+    const raw = y / u;
+    const v = fractional ? raw : Math.round(raw);
+    return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+  });
+  return { u, floor: 0, counts };
+}
+
+
 function Stacks({
   size,
   change,
@@ -713,7 +760,102 @@ export default function CalculusAbacus() {
   const [panY, setPanY] = useState(-1.0);
   const [uiHidden, setUiHidden] = useState(true);
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
+  const [level, setLevel] = useState(0);
+  const levelStack = useRef<
+    {
+      yRaw: number[];
+      size: number[];
+      change: number[];
+      shift: number[];
+      changeGap: number[];
+      unit: number;
+      floorValue: number;
+      defined: boolean[];
+      wBase: number;
+      showLine: boolean;
+    }[]
+  >([]);
+
+
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
+
+  const promoteLevel = () => {
+    if (wMode) {
+      setError("Remove Stones cannot be used with the infinitesimal increment w.");
+      setNote(null);
+      return;
+    }
+    if (!change.some((v) => v !== 0)) {
+      setError("No change-size stones to promote.");
+      setNote(null);
+      return;
+    }
+    const newYRaw: number[] = [];
+    const newDefined: boolean[] = [];
+    for (let i = 0; i < COLUMNS; i++) {
+      const j = leftCompare ? i - 1 : i + 1;
+      if (j < 0 || j >= COLUMNS || !defined[i] || !defined[j]) {
+        newYRaw.push(0);
+        newDefined.push(false);
+      } else {
+        const d = leftCompare ? yRaw[i] - yRaw[j] : yRaw[j] - yRaw[i];
+        newYRaw.push(d / incValue);
+        newDefined.push(true);
+      }
+    }
+    const res = computeCounts(newYRaw, newDefined, fractional, maxStones);
+    if (!res) {
+      setError("Could not promote: all columns are undefined.");
+      setNote(null);
+      return;
+    }
+    levelStack.current.push({
+      yRaw: yRaw.slice(),
+      size: size.slice(),
+      change: change.slice(),
+      shift: shift.slice(),
+      changeGap: changeGap.slice(),
+      unit,
+      floorValue,
+      defined: defined.slice(),
+      wBase,
+      showLine,
+    });
+    setYRaw(newYRaw);
+    setDefined(newDefined);
+    setUnit(res.u);
+    setFloorValue(res.floor);
+    setSize(res.counts);
+    setChange(Array(COLUMNS).fill(0));
+    setShift(Array(COLUMNS).fill(0));
+    setChangeGap(Array(COLUMNS).fill(0));
+    setShowLine(false);
+    setLevel((l) => l + 1);
+    setRunId((r) => r + 1);
+    setError(null);
+    setNote(null);
+  };
+
+  const demoteLevel = () => {
+    if (levelStack.current.length === 0) return;
+    const snap = levelStack.current.pop()!;
+    setYRaw(snap.yRaw);
+    setSize(snap.size);
+    setChange(snap.change);
+    setShift(snap.shift);
+    setChangeGap(snap.changeGap);
+    setUnit(snap.unit);
+    setFloorValue(snap.floorValue);
+    setDefined(snap.defined);
+    setWBase(snap.wBase);
+    setShowLine(snap.showLine);
+    setLevel((l) => l - 1);
+    setRunId((r) => r + 1);
+
+    setError(null);
+    setNote(null);
+  };
+
 
   const tangentSlope = useMemo(() => {
     try {
@@ -857,55 +999,28 @@ export default function CalculusAbacus() {
           def.push(ok);
         }
       }
-      const definedYs = ys.filter((_, i) => def[i]);
-      if (definedYs.length === 0) {
+      const res = computeCounts(ys, def, fractional, maxStones);
+      if (!res) {
         throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
       }
-      const yMin = Math.min(...definedYs);
-      const yMax = Math.max(...definedYs);
-      const ms = Math.max(25, Math.min(80, Math.round(Number(maxStones)) || 50));
-      const avail = Math.min(ms, MAX_PIECES);
-      // Special case: y = constant (all defined y values are identical).
-      const isConstant = definedYs.every((y) => y === definedYs[0]);
-      let u: number;
-      let counts: number[];
-      let floor: number;
-      if (isConstant) {
-        const a = definedYs[0];
-        u = Math.abs(a) <= ms ? 1 : Math.abs(a) / ms;
-        floor = 0;
-        counts = ys.map((y, i) => {
-          if (!def[i]) return 0;
-          const raw = y / u;
-          const v = fractional ? raw : Math.round(raw);
-          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
-        });
-      } else {
-        const range = Math.max(yMax - yMin, 1e-9);
-        u = range / avail;
-        floor = yMin;
-        counts = ys.map((y, i) => {
-          if (!def[i]) return 0;
-          const raw = (y - yMin) / u;
-          const v = fractional ? raw : Math.round(raw);
-          return Math.max(0, Math.min(MAX_PIECES, v));
-        });
-      }
-      setFloorValue(floor);
+      setFloorValue(res.floor);
       setWMode(isW);
       setWBase(isW ? base : 0);
       setXValues(xs);
       setXW(xws);
       setDefined(def);
-      setUnit(u);
-      setSize(counts);
+      setUnit(res.u);
+      setSize(res.counts);
       setYRaw(ys);
+      // Reset the difference-level machinery on every fresh fill.
+      setLevel(0);
+      levelStack.current = [];
       if (firstRunRef.current) {
         const initialChange = ys.map((y, i) => {
           const j = leftCompare ? i - 1 : i + 1;
           if (j < 0 || j >= ys.length || !def[i] || !def[j]) return 0;
           const d = leftCompare ? y - ys[j] : ys[j] - y;
-          const raw = d / u;
+          const raw = d / res.u;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
         });
@@ -917,6 +1032,7 @@ export default function CalculusAbacus() {
       setShift(Array(COLUMNS).fill(0));
       setChangeGap(Array(COLUMNS).fill(0));
       setRunId((r) => r + 1);
+
       const missingIdx = xs.map((_, i) => i).filter((i) => !def[i]);
       const missing = missingIdx;
       if (isW) {
@@ -989,12 +1105,14 @@ export default function CalculusAbacus() {
     const definedYs = yRaw.filter((_, i) => defined[i]);
     if (!definedYs.length) return;
     const isConstant = definedYs.every((y) => y === definedYs[0]);
-    const baseline = isConstant ? 0 : floorValue;
+    const allPositive = definedYs.every((y) => y > 0);
+    const baseline = isConstant ? 0 : allPositive ? Math.min(...definedYs) : 0;
+    const signed = !isConstant && !allPositive;
     const newSize = yRaw.map((y, i) => {
       if (!defined[i]) return 0;
       const raw = (y - baseline) / unit;
       const v = fractional ? raw : Math.round(raw);
-      const lo = isConstant ? -MAX_PIECES : 0;
+      const lo = signed || isConstant ? -MAX_PIECES : 0;
       return Math.max(lo, Math.min(MAX_PIECES, v));
     });
     setSize(newSize);
@@ -1012,6 +1130,7 @@ export default function CalculusAbacus() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fractional]);
+
 
 
   const bump = (
@@ -1037,6 +1156,52 @@ export default function CalculusAbacus() {
     slopeHighPrecision
       ? v.toFixed(10)
       : fractional ? (Math.round(v * 100) / 100).toFixed(2) : String(Math.round(v));
+
+  const orderSuffix = (n: number) => {
+    if (n % 100 >= 11 && n % 100 <= 13) return "th";
+    if (n % 10 === 1) return "st";
+    if (n % 10 === 2) return "nd";
+    if (n % 10 === 3) return "rd";
+    return "th";
+  };
+
+  const superscriptDelta = (n: number) => {
+    if (n <= 0) return "";
+    const digits = String(n).split("");
+    const map: Record<string, string> = {
+      "0": "⁰",
+      "1": "¹",
+      "2": "²",
+      "3": "³",
+      "4": "⁴",
+      "5": "⁵",
+      "6": "⁶",
+      "7": "⁷",
+      "8": "⁸",
+      "9": "⁹",
+    };
+    return digits.map((d) => map[d]).join("");
+  };
+
+  const sizeHeader =
+    level === 0
+      ? "Size"
+      : level === 1
+        ? "Size (Δy/Δx)"
+        : `Size (Δ${superscriptDelta(level)}y/Δx${superscriptDelta(level)})`;
+
+  const changeHeader =
+    level === 0
+      ? "Change-Size"
+      : level === 1
+        ? "Change-Size (Δ²y/Δx²)"
+        : `Change-Size (Δ${superscriptDelta(level + 1)}y/Δx${superscriptDelta(level + 1)})`;
+
+  const slopeHeader =
+    level === 0 ? "Slope estimate" : `Slope estimate (${level + 1}${orderSuffix(level + 1)})`;
+
+  const sizeBumpMin = floorValue > 0 ? 0 : -MAX_PIECES;
+
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
@@ -1089,18 +1254,23 @@ export default function CalculusAbacus() {
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
               style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
             >
-              <div>x</div>
+              <div className="text-center">x</div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
-                <div className="w-8 text-center text-[#e8352c]">Size</div>
+                <div className="text-center text-[#e8352c]" style={{ width: slopeHighPrecision ? "6rem" : "3.5rem" }}>
+                  {sizeHeader}
+                </div>
                 <div className="h-5 w-5" />
               </div>
               <div className="flex items-center justify-center gap-1">
                 <div className="h-5 w-5" />
-                <div className="w-8 text-center text-[#ff932a]">Change-Size</div>
+                <div className="text-center text-[#ff932a]" style={{ width: slopeHighPrecision ? "6rem" : "3.5rem" }}>
+                  {changeHeader}
+                </div>
                 <div className="h-5 w-5" />
               </div>
-              <div className="text-right">Slope estimate</div>
+              <div className="text-right">{slopeHeader}</div>
+
             </div>
             {xValues.map((xv, i) => {
               const slopeValue = (change[i] ?? 0) * unit / (incValue || 1);
@@ -1118,7 +1288,7 @@ export default function CalculusAbacus() {
                   {isDef ? (
                     <div className="flex items-center justify-center gap-1">
                       <button
-                        onClick={() => bump(setSize, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                        onClick={() => bump(setSize, i, fractional ? -0.1 : -1, sizeBumpMin)}
                         className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                       >
                         −
@@ -1127,11 +1297,12 @@ export default function CalculusAbacus() {
                         {fmtCount(size[i])}
                       </span>
                       <button
-                        onClick={() => bump(setSize, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                        onClick={() => bump(setSize, i, fractional ? 0.1 : 1, sizeBumpMin)}
                         className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
                       >
                         +
                       </button>
+
                     </div>
                   ) : (
                     <div className="text-center font-mono text-muted-foreground">undefined</div>
@@ -1291,9 +1462,14 @@ export default function CalculusAbacus() {
               
 <p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
               <p>A grey column means that the equation is undefined at that particular value of x.</p>
+              <h3 className="font-serif text-lg text-foreground pt-2">Removing Stones</h3>
+              <p>
+                Checking <strong>"Remove Stones"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
+              </p>
               <p>
                 You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The columns then stand at <span className="font-mono">x = m − 5w</span> up to <span className="font-mono">x = m + 5w</span>, and because <span className="font-mono">w × w</span> is negligible the change-size stones are all the same height and the slope estimate stops being an estimate — it is the exact derivative. Steps such as <span className="font-mono text-foreground">2w</span> or <span className="font-mono text-foreground">0.5w</span> work too.
               </p>
+
               <p className="pt-4 text-sm text-muted-foreground">
                 Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>. Creative Commons BY license 2026
               </p>
@@ -1406,11 +1582,46 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={showLine}
+                disabled={level > 0 || wMode}
                 onChange={(e) => setShowLine(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className="text-foreground">Midpoint Tangent</span>
+              <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Midpoint Tangent</span>
             </label>
+            <label
+              title={
+                level === 0 && !change.some((v) => v !== 0)
+                  ? "Find differences first."
+                  : ""
+              }
+              className={`flex items-center gap-2 ${level === 0 && !change.some((v) => v !== 0) ? "cursor-not-allowed" : "cursor-pointer"}`}
+            >
+              <input
+                type="checkbox"
+                checked={level > 0}
+                disabled={level === 0 && !change.some((v) => v !== 0) && !wMode}
+                onChange={(e) => {
+                  if (wMode) {
+                    setError("Remove Stones cannot be used with the infinitesimal increment w.");
+                    setNote(null);
+                    return;
+                  }
+                  if (e.target.checked) {
+                    if (!change.some((v) => v !== 0)) {
+                      setError("No change-size stones to promote.");
+                      setNote(null);
+                      return;
+                    }
+                    promoteLevel();
+                  } else {
+                    demoteLevel();
+                  }
+                }}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className={wMode ? "text-muted-foreground" : "text-foreground"}>Remove Stones</span>
+            </label>
+
             <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
@@ -1429,6 +1640,7 @@ export default function CalculusAbacus() {
               />
               <span className="text-foreground">10 decimals</span>
             </label>
+
             <div className="flex items-center justify-between gap-2 border-t border-border/60 pt-2">
               <span className="text-foreground">Zoom</span>
               <div className="flex gap-1">
