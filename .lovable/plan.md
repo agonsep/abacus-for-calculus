@@ -1,42 +1,51 @@
-# Accept equations that are not functions
+# "Remove Stones" — promoting change-size stones to size stones
 
-## The idea
+Yes, this is doable. It turns the abacus into a repeatable difference machine: level 0 is f, level 1 is Δf, level 2 is ΔΔf, and so on. Below are the issues worth deciding before building it, then the proposed behaviour.
 
-Today the formula box holds the right-hand side of `y = ...`, so every x gives exactly one y. Allow the user to type a full equation containing both `x` and `y`, such as `y^2 + x^2 = 25`, and let the abacus work with it.
+## Issues to be aware of
 
-Since one x can satisfy two y values, the abacus asks the user which branch to put on the board.
+1. **Negative stones.** Change-size values are signed (dark grey when negative), but size stones today are clamped at zero and measured from a floor. After promotion, the old negative values must show as black size stones. Cleanest answer: after promotion the floor is 0 and the stack is signed, so the left-panel numbers are exactly the old change-size numbers.
 
-## What the user sees
+2. **Scale.** Differences are much smaller than the values they came from. If we keep the same unit, a stack that was 40 stones tall becomes 2 or 3 stones — visually thin. If instead we rescale to fill the board, the left-panel numbers will *not* match the old change-size numbers, which is what you asked for. Proposal: keep the unit (numbers match), and let the user click **Fill Board**-style rescaling only if they want it (see below).
 
-**Formula box**
-- Still accepts a plain expression like `x^3` (unchanged behaviour, treated as `y = x^3`).
-- Also accepts an equation with an `=` sign and a `y` on either side: `y^2 + x^2 = 25`, `x^2/9 + y^2/4 = 1`, `y^2 = x`, `x^2 - y^2 = 1`.
+3. **Columns shrink.** A difference needs two neighbours, so each promotion loses one column at the right edge (or left, when the compare direction is flipped). It becomes undefined/grey. Two promotions lose two columns, and so on. Undefined columns from the original curve propagate the same way.
 
-**Branch prompt**
-- When the typed equation yields two y values, a small prompt appears next to the formula: **Two branches: [Upper] [Lower]** with the upper branch selected by default.
-- Switching branch re-fills the board immediately using the same midpoint, increment and max stones.
-- If the equation yields a single y (linear in y, or the current `y = f(x)` form), no prompt appears.
+4. **Slope column meaning.** The left panel currently computes slope as `change × unit / increment`. At level 1 that same column is really a second-derivative estimate (`change × unit / increment²`). The column needs a level-aware divisor and a heading that says which order it is.
 
-**Board and left panel**
-- Otherwise identical to today: red size stones, orange change-size stones, floor, slope estimate, Midpoint Tangent, Fractional stones, 10 decimals.
-- Columns where the chosen branch has no real solution (outside the circle, for example) gray out exactly like the existing undefined columns, with the same grey note listing the offending x values.
-- The infinitesimal increment `w` keeps working: the chosen branch is differentiated with dual arithmetic so the slope estimate stays exact.
+5. **The tangent line.** `Midpoint Tangent` draws the true derivative of the typed formula. At level 1 that no longer matches the board. It should either follow the level (use the (n+1)-th derivative) or be disabled above level 0.
 
-## Scope
+6. **Infinitesimal `w`.** With increment `w` every change-size stone is the same height, so level 2 is all zeros — an empty board. Correct, but worth a note rather than a puzzle.
 
-Support equations where y can be isolated algebraically — that covers the conic family the abacus is used for:
-- linear in y: `y + x = 3`, `2y = x^2`
-- quadratic in y: circles, ellipses, hyperbolas, `y^2 = x`, and anything else where y appears only as `y` and `y^2`
+7. **Reversibility and other controls.** Unchecking the box should return the previous level exactly, so state must be pushed on a stack, not recomputed. **Fill Board** resets to level 0. **Fractional stones**, drags, and per-row +/− buttons must operate on the current level's baseline, not the original floor.
 
-Anything more tangled (`y^3 + xy = 1`, `sin(y) = x`) reports a short, clear message that the abacus needs y to appear only as y or y squared.
+## Proposed behaviour
+
+**The checkbox**
+- Label **Remove Stones**, sits with the other checkboxes, disabled (greyed) unless change-size stones are currently on the board.
+- Checking it: red size stones disappear, orange change-size stones fall to the board floor and turn red, gaps and drags reset. The board is now one level up.
+- Unchecking it: the previous level comes back exactly as it was, including gaps and drags.
+- Clicking **Find Differences** at the new level produces second-order change-size stones in orange, as usual.
+- The box can be checked repeatedly (level 2, 3, …) as long as differences exist; each uncheck steps back one level.
+
+**Left panel**
+- Size column shows the promoted values verbatim (old change-size numbers, signs kept).
+- Headings gain the order when above level 0: `Size (Δ)`, `Change-Size (Δ²)`, `Slope estimate (2nd)`.
+- `One size-stone = …` keeps the same unit; `Floor: 0` at promoted levels.
+- The lost edge column reads `undefined`, as it does today for undefined points.
+
+**Board**
+- Same colours and behaviour: negative promoted values are black size stones, negative second differences are dark grey.
+- Midpoint Tangent is turned off and its checkbox disabled above level 0 (a one-line tooltip explains why).
+
+**Help panel**
+- One short paragraph: removing the size stones and letting the differences become the new sizes is how you take a second difference — the abacus version of a second derivative.
 
 ## Technical notes
 
-All work is in `src/components/CalculusAbacus.tsx` plus one new helper.
+All in `src/components/CalculusAbacus.tsx`.
 
-- New `src/lib/implicit.ts`: `parseEquation(input)` splits on `=`, moves everything to one side with mathjs `parse`/`simplify`, and reads the coefficients A, B, C of `A·y^2 + B·y + C = 0` by evaluating the residual at three sample y values per x (exact for quadratics, and cheap). Returns either `{ kind: "single", solve(x) }` or `{ kind: "two", solveUpper(x), solveLower(x) }`, or `null` when y appears non-quadratically (detected by residual mismatch at a fourth probe point).
-- Branch state: `const [branch, setBranch] = useState<"upper" | "lower">("upper")`, threaded into `setup()` where it picks which root to use for `ys`. Changing branch re-runs `setup()`.
-- Undefined columns: a negative discriminant returns `NaN`, which flows into the existing `undefinedColumns` path with no change to `Board`, `Stacks`, `ConnectingLine` or the left panel.
-- Dual/`w` mode: apply the quadratic formula in `src/lib/dual.ts` arithmetic on duals built from the A, B, C coefficient expressions evaluated with `evalDual`, so the branch keeps an exact derivative.
-- `TangentLine` and the central-difference slope call the same branch solver instead of `evaluate(cleaned, { x })`.
-- Help panel: one new paragraph on equations that are not functions and the branch choice.
+- New `level` state plus a `levelStack` ref holding snapshots of `{ yRaw, size, change, shift, changeGap, unit, floorValue, defined }`.
+- Promote: `newYRaw[i] = leftCompare ? yRaw[i] − yRaw[i−1] : yRaw[i+1] − yRaw[i]`, `newDefined[i] = defined[i] && defined[neighbour]`, `size = change` (unchanged numbers), `floorValue = 0`, `unit` carried over, `change/shift/changeGap` zeroed, `runId` bumped to replay the drop animation.
+- Size clamping switches from `[0, MAX_PIECES]` to `[−MAX_PIECES, MAX_PIECES]` whenever `level > 0` (same branch the constant-y case already uses).
+- Slope cell divides by `increment^(level+1)`; `calcDiff` and the `fractional` re-round effect read `floorValue` and the level-aware clamp instead of assuming a zero floor.
+- `setup()` (Fill Board) resets `level` to 0 and clears the stack; `showLine` forced false and its checkbox disabled when `level > 0`.
