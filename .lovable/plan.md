@@ -1,37 +1,39 @@
 # "Remove Stones" — promoting change-size stones to size stones
 
-Yes, this is doable. It turns the abacus into a repeatable difference machine. With your refinement, each promotion divides by the increment, so the promoted board holds difference **quotients** — level 1 is Δf/Δx, level 2 is Δ²f/Δx², and so on. That keeps the promoted stacks tall when the increment is small, which is exactly when the shape is worth seeing.
+Turning the abacus into a repeatable difference machine: each promotion moves from the current level to the next difference quotient. Level 0 is the original function; level 1 is Δy/Δx; level 2 is Δ²y/Δx²; and so on.
 
-## Issues under "divide by the increment"
+## Why divide by the increment on promotion
 
-1. **The numbers no longer match the old change-size numbers.** A change-size value of 3 with increment 0.25 becomes 12. That is the point of the change (taller stacks, readable shape), but the left panel is no longer a verbatim copy of the previous change-size column — it is that column divided by Δx. Worth saying so in the heading.
+Dividing the change-size stones by the increment before they become size stones keeps the promoted stacks tall when the increment is small. With a small increment, raw differences are tiny, so the shape would be nearly invisible. The quotient is the slope (or the next-order derivative estimate), which is the quantity the eye is actually looking for.
 
-2. **Overflow when the increment is small.** Increment 0.001 multiplies every value by 1000, so almost any curve blows past the 80-stone ceiling and clamps flat — the shape disappears instead of improving. Fix: after dividing, re-derive the unit and floor to fit Max Stones, exactly as **Fill Board** does. The stack heights then show the shape at full resolution, and `One size-stone = …` reports the new smaller unit.
+## Issues to be aware of
 
-3. **Increment greater than 1 goes the other way.** With increment 4 the promoted values shrink fourfold and the board goes nearly flat. The same auto-rescale in point 2 fixes this case too.
+1. **The numbers no longer match the old change-size numbers.** A change-size value of 3 with increment 0.25 becomes 12. This is intentional — the left panel now shows the quotient, not the raw difference. The headings will make that explicit.
 
-4. **Rescaling reintroduces a floor.** Difference quotients are signed. Two consistent choices: floor at the minimum quotient (all stacks non-negative, shape preserved, zero is not the board floor) or floor at 0 (signs visible as black stones, but a curve with a large offset wastes the board). Proposal: floor at 0 when the quotients straddle zero, otherwise floor at the minimum — the same rule the board already uses for y.
+2. **Overflow when the increment is small.** Increment 0.001 multiplies every value by 1000, so almost any curve blows past the 80-stone ceiling. Fix: after dividing, re-derive the unit and floor to fit Max Stones, exactly as Fill Board does. The stack heights then show the shape at full resolution, and `One size-stone = …` reports the new smaller unit.
 
-5. **The slope column becomes uniform.** Because each level is already divided by Δx, `change × unit / increment` remains the right formula at every level — no `increment^n`. The heading should say which order it estimates: 1st, 2nd, 3rd.
+3. **Increment greater than 1 shrinks the stack.** With increment 4 the promoted values shrink fourfold. The same auto-rescale in issue 2 fixes this case too.
 
-6. **Rounding error amplification.** Promotion must divide the *raw* y-differences, not the rounded stone counts. Dividing rounded counts by 0.001 multiplies half-a-stone rounding into 500 stones of error. The app already keeps `yRaw`, so this is a matter of using it and never promoting from `size`.
+4. **Floor choice for signed quotients.** Difference quotients are signed. If the values straddle zero, the floor is set to 0 so negative values show as black stones. If they are all positive or all negative, the floor is set to the minimum so the shape fills the board. This mirrors the existing floor logic for y values.
 
-7. **Infinitesimal `w`.** You cannot divide by `w` numerically. In `w` mode the change-size stones already carry the coefficient of `w`, so promotion divides by the coefficient of the step instead, and level 2 is all zeros (correct: the exact derivative is constant across the columns). A short note beats an empty board with no explanation.
+5. **Rounding error amplification.** Promotion must divide the *raw* y-differences, not the rounded stone counts. Dividing rounded counts by 0.001 can turn a half-stone rounding error into 500 stones of error. The app already keeps `yRaw`, so this is a matter of using it and never promoting from `size`.
 
-8. **Columns shrink.** Each promotion loses one edge column (right, or left when the compare direction is flipped) because a difference needs two neighbours. Undefined columns propagate the same way. After several levels the board is visibly narrower.
+6. **Infinitesimal `w`.** You cannot divide by `w` numerically. In `w` mode the change-size stones already carry the coefficient of `w`, so promotion divides by that coefficient. Level 2 is all zeros — correct, because the exact derivative is constant across the columns. A short note will explain the empty board.
 
-9. **Reversibility and other controls.** Unchecking the box must restore the previous level exactly — including its unit, floor, drags and gaps — so levels are pushed on a stack rather than recomputed. **Fill Board** returns to level 0. **Fractional stones**, drags, and the per-row +/− buttons must work against the current level's unit and floor.
+7. **Columns shrink.** Each promotion loses one edge column (right, or left when the compare direction is flipped) because a difference needs two neighbours. Undefined columns propagate the same way. After several levels the board is visibly narrower.
 
-10. **Midpoint Tangent.** It draws the derivative of the typed formula, which no longer matches the board above level 0. Disable it there, or have it draw the next derivative.
+8. **Reversibility.** Unchecking the box must restore the previous level exactly — including its unit, floor, drags and gaps — so levels are pushed on a stack rather than recomputed. Fill Board returns to level 0. Fractional stones, drags, and the per-row +/− buttons must work against the current level's unit and floor.
 
-## Proposed behaviour
+9. **Midpoint Tangent.** It draws the derivative of the typed formula, which no longer matches the board above level 0. It is disabled above level 0.
+
+## What the user sees
 
 **The checkbox**
-- Label **Remove Stones**, next to the other checkboxes, disabled unless change-size stones are on the board.
-- Checking it: red size stones disappear; the orange stones drop to the board floor, turn red, and are rescaled to `Δ(y)/Δx` fitted to Max Stones.
+- Label **Remove Stones**, placed with the other checkboxes, disabled unless change-size stones are on the board.
+- Checking it: red size stones disappear; the orange stones fall to the board floor, turn red, and are rescaled to `Δ(y)/Δx` fitted to Max Stones.
 - Unchecking it: the previous level returns exactly as it was.
 - Repeatable: check again for level 2, 3, … while differences still exist.
-- **Find Differences** at the new level produces the next order of orange stones as usual.
+- Find Differences at the new level produces the next order of orange stones as usual.
 
 **Left panel**
 - Headings show the order above level 0: `Size (Δy/Δx)`, `Change-Size (Δ²y/Δx²)`, `Slope estimate (2nd)`.
@@ -39,7 +41,7 @@ Yes, this is doable. It turns the abacus into a repeatable difference machine. W
 - Lost edge columns read `undefined`, as undefined points do today.
 
 **Board**
-- Same colours: negative promoted values are black size stones, negative differences dark grey.
+- Same colours: negative promoted values are black size stones, negative differences are dark grey.
 - Midpoint Tangent disabled above level 0.
 
 **Help panel**
