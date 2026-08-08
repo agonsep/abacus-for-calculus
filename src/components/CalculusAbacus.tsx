@@ -1462,12 +1462,11 @@ export default function CalculusAbacus() {
               
 <p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
               <p>A grey column means that the equation is undefined at that particular value of x.</p>
-              <h3 className="font-serif text-lg text-foreground pt-2">Removing Stones</h3>
-              <p>
-                Checking <strong>"Remove Stones"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
-              </p>
               <p>
                 You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
+              </p>
+              <p>
+                Checking <strong>"Remove Stones"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
               </p>
 
               <p className="pt-4 text-sm text-muted-foreground">
