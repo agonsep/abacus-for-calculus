@@ -1740,15 +1740,22 @@ export default function CalculusAbacus() {
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
-            <label className="flex cursor-pointer items-center gap-2">
+            <label
+              className={`flex items-center gap-2 ${level > 0 || anim ? "cursor-not-allowed" : "cursor-pointer"}`}
+              title={
+                level > 0 || anim
+                  ? "Fractional rounding is fixed once stones have been removed."
+                  : undefined
+              }
+            >
               <input
                 type="checkbox"
                 checked={fractional}
-                disabled={!!anim}
+                disabled={level > 0 || !!anim}
                 onChange={(e) => setFractional(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className="text-foreground">Fractional stones</span>
+              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
