@@ -888,6 +888,102 @@ export default function CalculusAbacus() {
     setNote(null);
   };
 
+  const snapshot = (s: AnimState): AnimState => ({
+    size: s.size.slice(),
+    change: s.change.slice(),
+    changeBase: s.changeBase.slice(),
+    changeFrom: s.changeFrom.slice(),
+    asSize: s.asSize.slice(),
+  });
+
+  const startPromotionAnimation = (p: Promotion) => {
+    const base = size.map((v) => Math.floor(Math.abs(v)));
+    const state: AnimState = {
+      size: size.slice(),
+      change: change.slice(),
+      changeBase: base.slice(),
+      changeFrom: base.slice(),
+      asSize: Array(COLUMNS).fill(false),
+    };
+    const steps: (() => void)[] = [];
+    // Step 1 — clear the size stones, column by column
+    for (let i = 0; i < COLUMNS; i++) {
+      steps.push(() => {
+        state.size[i] = 0;
+      });
+    }
+    // Step 2a — drop each change stack to the board floor
+    for (let i = 0; i < COLUMNS; i++) {
+      steps.push(() => {
+        state.changeFrom[i] = state.changeBase[i];
+        state.changeBase[i] = 0;
+      });
+    }
+    // Step 2b — adjust the count, then recolor
+    for (let i = 0; i < COLUMNS; i++) {
+      steps.push(() => {
+        state.change[i] = p.newDefined[i] ? p.counts[i] : 0;
+      });
+      steps.push(() => {
+        state.asSize[i] = true;
+      });
+    }
+
+    let idx = 0;
+    const finish = () => {
+      if (animTimer.current) clearInterval(animTimer.current);
+      animTimer.current = null;
+      finishRef.current = null;
+      setInstant(true);
+      setAnim(null);
+      commitPromotion(p);
+    };
+    finishRef.current = finish;
+
+    setError(null);
+    setNote(null);
+    setInstant(false);
+    setAnim(snapshot(state));
+    animTimer.current = setInterval(() => {
+      if (idx >= steps.length) {
+        finish();
+        return;
+      }
+      steps[idx++]();
+      setAnim(snapshot(state));
+    }, 130);
+  };
+
+  // Skip the transition on a click or Esc; always clean the timer up.
+  useEffect(() => {
+    if (!anim) return;
+    const skip = () => finishRef.current?.();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") skip();
+    };
+    window.addEventListener("pointerdown", skip);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", skip);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [anim]);
+
+  useEffect(
+    () => () => {
+      if (animTimer.current) clearInterval(animTimer.current);
+    },
+    [],
+  );
+
+  // Only the pieces that appear at the moment of the commit skip their entry.
+  useEffect(() => {
+    if (!instant) return;
+    const t = setTimeout(() => setInstant(false), 250);
+    return () => clearTimeout(t);
+  }, [instant]);
+
+
   const promoteLevel = () => {
     const p = computePromotion();
     if (typeof p === "string") {
