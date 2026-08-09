@@ -10,9 +10,11 @@ Today the promotion is instantaneous: `promoteLevel()` computes the new values a
 
 ## What the user sees
 
-**Step 1 — clear and drop.** Column by column from the left, all the red size stones in that column disappear at once. When the last column is clear, the pass repeats from the left: the orange stones of each column drop as a block to the board floor. One event per column per pass, roughly 120-180 ms apart, so the whole step lands in about 3-4 seconds.
+**Step 1 — clear.** Column by column from the left, all the red size stones in that column disappear at once. One event per column, roughly 120-180 ms apart.
 
-**Step 2 — convert.** Column by column from the left, each column's stack jumps to its new count in one event (stones added or removed as a block), then turns red — or black when the new value is negative. The new `One size-stone = …` scale appears as this step begins.
+**Step 2a — drop.** Column by column from the left, each column's stack of change-size stones falls as a block to the bottom of the board.
+
+**Step 2b — adjust and recolor.** After every column has dropped, a second pass from the left gives each column its new count in one event (stones added or removed as a block), then recolors that column to the size palette: orange becomes red, and either colour becomes black when the new value is negative — the pairing depends on the sign before and after, so all four combinations must be handled. The new `One size-stone = …` scale appears as this pass begins.
 
 **Step 3 — panel.** When the last column is done, the left panel updates to the new level: headings gain their order superscript, values, unit and floor all switch together, and lost columns read `undefined`.
 
@@ -22,9 +24,9 @@ Clicking anywhere or pressing Esc finishes the transition immediately.
 
 **1. The board must be driven by animation state, not by the committed values.** `Stacks` reads `size`/`change` directly and each `Piece` animates in from the sky using `delay` derived from its index. During the sequence the board renders from separate `animSize`/`animChange`/`animAsSize` arrays with the drop-in animation suppressed, otherwise every remaining stone re-flies in on each tick. The committed state updates only at the end — which is what makes step 3 (panel last) natural, since the panel keeps reading the committed arrays.
 
-**2. "Red to orange" is really "size palette to change palette", and signs can flip.** Negative size stones are black and negative change stones are dark grey. A column whose change value is positive (orange) can promote to a negative value (black), so the recolor is not always orange-to-red, and the stack may flip from above the floor to below it. Per-column block updates make this a single readable jump instead of a confusing stone-by-stone crossing of zero.
+**2. Colour changes are not always orange-to-red.** Size stones are red when positive and black when negative; change stones are orange when positive and dark grey when negative. A column can go orange→red, orange→black, grey→red or grey→black, and a sign flip also moves the stack from above the floor to below it. Handling recolor per column, after the count is set, keeps each of these a single readable jump.
 
-**3. The step-2 target count is unrelated to the count you can see.** The new count is `Δy/Δx` re-scaled through a freshly derived unit and floor, not the displayed change count. With a small increment a column showing 3 orange stones becomes 40 red stones. Showing the new scale readout at the start of step 2 keeps that from looking arbitrary.
+**3. The adjusted count is unrelated to the count you can see.** The new count is `Δy/Δx` re-scaled through a freshly derived unit and floor, not the displayed change count. With a small increment a column showing 3 orange stones becomes 40 red stones. Showing the new scale readout at the start of step 2b keeps that from looking arbitrary.
 
 **4. Columns that die.** Promotion always loses one edge column, and any column next to an undefined one also becomes undefined. Those columns clear during step 1 like the rest, and grey out at the moment the promotion commits — not mid-sequence.
 
