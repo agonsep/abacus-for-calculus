@@ -839,7 +839,7 @@ export default function CalculusAbacus() {
   };
 
   const computePromotion = (): Promotion | string => {
-    if (wMode) return "Remove Stones cannot be used with the infinitesimal increment w.";
+    if (wMode) return "Difference Curve cannot be used with the infinitesimal increment w.";
     if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
     if (shift.some((v) => v !== 0) || changeGap.some((v) => v !== 0))
       return "Restore the stones to their original positions before removing stones.";
@@ -1637,7 +1637,7 @@ export default function CalculusAbacus() {
                 You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
-                Checking <strong>"Remove Stones"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
+                Checking <strong>"Difference Curve"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
               </p>
 
               <p className="pt-4 text-sm text-muted-foreground">
@@ -1782,7 +1782,7 @@ export default function CalculusAbacus() {
                 disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim}
                 onChange={(e) => {
                   if (wMode) {
-                    setError("Remove Stones cannot be used with the infinitesimal increment w.");
+                    setError("Difference Curve cannot be used with the infinitesimal increment w.");
                     setNote(null);
                     return;
                   }
@@ -1799,7 +1799,7 @@ export default function CalculusAbacus() {
                 }}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={wMode ? "text-muted-foreground" : "text-foreground"}>Remove Stones</span>
+              <span className={wMode ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
             </label>
 
             <label
