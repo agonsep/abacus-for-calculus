@@ -283,6 +283,19 @@ function computeCounts(
 }
 
 
+export type AnimState = {
+  /** size-stone counts shown on the board while animating */
+  size: number[];
+  /** change-stone counts shown on the board while animating */
+  change: number[];
+  /** slot index where each column's change stack starts */
+  changeBase: number[];
+  /** slot index a change stack falls from when its base moves */
+  changeFrom: number[];
+  /** render this column's change stones with the size palette */
+  asSize: boolean[];
+};
+
 function Stacks({
   size,
   change,
@@ -291,6 +304,8 @@ function Stacks({
   runId,
   highlight,
   defined,
+  anim = null,
+  instant = false,
 }: {
   size: number[];
   change: number[];
@@ -299,21 +314,25 @@ function Stacks({
   runId: number;
   highlight: { i: number; color: "size" | "change" } | null;
   defined: boolean[];
+  anim?: AnimState | null;
+  instant?: boolean;
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
+  const sizeArr = anim ? anim.size : size;
+  const changeArr = anim ? anim.change : change;
   return (
     <>
-      {size.map((yVal, i) => {
+      {sizeArr.map((yVal, i) => {
         if (defined[i] === false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
 
-        const off = shift[i] ?? 0;
-        const gap = changeGap[i] ?? 0;
+        const off = anim ? 0 : (shift[i] ?? 0);
+        const gap = anim ? 0 : (changeGap[i] ?? 0);
         const pieces: ReactNode[] = [];
-        const oH = highlight?.i === i && highlight.color === "size";
-        const rH = highlight?.i === i && highlight.color === "change";
-        const oDim = highlight !== null && !oH;
-        const rDim = highlight !== null && !rH;
+        const oH = !anim && highlight?.i === i && highlight.color === "size";
+        const rH = !anim && highlight?.i === i && highlight.color === "change";
+        const oDim = !anim && highlight !== null && !oH;
+        const rDim = !anim && highlight !== null && !rH;
 
         const neg = yVal < 0;
         const absVal = Math.abs(yVal);
@@ -326,31 +345,41 @@ function Stacks({
               x={x}
               fromY={skyY}
               targetY={slotY(k + off)}
-              delay={i * 0.04 + k * 0.02}
+              delay={anim ? 0 : i * 0.04 + k * 0.02}
               color={stoneColor}
               dim={oDim}
               highlighted={oH}
+              instant={instant}
             />,
           );
         }
 
-        const rVal = change[i] ?? 0;
+        const rVal = changeArr[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
-        const changeStoneColor = rNeg ? DARK_GREY : ORANGE;
+        const asSize = anim ? anim.asSize[i] : false;
+        const changeStoneColor = asSize
+          ? rNeg
+            ? BLACK
+            : RED
+          : rNeg
+            ? DARK_GREY
+            : ORANGE;
         const rFull = Math.floor(rAbs);
-        const changeBase = yFull + gap;
+        const changeBase = anim ? anim.changeBase[i] : yFull + gap;
+        const changeFrom = anim ? anim.changeFrom[i] : changeBase;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
-              key={`r-${runId}-${i}-${k}`}
+              key={`r-${runId}-${i}-${k}-${changeBase}`}
               x={x}
-              fromY={skyY + 2}
+              fromY={anim ? slotY(changeFrom + k) : skyY + 2}
               targetY={slotY(changeBase + k + off)}
-              delay={i * 0.04 + (changeBase + k) * 0.02}
+              delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
               color={changeStoneColor}
               dim={rDim}
               highlighted={rH}
+              instant={instant}
             />,
           );
         }
