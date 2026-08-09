@@ -10,7 +10,7 @@ const COL_SPACING = 1.375;
 const PIECE_HEIGHT = 0.18;
 const PIECE_WIDTH = 1.1875;
 const PIECE_DEPTH = 1.1875 / 1.618;
-const MAX_PIECES = 80;
+const MAX_PIECES = 100;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 
 const ORANGE = "#ff932a";
@@ -246,7 +246,7 @@ function computeCounts(
   if (definedYs.length === 0) return null;
   const yMin = Math.min(...definedYs);
   const yMax = Math.max(...definedYs);
-  const ms = Math.max(25, Math.min(80, Math.round(Number(maxStones)) || 50));
+  const ms = Math.max(25, Math.min(100, Math.round(Number(maxStones)) || 50));
   const avail = Math.min(ms, MAX_PIECES);
   const isConstant = definedYs.every((y) => y === definedYs[0]);
   if (isConstant) {
@@ -1630,7 +1630,7 @@ export default function CalculusAbacus() {
                 You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
               
-<p>The abacus supports increments as small as 0.001 and as many as 80 stones per column.</p>
+<p>The abacus supports increments as small as 0.001 and as many as 100 stones per column.</p>
               <p>A grey column means that the equation is undefined at that particular value of x.</p>
               <p>
                 You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
@@ -1716,7 +1716,7 @@ export default function CalculusAbacus() {
             <input
               type="number"
               min={25}
-              max={80}
+              max={100}
               step={1}
               value={maxStones}
               onChange={(e) => setMaxStones(e.target.value)}
