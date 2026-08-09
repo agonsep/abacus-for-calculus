@@ -824,17 +824,20 @@ export default function CalculusAbacus() {
 
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
-  const promoteLevel = () => {
-    if (wMode) {
-      setError("Remove Stones cannot be used with the infinitesimal increment w.");
-      setNote(null);
-      return;
-    }
-    if (!change.some((v) => v !== 0)) {
-      setError("No change-size stones to promote.");
-      setNote(null);
-      return;
-    }
+  type Promotion = {
+    newYRaw: number[];
+    newDefined: boolean[];
+    counts: number[];
+    u: number;
+    floor: number;
+  };
+
+  const computePromotion = (): Promotion | string => {
+    if (wMode) return "Remove Stones cannot be used with the infinitesimal increment w.";
+    if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
+    if (shift.some((v) => v !== 0) || changeGap.some((v) => v !== 0))
+      return "Restore the stones to their original positions before removing stones.";
+    if (showLine) return "Uncheck Midpoint Tangent before removing stones.";
     const newYRaw: number[] = [];
     const newDefined: boolean[] = [];
     for (let i = 0; i < COLUMNS; i++) {
@@ -849,11 +852,11 @@ export default function CalculusAbacus() {
       }
     }
     const res = computeCounts(newYRaw, newDefined, fractional, maxStones);
-    if (!res) {
-      setError("Could not promote: all columns are undefined.");
-      setNote(null);
-      return;
-    }
+    if (!res) return "Could not promote: all columns are undefined.";
+    return { newYRaw, newDefined, counts: res.counts, u: res.u, floor: res.floor };
+  };
+
+  const commitPromotion = (p: Promotion) => {
     levelStack.current.push({
       yRaw: yRaw.slice(),
       size: size.slice(),
@@ -866,20 +869,39 @@ export default function CalculusAbacus() {
       wBase,
       showLine,
     });
-    setYRaw(newYRaw);
-    setDefined(newDefined);
-    setUnit(res.u);
-    setFloorValue(res.floor);
-    setSize(res.counts);
+    setYRaw(p.newYRaw);
+    setDefined(p.newDefined);
+    setUnit(p.u);
+    setFloorValue(p.floor);
+    setSize(p.counts);
     setChange(Array(COLUMNS).fill(0));
     setShift(Array(COLUMNS).fill(0));
     setChangeGap(Array(COLUMNS).fill(0));
     setShowLine(false);
     setLevel((l) => l + 1);
-    setRunId((r) => r + 1);
     setError(null);
     setNote(null);
   };
+
+  const promoteLevel = () => {
+    const p = computePromotion();
+    if (typeof p === "string") {
+      setError(p);
+      setNote(null);
+      return;
+    }
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setInstant(false);
+      setRunId((r) => r + 1);
+      commitPromotion(p);
+      return;
+    }
+    startPromotionAnimation(p);
+  };
+
 
   const demoteLevel = () => {
     if (levelStack.current.length === 0) return;
