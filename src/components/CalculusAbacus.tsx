@@ -64,6 +64,7 @@ function Piece({
   heightScale = 1,
   dim = false,
   highlighted = false,
+  instant = false,
 }: {
   x: number;
   fromY: number;
@@ -73,12 +74,19 @@ function Piece({
   heightScale?: number;
   dim?: boolean;
   highlighted?: boolean;
+  instant?: boolean;
 }) {
   const ref = useRef<THREE.Group>(null);
   const start = useRef(performance.now() / 1000 + delay);
+  const instantRef = useRef(instant);
 
   useFrame(() => {
     if (!ref.current) return;
+    if (instantRef.current) {
+      ref.current.position.set(x, targetY, 0);
+      ref.current.scale.set(1, heightScale, 1);
+      return;
+    }
     const t = performance.now() / 1000 - start.current;
     if (t < 0) {
       ref.current.position.set(x, fromY, 0);
@@ -275,6 +283,19 @@ function computeCounts(
 }
 
 
+export type AnimState = {
+  /** size-stone counts shown on the board while animating */
+  size: number[];
+  /** change-stone counts shown on the board while animating */
+  change: number[];
+  /** slot index where each column's change stack starts */
+  changeBase: number[];
+  /** slot index a change stack falls from when its base moves */
+  changeFrom: number[];
+  /** render this column's change stones with the size palette */
+  asSize: boolean[];
+};
+
 function Stacks({
   size,
   change,
@@ -283,6 +304,8 @@ function Stacks({
   runId,
   highlight,
   defined,
+  anim = null,
+  instant = false,
 }: {
   size: number[];
   change: number[];
@@ -291,21 +314,25 @@ function Stacks({
   runId: number;
   highlight: { i: number; color: "size" | "change" } | null;
   defined: boolean[];
+  anim?: AnimState | null;
+  instant?: boolean;
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
+  const sizeArr = anim ? anim.size : size;
+  const changeArr = anim ? anim.change : change;
   return (
     <>
-      {size.map((yVal, i) => {
+      {sizeArr.map((yVal, i) => {
         if (defined[i] === false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
 
-        const off = shift[i] ?? 0;
-        const gap = changeGap[i] ?? 0;
+        const off = anim ? 0 : (shift[i] ?? 0);
+        const gap = anim ? 0 : (changeGap[i] ?? 0);
         const pieces: ReactNode[] = [];
-        const oH = highlight?.i === i && highlight.color === "size";
-        const rH = highlight?.i === i && highlight.color === "change";
-        const oDim = highlight !== null && !oH;
-        const rDim = highlight !== null && !rH;
+        const oH = !anim && highlight?.i === i && highlight.color === "size";
+        const rH = !anim && highlight?.i === i && highlight.color === "change";
+        const oDim = !anim && highlight !== null && !oH;
+        const rDim = !anim && highlight !== null && !rH;
 
         const neg = yVal < 0;
         const absVal = Math.abs(yVal);
@@ -318,31 +345,41 @@ function Stacks({
               x={x}
               fromY={skyY}
               targetY={slotY(k + off)}
-              delay={i * 0.04 + k * 0.02}
+              delay={anim ? 0 : i * 0.04 + k * 0.02}
               color={stoneColor}
               dim={oDim}
               highlighted={oH}
+              instant={instant}
             />,
           );
         }
 
-        const rVal = change[i] ?? 0;
+        const rVal = changeArr[i] ?? 0;
         const rNeg = rVal < 0;
         const rAbs = Math.abs(rVal);
-        const changeStoneColor = rNeg ? DARK_GREY : ORANGE;
+        const asSize = anim ? anim.asSize[i] : false;
+        const changeStoneColor = asSize
+          ? rNeg
+            ? BLACK
+            : RED
+          : rNeg
+            ? DARK_GREY
+            : ORANGE;
         const rFull = Math.floor(rAbs);
-        const changeBase = yFull + gap;
+        const changeBase = anim ? anim.changeBase[i] : yFull + gap;
+        const changeFrom = anim ? anim.changeFrom[i] : changeBase;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
-              key={`r-${runId}-${i}-${k}`}
+              key={`r-${runId}-${i}-${k}-${changeBase}`}
               x={x}
-              fromY={skyY + 2}
+              fromY={anim ? slotY(changeFrom + k) : skyY + 2}
               targetY={slotY(changeBase + k + off)}
-              delay={i * 0.04 + (changeBase + k) * 0.02}
+              delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
               color={changeStoneColor}
               dim={rDim}
               highlighted={rH}
+              instant={instant}
             />,
           );
         }
@@ -607,6 +644,8 @@ function Scene({
   unit,
   tangentSlope,
   defined,
+  anim,
+  instant,
 }: {
   size: number[];
   change: number[];
@@ -628,6 +667,8 @@ function Scene({
   unit: number;
   tangentSlope: number;
   defined: boolean[];
+  anim: AnimState | null;
+  instant: boolean;
 }) {
   return (
     <>
@@ -660,8 +701,10 @@ function Scene({
           runId={runId}
           highlight={highlight}
           defined={defined}
+          anim={anim}
+          instant={instant}
         />
-        {showLine && (
+        {showLine && !anim && (
           <>
             <ConnectingLine size={size} shift={shift} defined={defined} />
             <TangentLine
@@ -674,16 +717,18 @@ function Scene({
             />
           </>
         )}
-        <DragHandles
-          size={size}
-          change={change}
-          shift={shift}
-          changeGap={changeGap}
-          onDrag={onDrag}
-          setDragging={setDragging}
-          onHover={onHover}
-          defined={defined}
-        />
+        {!anim && (
+          <DragHandles
+            size={size}
+            change={change}
+            shift={shift}
+            changeGap={changeGap}
+            onDrag={onDrag}
+            setDragging={setDragging}
+            onHover={onHover}
+            defined={defined}
+          />
+        )}
 
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
           <planeGeometry args={[60, 60]} />
@@ -777,19 +822,27 @@ export default function CalculusAbacus() {
   >([]);
 
 
+  const [anim, setAnim] = useState<AnimState | null>(null);
+  const [instant, setInstant] = useState(false);
+  const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const finishRef = useRef<(() => void) | null>(null);
+
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
-  const promoteLevel = () => {
-    if (wMode) {
-      setError("Remove Stones cannot be used with the infinitesimal increment w.");
-      setNote(null);
-      return;
-    }
-    if (!change.some((v) => v !== 0)) {
-      setError("No change-size stones to promote.");
-      setNote(null);
-      return;
-    }
+  type Promotion = {
+    newYRaw: number[];
+    newDefined: boolean[];
+    counts: number[];
+    u: number;
+    floor: number;
+  };
+
+  const computePromotion = (): Promotion | string => {
+    if (wMode) return "Remove Stones cannot be used with the infinitesimal increment w.";
+    if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
+    if (shift.some((v) => v !== 0) || changeGap.some((v) => v !== 0))
+      return "Restore the stones to their original positions before removing stones.";
+    if (showLine) return "Uncheck Midpoint Tangent before removing stones.";
     const newYRaw: number[] = [];
     const newDefined: boolean[] = [];
     for (let i = 0; i < COLUMNS; i++) {
@@ -804,11 +857,11 @@ export default function CalculusAbacus() {
       }
     }
     const res = computeCounts(newYRaw, newDefined, fractional, maxStones);
-    if (!res) {
-      setError("Could not promote: all columns are undefined.");
-      setNote(null);
-      return;
-    }
+    if (!res) return "Could not promote: all columns are undefined.";
+    return { newYRaw, newDefined, counts: res.counts, u: res.u, floor: res.floor };
+  };
+
+  const commitPromotion = (p: Promotion) => {
     levelStack.current.push({
       yRaw: yRaw.slice(),
       size: size.slice(),
@@ -821,20 +874,135 @@ export default function CalculusAbacus() {
       wBase,
       showLine,
     });
-    setYRaw(newYRaw);
-    setDefined(newDefined);
-    setUnit(res.u);
-    setFloorValue(res.floor);
-    setSize(res.counts);
+    setYRaw(p.newYRaw);
+    setDefined(p.newDefined);
+    setUnit(p.u);
+    setFloorValue(p.floor);
+    setSize(p.counts);
     setChange(Array(COLUMNS).fill(0));
     setShift(Array(COLUMNS).fill(0));
     setChangeGap(Array(COLUMNS).fill(0));
     setShowLine(false);
     setLevel((l) => l + 1);
-    setRunId((r) => r + 1);
     setError(null);
     setNote(null);
   };
+
+  const snapshot = (s: AnimState): AnimState => ({
+    size: s.size.slice(),
+    change: s.change.slice(),
+    changeBase: s.changeBase.slice(),
+    changeFrom: s.changeFrom.slice(),
+    asSize: s.asSize.slice(),
+  });
+
+  const startPromotionAnimation = (p: Promotion) => {
+    const base = size.map((v) => Math.floor(Math.abs(v)));
+    const state: AnimState = {
+      size: size.slice(),
+      change: change.slice(),
+      changeBase: base.slice(),
+      changeFrom: base.slice(),
+      asSize: Array(COLUMNS).fill(false),
+    };
+    const steps: (() => void)[] = [];
+    // Step 1 — clear the size stones, column by column
+    for (let i = 0; i < COLUMNS; i++) {
+      steps.push(() => {
+        state.size[i] = 0;
+      });
+    }
+    // Step 2a — drop each change stack to the board floor
+    for (let i = 0; i < COLUMNS; i++) {
+      steps.push(() => {
+        state.changeFrom[i] = state.changeBase[i];
+        state.changeBase[i] = 0;
+      });
+    }
+    // Step 2b — adjust the count, then recolor
+    for (let i = 0; i < COLUMNS; i++) {
+      steps.push(() => {
+        state.change[i] = p.newDefined[i] ? p.counts[i] : 0;
+      });
+      steps.push(() => {
+        state.asSize[i] = true;
+      });
+    }
+
+    let idx = 0;
+    const finish = () => {
+      if (animTimer.current) clearInterval(animTimer.current);
+      animTimer.current = null;
+      finishRef.current = null;
+      setInstant(true);
+      setAnim(null);
+      commitPromotion(p);
+    };
+    finishRef.current = finish;
+
+    setError(null);
+    setNote(null);
+    setInstant(false);
+    setAnim(snapshot(state));
+    animTimer.current = setInterval(() => {
+      if (idx >= steps.length) {
+        finish();
+        return;
+      }
+      steps[idx++]();
+      setAnim(snapshot(state));
+    }, 130);
+  };
+
+  // Skip the transition on a click or Esc; always clean the timer up.
+  useEffect(() => {
+    if (!anim) return;
+    const skip = () => finishRef.current?.();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") skip();
+    };
+    window.addEventListener("pointerdown", skip);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", skip);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [anim]);
+
+  useEffect(
+    () => () => {
+      if (animTimer.current) clearInterval(animTimer.current);
+    },
+    [],
+  );
+
+  // Only the pieces that appear at the moment of the commit skip their entry.
+  useEffect(() => {
+    if (!instant) return;
+    const t = setTimeout(() => setInstant(false), 250);
+    return () => clearTimeout(t);
+  }, [instant]);
+
+
+  const promoteLevel = () => {
+    const p = computePromotion();
+    if (typeof p === "string") {
+      setError(p);
+      setNote(null);
+      return;
+    }
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setInstant(false);
+      setRunId((r) => r + 1);
+      commitPromotion(p);
+      return;
+    }
+    startPromotionAnimation(p);
+  };
+
 
   const demoteLevel = () => {
     if (levelStack.current.length === 0) return;
@@ -1227,6 +1395,8 @@ export default function CalculusAbacus() {
           unit={unit}
           tangentSlope={tangentSlope}
           defined={defined}
+          anim={anim}
+          instant={instant}
         />
       </Canvas>
 
@@ -1555,14 +1725,16 @@ export default function CalculusAbacus() {
           </label>
           <button
             type="submit"
-            className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
+            disabled={!!anim}
+            className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c] disabled:opacity-50"
           >
             Fill Board
           </button>
           <button
             type="button"
             onClick={calcDiff}
-            className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a]"
+            disabled={!!anim}
+            className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a] disabled:opacity-50"
           >
             Find Differences
           </button>
@@ -1572,6 +1744,7 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={fractional}
+                disabled={!!anim}
                 onChange={(e) => setFractional(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
@@ -1581,7 +1754,7 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={showLine}
-                disabled={level > 0 || wMode}
+                disabled={level > 0 || wMode || !!anim}
                 onChange={(e) => setShowLine(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
@@ -1598,7 +1771,7 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={level > 0}
-                disabled={level === 0 && !change.some((v) => v !== 0) && !wMode}
+                disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim}
                 onChange={(e) => {
                   if (wMode) {
                     setError("Remove Stones cannot be used with the infinitesimal increment w.");
