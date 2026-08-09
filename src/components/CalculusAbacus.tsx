@@ -74,12 +74,19 @@ function Piece({
   heightScale?: number;
   dim?: boolean;
   highlighted?: boolean;
+  instant?: boolean;
 }) {
   const ref = useRef<THREE.Group>(null);
   const start = useRef(performance.now() / 1000 + delay);
+  const instantRef = useRef(instant);
 
   useFrame(() => {
     if (!ref.current) return;
+    if (instantRef.current) {
+      ref.current.position.set(x, targetY, 0);
+      ref.current.scale.set(1, heightScale, 1);
+      return;
+    }
     const t = performance.now() / 1000 - start.current;
     if (t < 0) {
       ref.current.position.set(x, fromY, 0);
