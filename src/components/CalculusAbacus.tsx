@@ -12,6 +12,7 @@ const PIECE_WIDTH = 1.1875;
 const PIECE_DEPTH = 1.1875 / 1.618;
 const MAX_PIECES = 100;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
+const BOARD_CENTER_Y = SEPARATOR_HEIGHT / 2 + 0.05;
 
 const ORANGE = "#ff932a";
 const ORANGE_LIGHT = "#ffb56a";
@@ -742,7 +743,7 @@ function Scene({
         enablePan={true}
         minDistance={8}
         maxDistance={50}
-        target={[0, 7, 0]}
+        target={[0, BOARD_CENTER_Y, 0]}
         mouseButtons={{
           LEFT: THREE.MOUSE.PAN,
           MIDDLE: THREE.MOUSE.DOLLY,
@@ -756,7 +757,7 @@ function Scene({
 function CameraController({ trigger }: { trigger: { dir: number; n: number } }) {
   const { camera } = useThree();
   const last = useRef(trigger.n);
-  const target = useMemo(() => new THREE.Vector3(0, 7, 0), []);
+  const target = useMemo(() => new THREE.Vector3(0, BOARD_CENTER_Y, 0), []);
   useEffect(() => {
     if (trigger.n === last.current) return;
     last.current = trigger.n;
@@ -802,7 +803,7 @@ export default function CalculusAbacus() {
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
   const [zoomTrigger, setZoomTrigger] = useState({ dir: 0, n: 0 });
-  const [panY, setPanY] = useState(-1.0);
+  const [panY, setPanY] = useState(0);
   const [uiHidden, setUiHidden] = useState(true);
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const [level, setLevel] = useState(0);
@@ -1373,7 +1374,7 @@ export default function CalculusAbacus() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
-      <Canvas shadows camera={{ position: [0, 8, 29.2], fov: 45 }} dpr={[1, 2]}>
+      <Canvas shadows camera={{ position: [0, BOARD_CENTER_Y, 29.2], fov: 45 }} dpr={[1, 2]}>
         <Scene
           size={size}
           change={change}
