@@ -1395,6 +1395,8 @@ export default function CalculusAbacus() {
           unit={unit}
           tangentSlope={tangentSlope}
           defined={defined}
+          anim={anim}
+          instant={instant}
         />
       </Canvas>
 
