@@ -697,8 +697,10 @@ function Scene({
           runId={runId}
           highlight={highlight}
           defined={defined}
+          anim={anim}
+          instant={instant}
         />
-        {showLine && (
+        {showLine && !anim && (
           <>
             <ConnectingLine size={size} shift={shift} defined={defined} />
             <TangentLine
@@ -711,16 +713,18 @@ function Scene({
             />
           </>
         )}
-        <DragHandles
-          size={size}
-          change={change}
-          shift={shift}
-          changeGap={changeGap}
-          onDrag={onDrag}
-          setDragging={setDragging}
-          onHover={onHover}
-          defined={defined}
-        />
+        {!anim && (
+          <DragHandles
+            size={size}
+            change={change}
+            shift={shift}
+            changeGap={changeGap}
+            onDrag={onDrag}
+            setDragging={setDragging}
+            onHover={onHover}
+            defined={defined}
+          />
+        )}
 
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.31, 0]} receiveShadow>
           <planeGeometry args={[60, 60]} />
