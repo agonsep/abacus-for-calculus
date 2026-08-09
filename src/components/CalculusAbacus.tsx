@@ -1794,14 +1794,24 @@ export default function CalculusAbacus() {
               <span className={wMode ? "text-muted-foreground" : "text-foreground"}>Remove Stones</span>
             </label>
 
-            <label className="flex cursor-pointer items-center gap-2">
+            <label
+              className="flex cursor-pointer items-center gap-2"
+              title={
+                level > 0 || anim
+                  ? "The comparison direction is fixed once stones have been removed."
+                  : undefined
+              }
+            >
               <input
                 type="checkbox"
                 checked={leftCompare}
+                disabled={level > 0 || !!anim}
                 onChange={(e) => setLeftCompare(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className="text-foreground">Lefthand comparison</span>
+              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>
+                Lefthand comparison
+              </span>
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
