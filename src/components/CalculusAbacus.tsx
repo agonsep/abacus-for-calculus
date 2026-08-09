@@ -1725,14 +1725,16 @@ export default function CalculusAbacus() {
           </label>
           <button
             type="submit"
-            className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c]"
+            disabled={!!anim}
+            className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c] disabled:opacity-50"
           >
             Fill Board
           </button>
           <button
             type="button"
             onClick={calcDiff}
-            className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a]"
+            disabled={!!anim}
+            className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a] disabled:opacity-50"
           >
             Find Differences
           </button>
@@ -1742,6 +1744,7 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={fractional}
+                disabled={!!anim}
                 onChange={(e) => setFractional(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
@@ -1751,7 +1754,7 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={showLine}
-                disabled={level > 0 || wMode}
+                disabled={level > 0 || wMode || !!anim}
                 onChange={(e) => setShowLine(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
@@ -1768,7 +1771,7 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={level > 0}
-                disabled={level === 0 && !change.some((v) => v !== 0) && !wMode}
+                disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim}
                 onChange={(e) => {
                   if (wMode) {
                     setError("Remove Stones cannot be used with the infinitesimal increment w.");
