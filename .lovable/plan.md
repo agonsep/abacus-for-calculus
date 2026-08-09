@@ -26,7 +26,7 @@ Clicking anywhere or pressing Esc finishes the transition immediately.
 
 **2. Colour changes are not always orange-to-red.** Size stones are red when positive and black when negative; change stones are orange when positive and dark grey when negative. A column can go orange→red, orange→black, grey→red or grey→black, and a sign flip also moves the stack from above the floor to below it. Handling recolor per column, after the count is set, keeps each of these a single readable jump.
 
-**3. The step-2 target count is unrelated to the count you can see.** The new count is `Δy/Δx` re-scaled through a freshly derived unit and floor, not the displayed change count. With a small increment a column showing 3 orange stones becomes 40 red stones. Showing the new scale readout at the start of step 2 keeps that from looking arbitrary.
+**3. The adjusted count is unrelated to the count you can see.** The new count is `Δy/Δx` re-scaled through a freshly derived unit and floor, not the displayed change count. With a small increment a column showing 3 orange stones becomes 40 red stones. Showing the new scale readout at the start of step 2b keeps that from looking arbitrary.
 
 **4. Columns that die.** Promotion always loses one edge column, and any column next to an undefined one also becomes undefined. Those columns clear during step 1 like the rest, and grey out at the moment the promotion commits — not mid-sequence.
 
