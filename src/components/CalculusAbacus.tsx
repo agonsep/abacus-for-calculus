@@ -64,6 +64,7 @@ function Piece({
   heightScale = 1,
   dim = false,
   highlighted = false,
+  instant = false,
 }: {
   x: number;
   fromY: number;
