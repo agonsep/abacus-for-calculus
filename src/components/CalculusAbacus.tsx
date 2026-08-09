@@ -644,6 +644,8 @@ function Scene({
   unit,
   tangentSlope,
   defined,
+  anim,
+  instant,
 }: {
   size: number[];
   change: number[];
@@ -665,6 +667,8 @@ function Scene({
   unit: number;
   tangentSlope: number;
   defined: boolean[];
+  anim: AnimState | null;
+  instant: boolean;
 }) {
   return (
     <>
