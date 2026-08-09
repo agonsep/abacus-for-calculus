@@ -10,9 +10,11 @@ Today the promotion is instantaneous: `promoteLevel()` computes the new values a
 
 ## What the user sees
 
-**Step 1 — clear and drop.** Column by column from the left, all the red size stones in that column disappear at once. When the last column is clear, the pass repeats from the left: the orange stones of each column drop as a block to the board floor. One event per column per pass, roughly 120-180 ms apart, so the whole step lands in about 3-4 seconds.
+**Step 1 — clear.** Column by column from the left, all the red size stones in that column disappear at once. One event per column, roughly 120-180 ms apart.
 
-**Step 2 — convert.** Column by column from the left, each column's stack jumps to its new count in one event (stones added or removed as a block), then turns red — or black when the new value is negative. The new `One size-stone = …` scale appears as this step begins.
+**Step 2a — drop.** Column by column from the left, each column's stack of change-size stones falls as a block to the bottom of the board.
+
+**Step 2b — adjust and recolor.** After every column has dropped, a second pass from the left gives each column its new count in one event (stones added or removed as a block), then recolors that column to the size palette: orange becomes red, and either colour becomes black when the new value is negative — the pairing depends on the sign before and after, so all four combinations must be handled. The new `One size-stone = …` scale appears as this pass begins.
 
 **Step 3 — panel.** When the last column is done, the left panel updates to the new level: headings gain their order superscript, values, unit and floor all switch together, and lost columns read `undefined`.
 
