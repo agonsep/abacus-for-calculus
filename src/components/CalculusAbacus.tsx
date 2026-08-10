@@ -800,7 +800,7 @@ function Scene({
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
-        <Board xValues={xValues} xW={xW} defined={defined} />
+        <Board xValues={xValues} xW={xW} defined={defined} leibniz={leibniz} />
         <Stacks
           size={size}
           change={change}
@@ -811,6 +811,7 @@ function Scene({
           defined={defined}
           anim={anim}
           instant={instant}
+          leibniz={leibniz}
         />
         {showLine && !anim && (
           <>
