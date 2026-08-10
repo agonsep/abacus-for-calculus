@@ -28,11 +28,11 @@ For `y = x^2`, midpoint 5, increment 1, max stones 100: red stones 0, 1, 4, 9, .
 
 5. **Undefined and non-differentiable columns.** A grey column stays grey. A defined point with no derivative (`abs(x)` at 0) needs its own treatment — most consistent is to show that column's `dy` as undefined rather than invent a one-sided value.
 
-6. **Interaction with the existing controls.**
-   - **Find Differences** and **Leibniz Mode** both own the orange layer. Simplest rule: Leibniz Mode takes over the orange stones and disables Find Differences while checked (and clears any existing change stones, restoring them on uncheck).
-   - **Difference Curve** promotes orange stones into red ones; promoting a differential is meaningful (it is the derivative curve) but changes the meaning of the level stack. Recommended: disable Difference Curve while Leibniz Mode is on.
-   - **Lefthand comparison** has no meaning here (a differential has no direction) — disable it.
-   - **Midpoint Tangent** is compatible and should stay available.
+6. **Interaction with the existing controls.** While Leibniz Mode is checked, **Find Differences**, **Difference Curve** and **Lefthand comparison** are all inactive (greyed out and non-functional):
+   - **Find Differences** and Leibniz Mode both own the orange layer; Leibniz Mode takes it over, clearing any existing change stones and restoring them on uncheck.
+   - **Difference Curve** promotes orange stones into red ones, which would confuse the level stack with the differential layer.
+   - **Lefthand comparison** has no meaning here, since a differential has no direction.
+   - **Midpoint Tangent** is compatible and stays available.
    - **Fractional stones** applies naturally: `dy / unit` unrounded.
    - **`w` as the increment**: `dx = w` makes `dy = f'(x)·w` an infinitesimal, which is precisely Leibniz's other case and works with the existing `w` scaling. Worth allowing rather than blocking.
 
