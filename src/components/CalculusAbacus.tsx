@@ -1180,7 +1180,9 @@ export default function CalculusAbacus() {
   };
 
   const firstRunRef = useRef(true);
-  const setup = () => {
+  const setup = (opts?: { leibniz?: boolean; maxStones?: string }) => {
+    const lb = opts?.leibniz ?? leibniz;
+    const ms = opts?.maxStones ?? maxStones;
     try {
       const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
       const m = Number(midpoint);
