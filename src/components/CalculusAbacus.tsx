@@ -836,6 +836,7 @@ function Scene({
             setDragging={setDragging}
             onHover={onHover}
             defined={defined}
+            leibniz={leibniz}
           />
         )}
 
