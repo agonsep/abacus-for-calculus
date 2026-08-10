@@ -1572,6 +1572,48 @@ export default function CalculusAbacus() {
                 <> &nbsp;Floor: <span className="font-mono text-foreground">{wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
               )}
             </p>
+            {leibniz ? (
+              <>
+                <div
+                  className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
+                  style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 10rem 10rem" : "3rem 6rem 6rem" }}
+                >
+                  <div className="text-center">x</div>
+                  <div className="text-center text-[#e8352c]">f(x)</div>
+                  <div className="text-center text-[#ff932a]">dy = f&apos;(x)·dx</div>
+                </div>
+                {xValues.map((xv, i) => {
+                  const isDef = defined[i] !== false;
+                  const dyDef = isDef && dyDefined[i];
+                  return (
+                    <div
+                      key={i}
+                      className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
+                      style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 10rem 10rem" : "3rem 6rem 6rem" }}
+                    >
+                      <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {formatDual(xv, xW[i] ?? 0, formatNum)}
+                      </div>
+                      <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {isDef
+                          ? wMode
+                            ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
+                            : fmtVal(yRaw[i] ?? 0)
+                          : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {dyDef
+                          ? wMode
+                            ? formatDual(0, dyValues[i] ?? 0, fmtVal)
+                            : fmtVal(dyValues[i] ?? 0)
+                          : "undefined"}
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              <>
             <div
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
               style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
