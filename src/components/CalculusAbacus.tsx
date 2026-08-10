@@ -1674,25 +1674,28 @@ export default function CalculusAbacus() {
               <>
             <div
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
-              style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
+              style={{ gridTemplateColumns: gridCols }}
             >
               <div className="text-center">x</div>
               <div className="flex items-center justify-center gap-1">
-                <div className="h-5 w-5" />
+                {!readOnlyCounts && <div className="h-5 w-5" />}
                 <div className="text-center text-[#e8352c]" style={{ width: slopeHighPrecision ? "6rem" : "3.5rem" }}>
                   {sizeHeader}
                 </div>
-                <div className="h-5 w-5" />
+                {!readOnlyCounts && <div className="h-5 w-5" />}
               </div>
-              <div className="flex items-center justify-center gap-1">
-                <div className="h-5 w-5" />
-                <div className="text-center text-[#ff932a]" style={{ width: slopeHighPrecision ? "6rem" : "3.5rem" }}>
-                  {changeHeader}
-                </div>
-                <div className="h-5 w-5" />
-              </div>
-              <div className="text-right">{slopeHeader}</div>
-
+              {showChangeColumns && (
+                <>
+                  <div className="flex items-center justify-center gap-1">
+                    {!readOnlyCounts && <div className="h-5 w-5" />}
+                    <div className="text-center text-[#ff932a]" style={{ width: slopeHighPrecision ? "6rem" : "3.5rem" }}>
+                      {changeHeader}
+                    </div>
+                    {!readOnlyCounts && <div className="h-5 w-5" />}
+                  </div>
+                  <div className="text-right">{slopeHeader}</div>
+                </>
+              )}
             </div>
             {xValues.map((xv, i) => {
               const slopeValue = (change[i] ?? 0) * unit / (incValue || 1);
@@ -1704,60 +1707,72 @@ export default function CalculusAbacus() {
                 <div
                   key={i}
                   className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
-                  style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
+                  style={{ gridTemplateColumns: gridCols }}
                 >
                   <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatDual(xv, xW[i] ?? 0, formatNum)}</div>
                   {isDef ? (
                     <div className="flex items-center justify-center gap-1">
-                      <button
-                        onClick={() => bump(setSize, i, fractional ? -0.1 : -1, sizeBumpMin)}
-                        className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                      >
-                        −
-                      </button>
+                      {!readOnlyCounts && (
+                        <button
+                          onClick={() => bump(setSize, i, fractional ? -0.1 : -1, sizeBumpMin)}
+                          className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                        >
+                          −
+                        </button>
+                      )}
                       <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
                         {fmtCount(size[i])}
                       </span>
-                      <button
-                        onClick={() => bump(setSize, i, fractional ? 0.1 : 1, sizeBumpMin)}
-                        className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                      >
-                        +
-                      </button>
-
+                      {!readOnlyCounts && (
+                        <button
+                          onClick={() => bump(setSize, i, fractional ? 0.1 : 1, sizeBumpMin)}
+                          className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
+                        >
+                          +
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center font-mono text-muted-foreground">undefined</div>
                   )}
-                  {diffDef ? (
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        onClick={() => bump(setChange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                        className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                      >
-                        −
-                      </button>
-                      <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
-                        {fmtCount(change[i])}
-                      </span>
-                      <button
-                        onClick={() => bump(setChange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                        className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                      >
-                        +
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="text-center font-mono text-muted-foreground">undefined</div>
+                  {showChangeColumns && (
+                    <>
+                      {diffDef ? (
+                        <div className="flex items-center justify-center gap-1">
+                          {!readOnlyCounts && (
+                            <button
+                              onClick={() => bump(setChange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
+                              className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                            >
+                              −
+                            </button>
+                          )}
+                          <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
+                            {fmtCount(change[i])}
+                          </span>
+                          {!readOnlyCounts && (
+                            <button
+                              onClick={() => bump(setChange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
+                              className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
+                            >
+                              +
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center font-mono text-muted-foreground">undefined</div>
+                      )}
+                      <div className={`whitespace-nowrap text-right font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {diffDef
+                          ? slopeHighPrecision ? slopeValue.toFixed(10) : slopeValue.toFixed(2)
+                          : "undefined"}
+                      </div>
+                    </>
                   )}
-                  <div className={`whitespace-nowrap text-right font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
-                    {diffDef
-                      ? slopeHighPrecision ? slopeValue.toFixed(10) : slopeValue.toFixed(2)
-                      : "undefined"}
-                  </div>
                 </div>
               );
             })}
+
               </>
             )}
 
