@@ -2061,7 +2061,6 @@ export default function CalculusAbacus() {
               />
               <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Midpoint Tangent</span>
             </label>
-
             <label
               className="flex cursor-pointer items-center gap-2"
               title={
