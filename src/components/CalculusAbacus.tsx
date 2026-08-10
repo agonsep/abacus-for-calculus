@@ -1681,7 +1681,7 @@ export default function CalculusAbacus() {
                   className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
                   style={{ gridTemplateColumns: gridCols }}
                 >
-                  <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatDual(xv, xW[i] ?? 0, formatNum)}</div>
+                  <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatDual(xv, xW[i] ?? 0, formatNum)}</div>
                   <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                     {isDef ? fmtCount(size[i]) : "undefined"}
                   </div>
