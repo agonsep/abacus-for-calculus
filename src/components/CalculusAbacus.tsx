@@ -407,6 +407,7 @@ function Stacks({
   defined,
   anim = null,
   instant = false,
+  leibniz = false,
 }: {
   size: number[];
   change: number[];
@@ -417,6 +418,7 @@ function Stacks({
   defined: boolean[];
   anim?: AnimState | null;
   instant?: boolean;
+  leibniz?: boolean;
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   const sizeArr = anim ? anim.size : size;
