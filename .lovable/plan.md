@@ -1,29 +1,28 @@
-# Hide empty Change-Size and Slope estimate columns after Difference Curve
+# Simplify the left panel after "Difference Curve"
 
-## Goal
-When the user clicks **Difference Curve** and the promoted `change` array is empty (all zeros), the left panel should hide the "Change-Size" and "Slope estimate" columns instead of showing columns of zeros. The columns should reappear when the user clicks **Find Differences** again at the new level and the `change` array contains non-zero values.
+Two related simplifications to the left panel, both applying only when the user is above level 0 (i.e. after clicking **Difference Curve**).
 
-## Why
-After promotion, the change-size stones have been converted into size stones. The next-order change data does not exist until the user explicitly requests it again with **Find Differences**. Showing two zero-filled columns is misleading and adds visual clutter.
+## 1. Remove the + / − buttons
 
-## Changes
-In `src/components/CalculusAbacus.tsx`:
+Once the board shows a difference curve, the stone counts are derived values (Δy/Δx), not something the user should nudge by hand. The `+` and `−` buttons next to the Size and Change-Size numbers are removed whenever `level > 0`; the numbers still display, just as plain read-only values. At level 0 the buttons stay exactly as they are today.
 
-1. Add a derived boolean (e.g., `showChangeColumns`) that is `true` when `level === 0` OR when the `change` array contains at least one non-zero value.
-   - At level 0, keep the columns visible even if they are empty so the user knows where to look after clicking **Find Differences**.
-   - At level > 0, hide the columns when `change` is all zeros (the immediate post-promotion state).
+## 2. Hide the empty Change-Size and Slope estimate columns
 
-2. Update the left panel header row so it renders only the visible columns (`x` and `Size` when `showChangeColumns` is `false`; otherwise `x`, `Size`, `Change-Size`, `Slope estimate`).
+Immediately after a promotion, the change-size stones have been absorbed into the size stones, so both the "Change-Size" and "Slope estimate" columns are filled with zeros. Those two columns are hidden while the `change` array is all zeros at `level > 0`, and reappear as soon as the user clicks **Find Differences** again and real next-order differences exist. At level 0 the four columns always show, even when empty.
 
-3. Update the per-row grid layout so the column widths and number of columns match the visible headers.
+## Technical notes
 
-4. Ensure the `+`/`−` buttons and the slope readout are only rendered when the corresponding columns are visible.
+All changes are in the non-Leibniz branch of the left panel in `src/components/CalculusAbacus.tsx` (roughly lines 1663-1748). Leibniz Mode already renders its own 3-column read-only layout and is untouched.
 
-5. Keep Leibniz Mode unchanged—it already shows a focused 3-column layout (`x`, `f(x)`, `dy`).
+- Add a derived `readOnlyCounts = level > 0`. When true, render the Size and Change-Size cells as a centered `<span>` with the same font/width as today, without the two button elements. Keep the existing `undefined` fallbacks.
+- Add a derived `showChangeColumns = level === 0 || change.some((c) => c !== 0)`.
+- When `showChangeColumns` is false, drop the Change-Size and Slope estimate cells from both the header row and the data rows, and shorten the `gridTemplateColumns` strings accordingly (two columns instead of four, for both the normal and `slopeHighPrecision` widths).
 
 ## Verification
-- With `y=x^2`, midpoint `5`, increment `1`, max stones `50`, click **Find Differences**.
-- Click **Difference Curve**. Confirm the left panel now shows only the `x` and `Size (Δy/Δx)` columns.
-- Click **Find Differences** again. Confirm the `Change-Size (Δ²y/Δx²)` and `Slope estimate (2nd)` columns reappear with non-zero values.
-- Uncheck **Difference Curve** to return to level 0 and confirm the original 4-column layout returns.
-- Confirm that in the default level-0 state, the 4 columns are still visible (even if zeros).
+
+With `y=x^2`, midpoint `5`, increment `1`, max stones `50`:
+
+- Click **Find Differences**, then **Difference Curve**. The left panel shows only `x` and `Size (Δy/Δx)`, with no `+`/`−` buttons.
+- Click **Find Differences** again. The `Change-Size (Δ²y/Δx²)` and `Slope estimate (2nd)` columns reappear with non-zero values and still no `+`/`−` buttons.
+- Uncheck **Difference Curve**. The original four-column layout returns with the `+`/`−` buttons working as before.
+- Toggle **Leibniz Mode** and confirm its panel is unchanged.
