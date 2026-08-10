@@ -1,29 +1,30 @@
-# Restore floor readout in left panel when not in Leibniz Mode
+# Reorder checkboxes: Difference Curve first, then Leibniz Mode
 
 ## Goal
-When Leibniz Mode is not checked, the left panel lists stone counts, so the user needs the floor value to compute actual f(x) from the displayed stack heights. Always show the floor readout in the left panel when not in Leibniz Mode, instead of only showing it when the floor is non-zero.
+In the right-side controls panel, place the "Difference Curve" checkbox at the top of the checkbox list, immediately followed by "Leibniz Mode". This keeps the two curve-level transformation modes grouped at the top.
+
+## Current checkbox order
+1. Leibniz Mode
+2. Fractional stones
+3. Midpoint Tangent
+4. Difference Curve
+5. Lefthand comparison
+6. 10 decimals
+
+## Desired checkbox order
+1. Difference Curve
+2. Leibniz Mode
+3. Fractional stones
+4. Midpoint Tangent
+5. Lefthand comparison
+6. 10 decimals
 
 ## Changes
-In `src/components/CalculusAbacus.tsx`, update the unit/floor readout near line 1617.
-
-Current logic:
-
-```text
-One stone = {unit}.
-{!leibniz && (floorValue !== 0 || (wMode && wBase !== 0)) && <> Floor: {floorValue}</>}
-```
-
-Updated logic:
-
-```text
-One stone = {unit}.
-{!leibniz && <> Floor: {floorValue}</>}
-```
-
-Keep the w-mode floor formatting (`wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)`) unchanged.
+In `src/components/CalculusAbacus.tsx`, move the `<label>` block for "Difference Curve" (currently around lines 2031-2063) above the "Leibniz Mode" `<label>` block (currently around lines 1994-2003). Do not change any labels, disabled logic, tooltips, or handlers — only reorder the JSX blocks.
 
 ## Verification
-- Open the app with the default curve and confirm the left panel reads "One stone = ..." followed by "Floor: ..." whenever Leibniz Mode is off.
-- Enable Leibniz Mode and confirm the floor line is hidden.
-- Disable Leibniz Mode and confirm the floor line returns.
-- Confirm the floor value still updates correctly when all y-values exceed the max-stone budget.
+- Open the app and show the right panel.
+- Confirm the top checkbox is now "Difference Curve".
+- Confirm the second checkbox is "Leibniz Mode".
+- Confirm the remaining checkboxes still appear in the order: Fractional stones, Midpoint Tangent, Lefthand comparison, 10 decimals.
+- Confirm existing behavior (disabled states, error messages, Leibniz interactions) is unchanged.
