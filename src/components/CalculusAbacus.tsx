@@ -1498,19 +1498,6 @@ export default function CalculusAbacus() {
 
 
 
-  const bump = (
-    setter: React.Dispatch<React.SetStateAction<number[]>>,
-    i: number,
-    d: number,
-    min = 0,
-    max = MAX_PIECES,
-  ) => {
-    setter((arr) => {
-      const next = arr.slice();
-      next[i] = Math.max(min, Math.min(max, next[i] + d));
-      return next;
-    });
-  };
 
   const incParsed = parseIncrement(increment);
   const incValue = incParsed ? incParsed.value : 0.5;
