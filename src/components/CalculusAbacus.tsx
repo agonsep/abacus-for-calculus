@@ -283,6 +283,68 @@ function computeCounts(
   return { u, floor: 0, counts };
 }
 
+/** Exact derivative when the dual evaluator supports the formula, else numeric. */
+function derivAt(cleaned: string, x: number): number | null {
+  try {
+    const r = evalDual(cleaned, { a: x, b: 1 });
+    if (isFinite(r.b)) return r.b;
+  } catch {
+    /* fall through to a numeric derivative */
+  }
+  try {
+    const eps = Math.max(1e-7, Math.abs(x) * 1e-7);
+    const yp = evaluate(cleaned, { x: x + eps });
+    const ym = evaluate(cleaned, { x: x - eps });
+    if (typeof yp === "number" && typeof ym === "number" && isFinite(yp) && isFinite(ym)) {
+      return (yp - ym) / (2 * eps);
+    }
+  } catch {
+    /* not differentiable here */
+  }
+  return null;
+}
+
+/** Cap for Max Stones while Leibniz Mode is on, leaving the upper half for dy. */
+const LEIBNIZ_MAX_STONES = 50;
+
+/**
+ * Leibniz layout: red stones as usual (capped at 50), orange stones showing
+ * dy = f'(x)·dx in the *same* unit. Shrinks the unit further if a stack would
+ * overflow the board.
+ */
+function computeLeibnizLayout(
+  ys: number[],
+  def: boolean[],
+  dyVals: (number | null)[],
+  fractional: boolean,
+  maxStones: string,
+) {
+  let ms = Math.max(25, Math.min(LEIBNIZ_MAX_STONES, Math.round(Number(maxStones)) || LEIBNIZ_MAX_STONES));
+  let last: { u: number; floor: number; counts: number[]; dyCounts: number[] } | null = null;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const res = computeCounts(ys, def, fractional, String(ms));
+    if (!res) return null;
+    const dyCounts = dyVals.map((d, i) => {
+      if (!def[i] || d === null || !isFinite(d) || res.u === 0) return 0;
+      const raw = d / res.u;
+      const v = fractional ? raw : Math.round(raw);
+      return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+    });
+    last = { u: res.u, floor: res.floor, counts: res.counts, dyCounts };
+    let maxTotal = 0;
+    for (let i = 0; i < ys.length; i++) {
+      maxTotal = Math.max(maxTotal, Math.max(0, res.counts[i]) + Math.max(0, dyCounts[i]));
+    }
+    if (maxTotal <= MAX_PIECES || ms <= 25) return last;
+    const next = Math.max(25, Math.floor((ms * MAX_PIECES) / maxTotal));
+    if (next >= ms) return last;
+    ms = next;
+  }
+  return last;
+}
+
+
+
 
 export type AnimState = {
   /** size-stone counts shown on the board while animating */
@@ -807,6 +869,19 @@ export default function CalculusAbacus() {
   const [uiHidden, setUiHidden] = useState(true);
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const [level, setLevel] = useState(0);
+  const [leibniz, setLeibniz] = useState(false);
+  const [dyValues, setDyValues] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [dyDefined, setDyDefined] = useState<boolean[]>(Array(COLUMNS).fill(false));
+  const leibnizSnap = useRef<{
+    size: number[];
+    change: number[];
+    shift: number[];
+    changeGap: number[];
+    unit: number;
+    floorValue: number;
+    maxStones: string;
+  } | null>(null);
+  const skipMaxRefill = useRef(false);
   const levelStack = useRef<
     {
       yRaw: number[];
@@ -1105,7 +1180,9 @@ export default function CalculusAbacus() {
   };
 
   const firstRunRef = useRef(true);
-  const setup = () => {
+  const setup = (opts?: { leibniz?: boolean; maxStones?: string }) => {
+    const lb = opts?.leibniz ?? leibniz;
+    const ms = opts?.maxStones ?? maxStones;
     try {
       const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
       const m = Number(midpoint);
@@ -1168,7 +1245,18 @@ export default function CalculusAbacus() {
           def.push(ok);
         }
       }
-      const res = computeCounts(ys, def, fractional, maxStones);
+      // Leibniz Mode: orange stones are dy = f'(x)·dx, in the same unit as red.
+      const dyVals: (number | null)[] = lb
+        ? xs.map((xv, i) => {
+            if (!def[i]) return null;
+            const d = derivAt(cleaned, isW ? m : xv);
+            return d === null ? null : d * h;
+          })
+        : [];
+      const lay = lb ? computeLeibnizLayout(ys, def, dyVals, fractional, ms) : null;
+      const res: { u: number; floor: number; counts: number[] } | null = lb
+        ? lay
+        : computeCounts(ys, def, fractional, ms);
       if (!res) {
         throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
       }
@@ -1184,7 +1272,12 @@ export default function CalculusAbacus() {
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
-      if (firstRunRef.current) {
+      if (lb && lay) {
+        setChange(lay.dyCounts);
+        setDyValues(dyVals.map((v) => v ?? 0));
+        setDyDefined(dyVals.map((v, i) => def[i] && v !== null));
+        firstRunRef.current = false;
+      } else if (firstRunRef.current) {
         const initialChange = ys.map((y, i) => {
           const j = leftCompare ? i - 1 : i + 1;
           if (j < 0 || j >= ys.length || !def[i] || !def[j]) return 0;
@@ -1258,6 +1351,10 @@ export default function CalculusAbacus() {
       skipRefillRef.current = false;
       return;
     }
+    if (skipMaxRefill.current) {
+      skipMaxRefill.current = false;
+      return;
+    }
     setup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxStones]);
@@ -1285,7 +1382,16 @@ export default function CalculusAbacus() {
       return Math.max(lo, Math.min(MAX_PIECES, v));
     });
     setSize(newSize);
-    if (change.some((v) => v !== 0)) {
+    if (leibniz) {
+      setChange(
+        dyValues.map((d, i) => {
+          if (!dyDefined[i]) return 0;
+          const raw = d / unit;
+          const v = fractional ? raw : Math.round(raw);
+          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+        }),
+      );
+    } else if (change.some((v) => v !== 0)) {
       const newChange = yRaw.map((y, i) => {
         const j = leftCompare ? i - 1 : i + 1;
         if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
@@ -1299,6 +1405,51 @@ export default function CalculusAbacus() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fractional]);
+
+  const toggleLeibniz = (on: boolean) => {
+    if (on) {
+      leibnizSnap.current = {
+        size: size.slice(),
+        change: change.slice(),
+        shift: shift.slice(),
+        changeGap: changeGap.slice(),
+        unit,
+        floorValue,
+        maxStones,
+      };
+      const capped =
+        Math.round(Number(maxStones)) > LEIBNIZ_MAX_STONES
+          ? String(LEIBNIZ_MAX_STONES)
+          : maxStones;
+      setLeibniz(true);
+      if (capped !== maxStones) {
+        skipMaxRefill.current = true;
+        setMaxStones(capped);
+      }
+      setup({ leibniz: true, maxStones: capped });
+      return;
+    }
+    setLeibniz(false);
+    const snap = leibnizSnap.current;
+    leibnizSnap.current = null;
+    if (snap) {
+      if (snap.maxStones !== maxStones) {
+        skipMaxRefill.current = true;
+        setMaxStones(snap.maxStones);
+      }
+      setSize(snap.size);
+      setChange(snap.change);
+      setShift(snap.shift);
+      setChangeGap(snap.changeGap);
+      setUnit(snap.unit);
+      setFloorValue(snap.floorValue);
+      setRunId((r) => r + 1);
+    } else {
+      setup({ leibniz: false });
+    }
+    setError(null);
+  };
+
 
 
 
@@ -1421,6 +1572,48 @@ export default function CalculusAbacus() {
                 <> &nbsp;Floor: <span className="font-mono text-foreground">{wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
               )}
             </p>
+            {leibniz ? (
+              <>
+                <div
+                  className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
+                  style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 10rem 10rem" : "3rem 6rem 6rem" }}
+                >
+                  <div className="text-center">x</div>
+                  <div className="text-center text-[#e8352c]">f(x)</div>
+                  <div className="text-center text-[#ff932a]">dy = f&apos;(x)·dx</div>
+                </div>
+                {xValues.map((xv, i) => {
+                  const isDef = defined[i] !== false;
+                  const dyDef = isDef && dyDefined[i];
+                  return (
+                    <div
+                      key={i}
+                      className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
+                      style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 10rem 10rem" : "3rem 6rem 6rem" }}
+                    >
+                      <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {formatDual(xv, xW[i] ?? 0, formatNum)}
+                      </div>
+                      <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {isDef
+                          ? wMode
+                            ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
+                            : fmtVal(yRaw[i] ?? 0)
+                          : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {dyDef
+                          ? wMode
+                            ? formatDual(0, dyValues[i] ?? 0, fmtVal)
+                            : fmtVal(dyValues[i] ?? 0)
+                          : "undefined"}
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              <>
             <div
               className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
               style={{ gridTemplateColumns: slopeHighPrecision ? "2rem 10rem 10rem 5rem" : "2rem 5.5rem 5.5rem 2rem" }}
@@ -1507,6 +1700,9 @@ export default function CalculusAbacus() {
                 </div>
               );
             })}
+              </>
+            )}
+
 
           </div>
         </div>
@@ -1639,6 +1835,9 @@ export default function CalculusAbacus() {
               <p>
                 Checking <strong>"Difference Curve"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
               </p>
+              <p>
+                Checking <strong>"Leibniz Mode"</strong> keeps the red size stones and shows a second layer of orange stones above them: the differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the red stones. Max Stones is capped at 50 so the upper layer always has room. While Leibniz Mode is on, "Find Differences", "Difference Curve" and "Lefthand comparison" are inactive, and the left panel shows just x, f(x) and dy.
+              </p>
 
               <p className="pt-4 text-sm text-muted-foreground">
                 Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>. Creative Commons BY license 2026
@@ -1717,10 +1916,14 @@ export default function CalculusAbacus() {
             <input
               type="number"
               min={25}
-              max={100}
+              max={leibniz ? LEIBNIZ_MAX_STONES : 100}
               step={1}
               value={maxStones}
-              onChange={(e) => setMaxStones(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                const n = Math.round(Number(v));
+                setMaxStones(leibniz && isFinite(n) && n > LEIBNIZ_MAX_STONES ? String(LEIBNIZ_MAX_STONES) : v);
+              }}
               className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
           </label>
@@ -1734,13 +1937,24 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={calcDiff}
-            disabled={!!anim}
+            disabled={!!anim || leibniz}
+            title={leibniz ? "Not available in Leibniz Mode." : undefined}
             className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a] disabled:opacity-50"
           >
             Find Differences
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
+            <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
+              <input
+                type="checkbox"
+                checked={leibniz}
+                disabled={!!anim || level > 0}
+                onChange={(e) => toggleLeibniz(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
+            </label>
             <label
               className={`flex items-center gap-2 ${level > 0 || anim ? "cursor-not-allowed" : "cursor-pointer"}`}
               title={
@@ -1779,7 +1993,7 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={level > 0}
-                disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim}
+                disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim || leibniz}
                 onChange={(e) => {
                   if (wMode) {
                     setError("Difference Curve cannot be used with the infinitesimal increment w.");
@@ -1799,7 +2013,7 @@ export default function CalculusAbacus() {
                 }}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={wMode ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
+              <span className={wMode || leibniz ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
             </label>
 
             <label
@@ -1813,11 +2027,11 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={leftCompare}
-                disabled={level > 0 || !!anim}
+                disabled={level > 0 || !!anim || leibniz}
                 onChange={(e) => setLeftCompare(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>
+              <span className={level > 0 || anim || leibniz ? "text-muted-foreground" : "text-foreground"}>
                 Lefthand comparison
               </span>
             </label>
