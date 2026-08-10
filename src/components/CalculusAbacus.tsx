@@ -47,6 +47,16 @@ function slotY(slot: number) {
   return PIECE_HEIGHT / 2 + slot * PIECE_HEIGHT + 0.05;
 }
 
+/** Leibniz Mode: the orange dy stones rest on a shelf at this slot. */
+const LEIBNIZ_SHELF_SLOT = 52;
+const SHELF_THICKNESS = 0.12;
+/** How many stone slots the dy layer has above the shelf. */
+const LEIBNIZ_DY_SPACE = MAX_PIECES - LEIBNIZ_SHELF_SLOT;
+/** World-space top face of the shelf (the plane the orange stones sit on). */
+function shelfTopY() {
+  return slotY(LEIBNIZ_SHELF_SLOT) - PIECE_HEIGHT / 2;
+}
+
 function niceUnit(raw: number) {
   if (!isFinite(raw) || raw <= 0) return 1;
   const exp = Math.floor(Math.log10(raw));
