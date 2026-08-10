@@ -1913,10 +1913,14 @@ export default function CalculusAbacus() {
             <input
               type="number"
               min={25}
-              max={100}
+              max={leibniz ? LEIBNIZ_MAX_STONES : 100}
               step={1}
               value={maxStones}
-              onChange={(e) => setMaxStones(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                const n = Math.round(Number(v));
+                setMaxStones(leibniz && isFinite(n) && n > LEIBNIZ_MAX_STONES ? String(LEIBNIZ_MAX_STONES) : v);
+              }}
               className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
             />
           </label>
@@ -1930,7 +1934,8 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={calcDiff}
-            disabled={!!anim}
+            disabled={!!anim || leibniz}
+            title={leibniz ? "Not available in Leibniz Mode." : undefined}
             className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a] disabled:opacity-50"
           >
             Find Differences
