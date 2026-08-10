@@ -776,6 +776,7 @@ function Scene({
   defined: boolean[];
   anim: AnimState | null;
   instant: boolean;
+  leibniz: boolean;
 }) {
   return (
     <>
