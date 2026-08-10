@@ -50,4 +50,4 @@ All in `src/components/CalculusAbacus.tsx` plus a small helper using `evalDual` 
 - `defined` gains a per-column differentiability check (dual evaluation throws → treat as undefined for `dy` only).
 - Left panel renders a 3-column layout when `leibniz` is true; headings `x`, `f(x)`, `dy = f'(x)·dx`.
 - Checkbox disabling wired for Find Differences, Difference Curve, and Lefthand comparison.
-- Optional unit rescale (issue 2) reuses the existing `computeCounts` fitting logic against `size + dy`.
+- Max Stones input `max` becomes 50 while `leibniz` is true, with the current value clamped on entry and restored on exit; `computeCounts` then fits `size + dy` inside `MAX_PIECES`.
