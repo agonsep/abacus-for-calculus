@@ -1245,7 +1245,17 @@ export default function CalculusAbacus() {
           def.push(ok);
         }
       }
-      const res = computeCounts(ys, def, fractional, maxStones);
+      // Leibniz Mode: orange stones are dy = f'(x)·dx, in the same unit as red.
+      const dyVals: (number | null)[] = lb
+        ? xs.map((xv, i) => {
+            if (!def[i]) return null;
+            const d = derivAt(cleaned, isW ? m : xv);
+            return d === null ? null : d * h;
+          })
+        : [];
+      const res = lb
+        ? computeLeibnizLayout(ys, def, dyVals, fractional, ms)
+        : computeCounts(ys, def, fractional, ms);
       if (!res) {
         throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
       }
@@ -1261,7 +1271,12 @@ export default function CalculusAbacus() {
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
-      if (firstRunRef.current) {
+      if (lb && "dyCounts" in res) {
+        setChange(res.dyCounts);
+        setDyValues(dyVals.map((v) => v ?? 0));
+        setDyDefined(dyVals.map((v, i) => def[i] && v !== null));
+        firstRunRef.current = false;
+      } else if (firstRunRef.current) {
         const initialChange = ys.map((y, i) => {
           const j = leftCompare ? i - 1 : i + 1;
           if (j < 0 || j >= ys.length || !def[i] || !def[j]) return 0;
