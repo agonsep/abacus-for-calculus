@@ -2028,39 +2028,6 @@ export default function CalculusAbacus() {
               />
               <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Midpoint Tangent</span>
             </label>
-            <label
-              title={
-                level === 0 && !change.some((v) => v !== 0)
-                  ? "Find differences first."
-                  : ""
-              }
-              className={`flex items-center gap-2 ${level === 0 && !change.some((v) => v !== 0) ? "cursor-not-allowed" : "cursor-pointer"}`}
-            >
-              <input
-                type="checkbox"
-                checked={level > 0}
-                disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim || leibniz}
-                onChange={(e) => {
-                  if (wMode) {
-                    setError("Difference Curve cannot be used with the infinitesimal increment w.");
-                    setNote(null);
-                    return;
-                  }
-                  if (e.target.checked) {
-                    if (!change.some((v) => v !== 0)) {
-                      setError("No change-size stones to promote.");
-                      setNote(null);
-                      return;
-                    }
-                    promoteLevel();
-                  } else {
-                    demoteLevel();
-                  }
-                }}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className={wMode || leibniz ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
-            </label>
 
             <label
               className="flex cursor-pointer items-center gap-2"
