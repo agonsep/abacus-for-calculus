@@ -752,6 +752,7 @@ function Scene({
   defined,
   anim,
   instant,
+  leibniz,
 }: {
   size: number[];
   change: number[];
