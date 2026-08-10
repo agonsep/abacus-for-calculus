@@ -467,15 +467,16 @@ function Stacks({
             ? DARK_GREY
             : ORANGE;
         const rFull = Math.floor(rAbs);
-        const changeBase = anim ? anim.changeBase[i] : yFull + gap;
-        const changeFrom = anim ? anim.changeFrom[i] : changeBase;
+        const changeBase = leibniz ? LEIBNIZ_SHELF_SLOT : anim ? anim.changeBase[i] : yFull + gap;
+        const changeFrom = anim && !leibniz ? anim.changeFrom[i] : changeBase;
+        const changeOff = leibniz ? 0 : off;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
               key={`r-${runId}-${i}-${k}-${changeBase}`}
               x={x}
-              fromY={anim ? slotY(changeFrom + k) : skyY + 2}
-              targetY={slotY(changeBase + k + off)}
+              fromY={anim && !leibniz ? slotY(changeFrom + k) : skyY + 2}
+              targetY={slotY(changeBase + k + changeOff)}
               delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
               color={changeStoneColor}
               dim={rDim}
