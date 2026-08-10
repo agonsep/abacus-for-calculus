@@ -1253,8 +1253,9 @@ export default function CalculusAbacus() {
             return d === null ? null : d * h;
           })
         : [];
-      const res = lb
-        ? computeLeibnizLayout(ys, def, dyVals, fractional, ms)
+      const lay = lb ? computeLeibnizLayout(ys, def, dyVals, fractional, ms) : null;
+      const res: { u: number; floor: number; counts: number[] } | null = lb
+        ? lay
         : computeCounts(ys, def, fractional, ms);
       if (!res) {
         throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
