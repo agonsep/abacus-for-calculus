@@ -869,6 +869,19 @@ export default function CalculusAbacus() {
   const [uiHidden, setUiHidden] = useState(true);
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const [level, setLevel] = useState(0);
+  const [leibniz, setLeibniz] = useState(false);
+  const [dyValues, setDyValues] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [dyDefined, setDyDefined] = useState<boolean[]>(Array(COLUMNS).fill(false));
+  const leibnizSnap = useRef<{
+    size: number[];
+    change: number[];
+    shift: number[];
+    changeGap: number[];
+    unit: number;
+    floorValue: number;
+    maxStones: string;
+  } | null>(null);
+  const skipMaxRefill = useRef(false);
   const levelStack = useRef<
     {
       yRaw: number[];
