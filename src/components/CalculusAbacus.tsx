@@ -1990,7 +1990,7 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={level > 0}
-                disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim}
+                disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim || leibniz}
                 onChange={(e) => {
                   if (wMode) {
                     setError("Difference Curve cannot be used with the infinitesimal increment w.");
@@ -2010,7 +2010,7 @@ export default function CalculusAbacus() {
                 }}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={wMode ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
+              <span className={wMode || leibniz ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
             </label>
 
             <label
@@ -2024,11 +2024,11 @@ export default function CalculusAbacus() {
               <input
                 type="checkbox"
                 checked={leftCompare}
-                disabled={level > 0 || !!anim}
+                disabled={level > 0 || !!anim || leibniz}
                 onChange={(e) => setLeftCompare(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>
+              <span className={level > 0 || anim || leibniz ? "text-muted-foreground" : "text-foreground"}>
                 Lefthand comparison
               </span>
             </label>
