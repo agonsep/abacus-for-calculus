@@ -1596,6 +1596,7 @@ export default function CalculusAbacus() {
           defined={defined}
           anim={anim}
           instant={instant}
+          leibniz={leibniz}
         />
       </Canvas>
 
