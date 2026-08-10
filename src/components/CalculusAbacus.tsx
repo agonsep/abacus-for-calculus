@@ -1498,19 +1498,6 @@ export default function CalculusAbacus() {
 
 
 
-  const bump = (
-    setter: React.Dispatch<React.SetStateAction<number[]>>,
-    i: number,
-    d: number,
-    min = 0,
-    max = MAX_PIECES,
-  ) => {
-    setter((arr) => {
-      const next = arr.slice();
-      next[i] = Math.max(min, Math.min(max, next[i] + d));
-      return next;
-    });
-  };
 
   const incParsed = parseIncrement(increment);
   const incValue = incParsed ? incParsed.value : 0.5;
@@ -1565,11 +1552,8 @@ export default function CalculusAbacus() {
   const slopeHeader =
     level === 0 ? "Slope estimate" : `Slope estimate (${level + 1}${orderSuffix(level + 1)})`;
 
-  const sizeBumpMin = floorValue > 0 ? 0 : -MAX_PIECES;
-
-  // After a Difference Curve promotion the counts are derived values, not editable.
-  const readOnlyCounts = level > 0;
   const showChangeColumns = level === 0 || change.some((c) => c !== 0);
+
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? "2rem 10rem 10rem 5rem"
@@ -1677,22 +1661,10 @@ export default function CalculusAbacus() {
               style={{ gridTemplateColumns: gridCols }}
             >
               <div className="text-center">x</div>
-              <div className="flex items-center justify-center gap-1">
-                {!readOnlyCounts && <div className="h-5 w-5" />}
-                <div className="text-center text-[#e8352c]" style={{ width: slopeHighPrecision ? "6rem" : "3.5rem" }}>
-                  {sizeHeader}
-                </div>
-                {!readOnlyCounts && <div className="h-5 w-5" />}
-              </div>
+              <div className="text-center text-[#e8352c]">{sizeHeader}</div>
               {showChangeColumns && (
                 <>
-                  <div className="flex items-center justify-center gap-1">
-                    {!readOnlyCounts && <div className="h-5 w-5" />}
-                    <div className="text-center text-[#ff932a]" style={{ width: slopeHighPrecision ? "6rem" : "3.5rem" }}>
-                      {changeHeader}
-                    </div>
-                    {!readOnlyCounts && <div className="h-5 w-5" />}
-                  </div>
+                  <div className="text-center text-[#ff932a]">{changeHeader}</div>
                   <div className="text-right">{slopeHeader}</div>
                 </>
               )}
@@ -1710,58 +1682,14 @@ export default function CalculusAbacus() {
                   style={{ gridTemplateColumns: gridCols }}
                 >
                   <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatDual(xv, xW[i] ?? 0, formatNum)}</div>
-                  {isDef ? (
-                    <div className="flex items-center justify-center gap-1">
-                      {!readOnlyCounts && (
-                        <button
-                          onClick={() => bump(setSize, i, fractional ? -0.1 : -1, sizeBumpMin)}
-                          className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                        >
-                          −
-                        </button>
-                      )}
-                      <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
-                        {fmtCount(size[i])}
-                      </span>
-                      {!readOnlyCounts && (
-                        <button
-                          onClick={() => bump(setSize, i, fractional ? 0.1 : 1, sizeBumpMin)}
-                          className="h-5 w-5 rounded bg-[#e8352c]/80 font-bold text-white hover:bg-[#e8352c]"
-                        >
-                          +
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center font-mono text-muted-foreground">undefined</div>
-                  )}
+                  <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                    {isDef ? fmtCount(size[i]) : "undefined"}
+                  </div>
                   {showChangeColumns && (
                     <>
-                      {diffDef ? (
-                        <div className="flex items-center justify-center gap-1">
-                          {!readOnlyCounts && (
-                            <button
-                              onClick={() => bump(setChange, i, fractional ? -0.1 : -1, -MAX_PIECES)}
-                              className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                            >
-                              −
-                            </button>
-                          )}
-                          <span className={`text-center font-mono text-foreground ${slopeHighPrecision ? "w-28" : "w-8"}`}>
-                            {fmtCount(change[i])}
-                          </span>
-                          {!readOnlyCounts && (
-                            <button
-                              onClick={() => bump(setChange, i, fractional ? 0.1 : 1, -MAX_PIECES)}
-                              className="h-5 w-5 rounded bg-[#ff932a]/80 font-bold text-white hover:bg-[#ff932a]"
-                            >
-                              +
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="text-center font-mono text-muted-foreground">undefined</div>
-                      )}
+                      <div className={`text-center font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {diffDef ? fmtCount(change[i]) : "undefined"}
+                      </div>
                       <div className={`whitespace-nowrap text-right font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {diffDef
                           ? slopeHighPrecision ? slopeValue.toFixed(10) : slopeValue.toFixed(2)
@@ -1772,6 +1700,7 @@ export default function CalculusAbacus() {
                 </div>
               );
             })}
+
 
               </>
             )}
