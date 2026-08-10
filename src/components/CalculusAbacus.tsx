@@ -1700,6 +1700,9 @@ export default function CalculusAbacus() {
                 </div>
               );
             })}
+              </>
+            )}
+
 
           </div>
         </div>
