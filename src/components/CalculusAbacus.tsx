@@ -1382,7 +1382,16 @@ export default function CalculusAbacus() {
       return Math.max(lo, Math.min(MAX_PIECES, v));
     });
     setSize(newSize);
-    if (change.some((v) => v !== 0)) {
+    if (leibniz) {
+      setChange(
+        dyValues.map((d, i) => {
+          if (!dyDefined[i]) return 0;
+          const raw = d / unit;
+          const v = fractional ? raw : Math.round(raw);
+          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+        }),
+      );
+    } else if (change.some((v) => v !== 0)) {
       const newChange = yRaw.map((y, i) => {
         const j = leftCompare ? i - 1 : i + 1;
         if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
@@ -1396,6 +1405,51 @@ export default function CalculusAbacus() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fractional]);
+
+  const toggleLeibniz = (on: boolean) => {
+    if (on) {
+      leibnizSnap.current = {
+        size: size.slice(),
+        change: change.slice(),
+        shift: shift.slice(),
+        changeGap: changeGap.slice(),
+        unit,
+        floorValue,
+        maxStones,
+      };
+      const capped =
+        Math.round(Number(maxStones)) > LEIBNIZ_MAX_STONES
+          ? String(LEIBNIZ_MAX_STONES)
+          : maxStones;
+      setLeibniz(true);
+      if (capped !== maxStones) {
+        skipMaxRefill.current = true;
+        setMaxStones(capped);
+      }
+      setup({ leibniz: true, maxStones: capped });
+      return;
+    }
+    setLeibniz(false);
+    const snap = leibnizSnap.current;
+    leibnizSnap.current = null;
+    if (snap) {
+      if (snap.maxStones !== maxStones) {
+        skipMaxRefill.current = true;
+        setMaxStones(snap.maxStones);
+      }
+      setSize(snap.size);
+      setChange(snap.change);
+      setShift(snap.shift);
+      setChangeGap(snap.changeGap);
+      setUnit(snap.unit);
+      setFloorValue(snap.floorValue);
+      setRunId((r) => r + 1);
+    } else {
+      setup({ leibniz: false });
+    }
+    setError(null);
+  };
+
 
 
 
