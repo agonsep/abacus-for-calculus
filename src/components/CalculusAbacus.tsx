@@ -205,6 +205,24 @@ function Board({
           </RoundedBox>
         );
       })}
+      {leibniz && (
+        <RoundedBox
+          args={[width, SHELF_THICKNESS, sepDepth + 0.1]}
+          radius={0.03}
+          smoothness={4}
+          position={[0, shelfTopY() - SHELF_THICKNESS / 2, 0.05]}
+          castShadow
+          receiveShadow
+        >
+          <meshPhysicalMaterial
+            color="#9c6b3a"
+            roughness={0.8}
+            metalness={0.04}
+            clearcoat={0.2}
+            clearcoatRoughness={0.6}
+          />
+        </RoundedBox>
+      )}
       {xValues.map((_, i) => {
         if (defined[i] !== false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
