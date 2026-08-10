@@ -580,6 +580,7 @@ function DragHandles({
   setDragging,
   onHover,
   defined,
+  leibniz = false,
 }: {
   size: number[];
   change: number[];
@@ -589,6 +590,7 @@ function DragHandles({
   setDragging: (b: boolean) => void;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
   defined: boolean[];
+  leibniz?: boolean;
 }) {
   const { camera, gl } = useThree();
   const dragRef = useRef<{
