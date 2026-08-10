@@ -47,6 +47,16 @@ function slotY(slot: number) {
   return PIECE_HEIGHT / 2 + slot * PIECE_HEIGHT + 0.05;
 }
 
+/** Leibniz Mode: the orange dy stones rest on a shelf at this slot. */
+const LEIBNIZ_SHELF_SLOT = 52;
+const SHELF_THICKNESS = 0.12;
+/** How many stone slots the dy layer has above the shelf. */
+const LEIBNIZ_DY_SPACE = MAX_PIECES - LEIBNIZ_SHELF_SLOT;
+/** World-space top face of the shelf (the plane the orange stones sit on). */
+function shelfTopY() {
+  return slotY(LEIBNIZ_SHELF_SLOT) - PIECE_HEIGHT / 2;
+}
+
 function niceUnit(raw: number) {
   if (!isFinite(raw) || raw <= 0) return 1;
   const exp = Math.floor(Math.log10(raw));
@@ -141,7 +151,17 @@ function Piece({
   );
 }
 
-function Board({ xValues, xW, defined }: { xValues: number[]; xW: number[]; defined: boolean[] }) {
+function Board({
+  xValues,
+  xW,
+  defined,
+  leibniz = false,
+}: {
+  xValues: number[];
+  xW: number[];
+  defined: boolean[];
+  leibniz?: boolean;
+}) {
   const width = COLUMNS * COL_SPACING + 0.6;
   const depth = 1.6;
   const sepThickness = 0.22;
@@ -195,6 +215,24 @@ function Board({ xValues, xW, defined }: { xValues: number[]; xW: number[]; defi
           </RoundedBox>
         );
       })}
+      {leibniz && (
+        <RoundedBox
+          args={[width, SHELF_THICKNESS, sepDepth + 0.1]}
+          radius={0.03}
+          smoothness={4}
+          position={[0, shelfTopY() - SHELF_THICKNESS / 2, 0.05]}
+          castShadow
+          receiveShadow
+        >
+          <meshPhysicalMaterial
+            color="#9c6b3a"
+            roughness={0.8}
+            metalness={0.04}
+            clearcoat={0.2}
+            clearcoatRoughness={0.6}
+          />
+        </RoundedBox>
+      )}
       {xValues.map((_, i) => {
         if (defined[i] !== false) return null;
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
@@ -331,12 +369,10 @@ function computeLeibnizLayout(
       return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
     });
     last = { u: res.u, floor: res.floor, counts: res.counts, dyCounts };
-    let maxTotal = 0;
-    for (let i = 0; i < ys.length; i++) {
-      maxTotal = Math.max(maxTotal, Math.max(0, res.counts[i]) + Math.max(0, dyCounts[i]));
-    }
-    if (maxTotal <= MAX_PIECES || ms <= 25) return last;
-    const next = Math.max(25, Math.floor((ms * MAX_PIECES) / maxTotal));
+    let maxDy = 0;
+    for (let i = 0; i < ys.length; i++) maxDy = Math.max(maxDy, Math.abs(dyCounts[i]));
+    if (maxDy <= LEIBNIZ_DY_SPACE || ms <= 25) return last;
+    const next = Math.max(25, Math.floor((ms * LEIBNIZ_DY_SPACE) / maxDy));
     if (next >= ms) return last;
     ms = next;
   }
@@ -369,6 +405,7 @@ function Stacks({
   defined,
   anim = null,
   instant = false,
+  leibniz = false,
 }: {
   size: number[];
   change: number[];
@@ -379,6 +416,7 @@ function Stacks({
   defined: boolean[];
   anim?: AnimState | null;
   instant?: boolean;
+  leibniz?: boolean;
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   const sizeArr = anim ? anim.size : size;
@@ -429,15 +467,16 @@ function Stacks({
             ? DARK_GREY
             : ORANGE;
         const rFull = Math.floor(rAbs);
-        const changeBase = anim ? anim.changeBase[i] : yFull + gap;
-        const changeFrom = anim ? anim.changeFrom[i] : changeBase;
+        const changeBase = leibniz ? LEIBNIZ_SHELF_SLOT : anim ? anim.changeBase[i] : yFull + gap;
+        const changeFrom = anim && !leibniz ? anim.changeFrom[i] : changeBase;
+        const changeOff = leibniz ? 0 : off;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
               key={`r-${runId}-${i}-${k}-${changeBase}`}
               x={x}
-              fromY={anim ? slotY(changeFrom + k) : skyY + 2}
-              targetY={slotY(changeBase + k + off)}
+              fromY={anim && !leibniz ? slotY(changeFrom + k) : skyY + 2}
+              targetY={slotY(changeBase + k + changeOff)}
               delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
               color={changeStoneColor}
               dim={rDim}
@@ -539,6 +578,7 @@ function DragHandles({
   setDragging,
   onHover,
   defined,
+  leibniz = false,
 }: {
   size: number[];
   change: number[];
@@ -548,6 +588,7 @@ function DragHandles({
   setDragging: (b: boolean) => void;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
   defined: boolean[];
+  leibniz?: boolean;
 }) {
   const { camera, gl } = useThree();
   const dragRef = useRef<{
@@ -673,7 +714,7 @@ function DragHandles({
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}
-            {rCount > 0 && (
+            {rCount > 0 && !leibniz && (
               <mesh position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "change")}>
                 <boxGeometry args={[HIT_W, rHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
@@ -709,6 +750,7 @@ function Scene({
   defined,
   anim,
   instant,
+  leibniz,
 }: {
   size: number[];
   change: number[];
@@ -732,6 +774,7 @@ function Scene({
   defined: boolean[];
   anim: AnimState | null;
   instant: boolean;
+  leibniz: boolean;
 }) {
   return (
     <>
@@ -755,7 +798,7 @@ function Scene({
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
-        <Board xValues={xValues} xW={xW} defined={defined} />
+        <Board xValues={xValues} xW={xW} defined={defined} leibniz={leibniz} />
         <Stacks
           size={size}
           change={change}
@@ -766,6 +809,7 @@ function Scene({
           defined={defined}
           anim={anim}
           instant={instant}
+          leibniz={leibniz}
         />
         {showLine && !anim && (
           <>
@@ -790,6 +834,7 @@ function Scene({
             setDragging={setDragging}
             onHover={onHover}
             defined={defined}
+            leibniz={leibniz}
           />
         )}
 
@@ -1549,6 +1594,7 @@ export default function CalculusAbacus() {
           defined={defined}
           anim={anim}
           instant={instant}
+          leibniz={leibniz}
         />
       </Canvas>
 
@@ -1836,7 +1882,7 @@ export default function CalculusAbacus() {
                 Checking <strong>"Difference Curve"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
               </p>
               <p>
-                Checking <strong>"Leibniz Mode"</strong> keeps the red size stones and shows a second layer of orange stones above them: the differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the red stones. Max Stones is capped at 50 so the upper layer always has room. While Leibniz Mode is on, "Find Differences", "Difference Curve" and "Lefthand comparison" are inactive, and the left panel shows just x, f(x) and dy.
+                Checking <strong>"Leibniz Mode"</strong> keeps the red size stones and adds a narrow wooden shelf across the middle of the board. Resting on that shelf, with every stack starting at the same height, are the orange differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the red stones. Max Stones is capped at 50 so the red stacks never reach the shelf. While Leibniz Mode is on, "Find Differences", "Difference Curve" and "Lefthand comparison" are inactive, the orange stones cannot be dragged, and the left panel shows just x, f(x) and dy.
               </p>
 
               <p className="pt-4 text-sm text-muted-foreground">
