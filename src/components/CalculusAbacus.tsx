@@ -283,6 +283,68 @@ function computeCounts(
   return { u, floor: 0, counts };
 }
 
+/** Exact derivative when the dual evaluator supports the formula, else numeric. */
+function derivAt(cleaned: string, x: number): number | null {
+  try {
+    const r = evalDual(cleaned, { a: x, b: 1 });
+    if (isFinite(r.b)) return r.b;
+  } catch {
+    /* fall through to a numeric derivative */
+  }
+  try {
+    const eps = Math.max(1e-7, Math.abs(x) * 1e-7);
+    const yp = evaluate(cleaned, { x: x + eps });
+    const ym = evaluate(cleaned, { x: x - eps });
+    if (typeof yp === "number" && typeof ym === "number" && isFinite(yp) && isFinite(ym)) {
+      return (yp - ym) / (2 * eps);
+    }
+  } catch {
+    /* not differentiable here */
+  }
+  return null;
+}
+
+/** Cap for Max Stones while Leibniz Mode is on, leaving the upper half for dy. */
+const LEIBNIZ_MAX_STONES = 50;
+
+/**
+ * Leibniz layout: red stones as usual (capped at 50), orange stones showing
+ * dy = f'(x)·dx in the *same* unit. Shrinks the unit further if a stack would
+ * overflow the board.
+ */
+function computeLeibnizLayout(
+  ys: number[],
+  def: boolean[],
+  dyVals: (number | null)[],
+  fractional: boolean,
+  maxStones: string,
+) {
+  let ms = Math.max(25, Math.min(LEIBNIZ_MAX_STONES, Math.round(Number(maxStones)) || LEIBNIZ_MAX_STONES));
+  let last: { u: number; floor: number; counts: number[]; dyCounts: number[] } | null = null;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const res = computeCounts(ys, def, fractional, String(ms));
+    if (!res) return null;
+    const dyCounts = dyVals.map((d, i) => {
+      if (!def[i] || d === null || !isFinite(d) || res.u === 0) return 0;
+      const raw = d / res.u;
+      const v = fractional ? raw : Math.round(raw);
+      return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+    });
+    last = { u: res.u, floor: res.floor, counts: res.counts, dyCounts };
+    let maxTotal = 0;
+    for (let i = 0; i < ys.length; i++) {
+      maxTotal = Math.max(maxTotal, Math.max(0, res.counts[i]) + Math.max(0, dyCounts[i]));
+    }
+    if (maxTotal <= MAX_PIECES || ms <= 25) return last;
+    const next = Math.max(25, Math.floor((ms * MAX_PIECES) / maxTotal));
+    if (next >= ms) return last;
+    ms = next;
+  }
+  return last;
+}
+
+
+
 
 export type AnimState = {
   /** size-stone counts shown on the board while animating */
