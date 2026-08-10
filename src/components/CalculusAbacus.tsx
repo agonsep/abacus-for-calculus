@@ -1565,11 +1565,8 @@ export default function CalculusAbacus() {
   const slopeHeader =
     level === 0 ? "Slope estimate" : `Slope estimate (${level + 1}${orderSuffix(level + 1)})`;
 
-  const sizeBumpMin = floorValue > 0 ? 0 : -MAX_PIECES;
-
-  // After a Difference Curve promotion the counts are derived values, not editable.
-  const readOnlyCounts = level > 0;
   const showChangeColumns = level === 0 || change.some((c) => c !== 0);
+
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? "2rem 10rem 10rem 5rem"
