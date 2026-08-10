@@ -1567,6 +1567,18 @@ export default function CalculusAbacus() {
 
   const sizeBumpMin = floorValue > 0 ? 0 : -MAX_PIECES;
 
+  // After a Difference Curve promotion the counts are derived values, not editable.
+  const readOnlyCounts = level > 0;
+  const showChangeColumns = level === 0 || change.some((c) => c !== 0);
+  const gridCols = showChangeColumns
+    ? slopeHighPrecision
+      ? "2rem 10rem 10rem 5rem"
+      : "2rem 5.5rem 5.5rem 2rem"
+    : slopeHighPrecision
+      ? "2rem 10rem"
+      : "2rem 5.5rem";
+
+
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
