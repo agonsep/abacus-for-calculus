@@ -13,9 +13,14 @@ For `y = x^2`, midpoint 5, increment 1, max stones 100: red stones 0, 1, 4, 9, .
 
 ## Issues to resolve
 
-1. **Stones vs. values.** Orange counts must use the same `unit` as the red stones, i.e. `round(dy / unit)`, not `dy` itself. The example works out to 0, 2, 4, ..., 20 only because the unit happens to be 1 there. With any other scale the counts differ from the printed `dy`, exactly as change-size stones behave today.
+1. **Which unit for the orange stones.** Two options:
+   - *Shared unit* (same as the red stones): a stone is a stone anywhere on the board, so `dy` can be read directly against `f(x)` and the tangent line stays consistent. The cost is that a flat-ish curve gives a barely visible orange layer. This is how change-size stones behave today, and the example (0, 2, 4, ..., 20) only comes out clean because the unit there is 1.
+   - *Own unit* (orange scaled to fill the upper half on its own): the shape of `f'(x)` is always clearly visible, but the two layers are no longer comparable by height, and "One size-stone = ..." needs a second line for the orange unit.
 
-2. **Overflow at the top.** Today the last column has no orange stones (forward difference), so `x = 9` is the tallest stack (100). In Leibniz Mode the last column gets `dy = 20` on top of 100 red stones — 120 stones against a 100-stone separator. Options: (a) let it overflow visually, (b) rescale the unit so `max(size + dy)` fits Max Stones, (c) clamp the drawn orange stack and note the true value in the panel. Recommended: (b), consistent with how Fill Board already fits the board, with the consequence that the red counts in the example become 0, 1, 3, 8, ... instead of the clean squares.
+   Recommendation: shared unit, since the whole point of the mode is to see `dy` against `y` on one board. If the derivative layer turns out too flat in practice, an own-unit variant can be added later as a separate toggle.
+
+2. **Overflow at the top — cap Max Stones at 50 in this mode.** When Leibniz Mode is on, Max Stones is clamped to 50 (the input's max drops to 50 and a larger typed value is reduced), so the red layer occupies at most the lower half of the board and the orange `dy` layer has the upper half to grow into. In the worked example the board rescales to a unit of 2: red stones 0, 1, 2, 5, 8, 13, 18, 25, 32, 41, 50 and orange stones 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 — the same shapes, half the resolution, and nothing overflows the 100-stone separator. If `dy` is still large enough to exceed the remaining space (a very steep derivative), the unit is reduced further so `max(size + dy)` fits.
+
 
 3. **Where `f'(x)` comes from.** The dual-number evaluator in `src/lib/dual.ts` already gives exact derivatives; evaluate `f(x + w)` per column and read the `w` coefficient. Formulas the evaluator does not support fall back to a central difference, or the mode reports that it cannot be used.
 
@@ -45,4 +50,4 @@ All in `src/components/CalculusAbacus.tsx` plus a small helper using `evalDual` 
 - `defined` gains a per-column differentiability check (dual evaluation throws → treat as undefined for `dy` only).
 - Left panel renders a 3-column layout when `leibniz` is true; headings `x`, `f(x)`, `dy = f'(x)·dx`.
 - Checkbox disabling wired for Find Differences, Difference Curve, and Lefthand comparison.
-- Optional unit rescale (issue 2) reuses the existing `computeCounts` fitting logic against `size + dy`.
+- Max Stones input `max` becomes 50 while `leibniz` is true, with the current value clamped on entry and restored on exit; `computeCounts` then fits `size + dy` inside `MAX_PIECES`.
