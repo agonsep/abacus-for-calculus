@@ -1835,6 +1835,9 @@ export default function CalculusAbacus() {
               <p>
                 Checking <strong>"Difference Curve"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
               </p>
+              <p>
+                Checking <strong>"Leibniz Mode"</strong> keeps the red size stones and shows a second layer of orange stones above them: the differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the red stones. Max Stones is capped at 50 so the upper layer always has room. While Leibniz Mode is on, "Find Differences", "Difference Curve" and "Lefthand comparison" are inactive, and the left panel shows just x, f(x) and dy.
+              </p>
 
               <p className="pt-4 text-sm text-muted-foreground">
                 Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>. Creative Commons BY license 2026
