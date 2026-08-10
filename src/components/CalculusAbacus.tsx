@@ -369,12 +369,10 @@ function computeLeibnizLayout(
       return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
     });
     last = { u: res.u, floor: res.floor, counts: res.counts, dyCounts };
-    let maxTotal = 0;
-    for (let i = 0; i < ys.length; i++) {
-      maxTotal = Math.max(maxTotal, Math.max(0, res.counts[i]) + Math.max(0, dyCounts[i]));
-    }
-    if (maxTotal <= MAX_PIECES || ms <= 25) return last;
-    const next = Math.max(25, Math.floor((ms * MAX_PIECES) / maxTotal));
+    let maxDy = 0;
+    for (let i = 0; i < ys.length; i++) maxDy = Math.max(maxDy, Math.abs(dyCounts[i]));
+    if (maxDy <= LEIBNIZ_DY_SPACE || ms <= 10) return last;
+    const next = Math.max(10, Math.floor((ms * LEIBNIZ_DY_SPACE) / maxDy));
     if (next >= ms) return last;
     ms = next;
   }
