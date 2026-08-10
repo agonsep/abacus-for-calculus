@@ -1351,6 +1351,10 @@ export default function CalculusAbacus() {
       skipRefillRef.current = false;
       return;
     }
+    if (skipMaxRefill.current) {
+      skipMaxRefill.current = false;
+      return;
+    }
     setup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxStones]);
