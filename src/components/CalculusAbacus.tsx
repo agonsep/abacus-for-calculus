@@ -141,7 +141,17 @@ function Piece({
   );
 }
 
-function Board({ xValues, xW, defined }: { xValues: number[]; xW: number[]; defined: boolean[] }) {
+function Board({
+  xValues,
+  xW,
+  defined,
+  leibniz = false,
+}: {
+  xValues: number[];
+  xW: number[];
+  defined: boolean[];
+  leibniz?: boolean;
+}) {
   const width = COLUMNS * COL_SPACING + 0.6;
   const depth = 1.6;
   const sepThickness = 0.22;
