@@ -1272,8 +1272,8 @@ export default function CalculusAbacus() {
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
-      if (lb && "dyCounts" in res) {
-        setChange(res.dyCounts);
+      if (lb && lay) {
+        setChange(lay.dyCounts);
         setDyValues(dyVals.map((v) => v ?? 0));
         setDyDefined(dyVals.map((v, i) => def[i] && v !== null));
         firstRunRef.current = false;
