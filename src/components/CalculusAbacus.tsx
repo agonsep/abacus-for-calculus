@@ -1705,11 +1705,11 @@ export default function CalculusAbacus() {
               style={{ gridTemplateColumns: gridCols }}
             >
               <div className="text-center">x</div>
-              <div className="text-center text-[#e8352c]">{sizeHeader}</div>
+              <div className={`text-center ${level === 0 ? "text-[#e8352c]" : ""}`}>{sizeHeader}</div>
               {showYColumn && <div className="text-center text-[#e8352c]">y</div>}
               {showChangeColumns && (
                 <>
-                  <div className="text-center text-[#ff932a]">{changeHeader}</div>
+                  <div className={`text-center ${level === 0 ? "text-[#ff932a]" : ""}`}>{changeHeader}</div>
                   <div className="text-right">{slopeHeader}</div>
                 </>
               )}
