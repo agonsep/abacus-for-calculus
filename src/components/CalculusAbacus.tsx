@@ -1608,18 +1608,20 @@ export default function CalculusAbacus() {
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
               One stone = <span className="font-mono text-foreground">{wMode ? formatDual(0, unit, fmtVal) : fmtVal(unit)}</span>.
-              {!leibniz && (floorValue !== 0 || (wMode && wBase !== 0)) && (
-                <> &nbsp;Floor: <span className="font-mono text-foreground">{wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
+              {(floorValue !== 0 || (wMode && wBase !== 0)) && (
+                <> &nbsp;Size-Stone Floor: <span className="font-mono text-foreground">{wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
               )}
             </p>
             {leibniz ? (
               <>
                 <div
                   className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
-                  style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 10rem 10rem" : "3rem 6rem 6rem" }}
+                  style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 5rem 10rem 7rem 10rem" : "3rem 5rem 6rem 7rem 6rem" }}
                 >
                   <div className="text-center">x</div>
+                  <div className="text-center text-[#e8352c]"># size-stones</div>
                   <div className="text-center text-[#e8352c]">y</div>
+                  <div className="text-center text-[#ff932a]"># change-size-stones</div>
                   <div className="text-center text-[#ff932a]">dy</div>
                 </div>
                 {xValues.map((xv, i) => {
@@ -1629,10 +1631,13 @@ export default function CalculusAbacus() {
                     <div
                       key={i}
                       className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
-                      style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 10rem 10rem" : "3rem 6rem 6rem" }}
+                      style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 5rem 10rem 7rem 10rem" : "3rem 5rem 6rem 7rem 6rem" }}
                     >
                       <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {formatDual(xv, xW[i] ?? 0, formatNum)}
+                      </div>
+                      <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {isDef ? fmtCount(size[i]) : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {isDef
@@ -1640,6 +1645,9 @@ export default function CalculusAbacus() {
                             ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
                             : fmtVal(yRaw[i] ?? 0)
                           : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {dyDef ? fmtCount(change[i]) : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dyDef
