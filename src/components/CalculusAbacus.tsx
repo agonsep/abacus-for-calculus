@@ -1705,6 +1705,16 @@ export default function CalculusAbacus() {
                       </div>
                     </>
                   )}
+                  {showPromotedSlope && (
+                    <div className={`whitespace-nowrap text-right font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isDef
+                        ? (() => {
+                            const v = floorValue + (size[i] ?? 0) * unit;
+                            return slopeHighPrecision ? v.toFixed(10) : v.toFixed(2);
+                          })()
+                        : "undefined"}
+                    </div>
+                  )}
                 </div>
               );
             })}
