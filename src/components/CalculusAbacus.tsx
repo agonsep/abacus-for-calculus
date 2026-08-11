@@ -1700,6 +1700,15 @@ export default function CalculusAbacus() {
                   <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                     {isDef ? fmtCount(size[i]) : "undefined"}
                   </div>
+                  {showYColumn && (
+                    <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isDef
+                        ? wMode
+                          ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
+                          : fmtVal(yRaw[i] ?? 0)
+                        : "undefined"}
+                    </div>
+                  )}
                   {showChangeColumns && (
                     <>
                       <div className={`text-center font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
