@@ -1337,6 +1337,8 @@ export default function CalculusAbacus() {
         setChange(lay.dyCounts);
         setDyValues(dyVals.map((v) => v ?? 0));
         setDyDefined(dyVals.map((v, i) => def[i] && v !== null));
+        setDeltaValues(deltaVals.map((v) => v ?? 0));
+        setDeltaDefined(deltaVals.map((v, i) => def[i] && v !== null));
         firstRunRef.current = false;
       } else if (firstRunRef.current) {
         const initialChange = ys.map((y, i) => {
