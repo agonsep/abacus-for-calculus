@@ -1558,10 +1558,11 @@ export default function CalculusAbacus() {
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? "2rem 10rem 10rem 5rem"
-      : "2rem 5.5rem 5.5rem 2rem"
+      : "2rem 6rem 9rem 2rem"
     : slopeHighPrecision
       ? "2rem 10rem"
       : "2rem 5.5rem";
+
 
 
 
