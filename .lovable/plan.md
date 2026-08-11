@@ -4,7 +4,7 @@
 After the user clicks the **Difference Curve** checkbox (level 1), change the first numeric column header from `Size (Δy/Δx)` to `# change-size-stone/increment`.
 
 ## Scope
-- Apply only at `level === 1`. Higher levels (`level >= 2`) keep their existing `Size (Δⁿy/Δxⁿ)` notation.
+- Apply at every level above 0 (`level > 0`). The same `# change-size-stone/increment` label is used for level 1, level 2, and all higher levels.
 - Level 0 keeps its current `# size-stones` label.
 - Only the `sizeHeader` derivation in `src/components/CalculusAbacus.tsx` changes.
 
