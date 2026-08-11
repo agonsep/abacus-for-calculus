@@ -917,6 +917,8 @@ export default function CalculusAbacus() {
   const [leibniz, setLeibniz] = useState(false);
   const [dyValues, setDyValues] = useState<number[]>(Array(COLUMNS).fill(0));
   const [dyDefined, setDyDefined] = useState<boolean[]>(Array(COLUMNS).fill(false));
+  const [deltaValues, setDeltaValues] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [deltaDefined, setDeltaDefined] = useState<boolean[]>(Array(COLUMNS).fill(false));
   const leibnizSnap = useRef<{
     size: number[];
     change: number[];
@@ -1298,6 +1300,20 @@ export default function CalculusAbacus() {
             return d === null ? null : d * h;
           })
         : [];
+      // delta-y = f(x + dx) − f(x), the true forward difference.
+      const deltaVals: (number | null)[] = lb
+        ? xs.map((xv, i) => {
+            if (!def[i]) return null;
+            if (isW) return dyVals[i];
+            try {
+              const yn = evaluate(cleaned, { x: xv + h });
+              if (typeof yn !== "number" || !isFinite(yn)) return null;
+              return yn - ys[i];
+            } catch {
+              return null;
+            }
+          })
+        : [];
       const lay = lb ? computeLeibnizLayout(ys, def, dyVals, fractional, ms) : null;
       const res: { u: number; floor: number; counts: number[] } | null = lb
         ? lay
@@ -1321,6 +1337,8 @@ export default function CalculusAbacus() {
         setChange(lay.dyCounts);
         setDyValues(dyVals.map((v) => v ?? 0));
         setDyDefined(dyVals.map((v, i) => def[i] && v !== null));
+        setDeltaValues(deltaVals.map((v) => v ?? 0));
+        setDeltaDefined(deltaVals.map((v, i) => def[i] && v !== null));
         firstRunRef.current = false;
       } else if (firstRunRef.current) {
         const initialChange = ys.map((y, i) => {
@@ -1554,6 +1572,9 @@ export default function CalculusAbacus() {
 
   const showYColumn = level === 0;
 
+  const leibnizCols = slopeHighPrecision
+    ? "3rem 5rem 10rem 7rem 10rem 10rem"
+    : "3rem 5rem 6rem 7rem 6rem 6rem";
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? showYColumn
@@ -1623,22 +1644,25 @@ export default function CalculusAbacus() {
               <>
                 <div
                   className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
-                  style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 5rem 10rem 7rem 10rem" : "3rem 5rem 6rem 7rem 6rem" }}
+                  style={{ gridTemplateColumns: leibnizCols }}
                 >
+
                   <div className="text-center">x</div>
                   <div className="text-center text-[#e8352c]"># size-stones</div>
                   <div className="text-center text-[#e8352c]">y</div>
                   <div className="text-center text-[#ff932a]"># change-size-stones</div>
+                  <div className="text-center text-[#ff932a]">delta-y</div>
                   <div className="text-center text-[#ff932a]">dy</div>
                 </div>
                 {xValues.map((xv, i) => {
                   const isDef = defined[i] !== false;
                   const dyDef = isDef && dyDefined[i];
+                  const dDef = isDef && deltaDefined[i];
                   return (
                     <div
                       key={i}
                       className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
-                      style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 5rem 10rem 7rem 10rem" : "3rem 5rem 6rem 7rem 6rem" }}
+                      style={{ gridTemplateColumns: leibnizCols }}
                     >
                       <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {formatDual(xv, xW[i] ?? 0, formatNum)}
@@ -1655,6 +1679,13 @@ export default function CalculusAbacus() {
                       </div>
                       <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dyDef ? fmtCount(change[i]) : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${dDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {dDef
+                          ? wMode
+                            ? formatDual(0, deltaValues[i] ?? 0, fmtVal)
+                            : fmtVal(deltaValues[i] ?? 0)
+                          : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dyDef
