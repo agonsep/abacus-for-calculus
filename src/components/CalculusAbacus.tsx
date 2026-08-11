@@ -1536,7 +1536,7 @@ export default function CalculusAbacus() {
   };
 
   const sizeHeader =
-    level === 0 ? "# size-stones" : "# change-size-stone/increment";
+    level === 0 ? "# size-stones" : "# change-size-stones/increment";
 
   const changeHeader =
     level === 0
