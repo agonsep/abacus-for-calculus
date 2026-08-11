@@ -21,10 +21,10 @@ x    # size-stones    y    # change-size-stones    dy
 The header line becomes:
 
 ```text
-One stone = 0.1.   Floor: 22.5625
+One stone = 0.1.   Size-Stone Floor: 22.5625
 ```
 
-in Leibniz Mode as well, whenever a floor is in effect. This is what makes the counts readable: `y = Floor + (# size-stones x unit)`, and `dy = # change-size-stones x unit` measured from the shelf.
+in Leibniz Mode as well, whenever a floor is in effect. The explicit label makes it clear that the floor applies to the size stones (red layer) only, not to the orange `dy` stones on the shelf.
 
 ## Technical notes
 
