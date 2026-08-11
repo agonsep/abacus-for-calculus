@@ -1573,8 +1573,8 @@ export default function CalculusAbacus() {
   const showYColumn = level === 0;
 
   const leibnizCols = slopeHighPrecision
-    ? "3rem 5rem 10rem 7rem 10rem 10rem"
-    : "3rem 5rem 6rem 7rem 6rem 6rem";
+    ? "2.5rem 4rem 8rem 5rem 8rem 8rem"
+    : "2.5rem 4rem 4.5rem 5rem 4.5rem 4.5rem";
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? showYColumn
@@ -1643,14 +1643,14 @@ export default function CalculusAbacus() {
             {leibniz ? (
               <>
                 <div
-                  className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
+                  className="grid items-end gap-1 px-2 py-1 text-[10px] font-bold leading-tight text-muted-foreground"
                   style={{ gridTemplateColumns: leibnizCols }}
                 >
 
                   <div className="text-center">x</div>
                   <div className="text-center text-[#e8352c]"># size-stones</div>
                   <div className="text-center text-[#e8352c]">y</div>
-                  <div className="text-center text-[#ff932a]"># change-size-stones</div>
+                  <div className="text-center text-[#ff932a]"># change-size-<br />stones</div>
                   <div className="text-center text-[#ff932a]">delta-y</div>
                   <div className="text-center text-[#ff932a]">dy</div>
                 </div>
@@ -1661,7 +1661,7 @@ export default function CalculusAbacus() {
                   return (
                     <div
                       key={i}
-                      className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
+                      className="grid items-center gap-1 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
                       style={{ gridTemplateColumns: leibnizCols }}
                     >
                       <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
