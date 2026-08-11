@@ -1536,11 +1536,7 @@ export default function CalculusAbacus() {
   };
 
   const sizeHeader =
-    level === 0
-      ? "# size-stones"
-      : level === 1
-        ? "Size (Δy/Δx)"
-        : `Size (Δ${superscriptDelta(level)}y/Δx${superscriptDelta(level)})`;
+    level === 0 ? "# size-stones" : "# change-size-stone/increment";
 
   const changeHeader =
     level === 0
