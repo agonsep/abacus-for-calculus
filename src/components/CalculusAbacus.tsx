@@ -1608,8 +1608,8 @@ export default function CalculusAbacus() {
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
               One stone = <span className="font-mono text-foreground">{wMode ? formatDual(0, unit, fmtVal) : fmtVal(unit)}</span>.
-              {!leibniz && (floorValue !== 0 || (wMode && wBase !== 0)) && (
-                <> &nbsp;Floor: <span className="font-mono text-foreground">{wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
+              {(floorValue !== 0 || (wMode && wBase !== 0)) && (
+                <> &nbsp;Size-Stone Floor: <span className="font-mono text-foreground">{wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
               )}
             </p>
             {leibniz ? (
