@@ -1623,8 +1623,8 @@ export default function CalculusAbacus() {
                   style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 10rem 10rem" : "3rem 6rem 6rem" }}
                 >
                   <div className="text-center">x</div>
-                  <div className="text-center text-[#e8352c]">f(x)</div>
-                  <div className="text-center text-[#ff932a]">dy = f&apos;(x)·dx</div>
+                  <div className="text-center text-[#e8352c]">y</div>
+                  <div className="text-center text-[#ff932a]">dy</div>
                 </div>
                 {xValues.map((xv, i) => {
                   const isDef = defined[i] !== false;
