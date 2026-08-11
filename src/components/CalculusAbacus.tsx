@@ -1643,14 +1643,14 @@ export default function CalculusAbacus() {
             {leibniz ? (
               <>
                 <div
-                  className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
+                  className="grid items-end gap-1 px-2 py-1 text-[10px] font-bold leading-tight text-muted-foreground"
                   style={{ gridTemplateColumns: leibnizCols }}
                 >
 
                   <div className="text-center">x</div>
                   <div className="text-center text-[#e8352c]"># size-stones</div>
                   <div className="text-center text-[#e8352c]">y</div>
-                  <div className="text-center text-[#ff932a]"># change-size-stones</div>
+                  <div className="text-center text-[#ff932a]"># change-size-<br />stones</div>
                   <div className="text-center text-[#ff932a]">delta-y</div>
                   <div className="text-center text-[#ff932a]">dy</div>
                 </div>
