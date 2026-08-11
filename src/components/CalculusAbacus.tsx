@@ -1300,6 +1300,20 @@ export default function CalculusAbacus() {
             return d === null ? null : d * h;
           })
         : [];
+      // delta-y = f(x + dx) − f(x), the true forward difference.
+      const deltaVals: (number | null)[] = lb
+        ? xs.map((xv, i) => {
+            if (!def[i]) return null;
+            if (isW) return dyVals[i];
+            try {
+              const yn = evaluate(cleaned, { x: xv + h });
+              if (typeof yn !== "number" || !isFinite(yn)) return null;
+              return yn - ys[i];
+            } catch {
+              return null;
+            }
+          })
+        : [];
       const lay = lb ? computeLeibnizLayout(ys, def, dyVals, fractional, ms) : null;
       const res: { u: number; floor: number; counts: number[] } | null = lb
         ? lay
