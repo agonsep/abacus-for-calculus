@@ -1641,8 +1641,9 @@ export default function CalculusAbacus() {
               <>
                 <div
                   className="grid items-center gap-2 px-2 py-1 text-[10px] font-bold text-muted-foreground"
-                  style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 5rem 10rem 7rem 10rem" : "3rem 5rem 6rem 7rem 6rem" }}
+                  style={{ gridTemplateColumns: leibnizCols }}
                 >
+
                   <div className="text-center">x</div>
                   <div className="text-center text-[#e8352c]"># size-stones</div>
                   <div className="text-center text-[#e8352c]">y</div>
