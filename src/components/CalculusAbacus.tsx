@@ -1552,10 +1552,16 @@ export default function CalculusAbacus() {
   const showChangeColumns = level === 0 || change.some((c) => c !== 0);
   const showPromotedSlope = level > 0 && !showChangeColumns;
 
+  const showYColumn = level === 0;
+
   const gridCols = showChangeColumns
     ? slopeHighPrecision
-      ? "2rem 10rem 10rem 5rem"
-      : "2rem 6rem 9rem 2rem"
+      ? showYColumn
+        ? "2rem 10rem 10rem 10rem 5rem"
+        : "2rem 10rem 10rem 5rem"
+      : showYColumn
+        ? "2rem 6rem 6rem 9rem 2rem"
+        : "2rem 6rem 9rem 2rem"
     : slopeHighPrecision
       ? "2rem 10rem 10rem"
       : "2rem 5.5rem 6rem";
@@ -1669,6 +1675,7 @@ export default function CalculusAbacus() {
             >
               <div className="text-center">x</div>
               <div className="text-center text-[#e8352c]">{sizeHeader}</div>
+              {showYColumn && <div className="text-center text-[#e8352c]">y</div>}
               {showChangeColumns && (
                 <>
                   <div className="text-center text-[#ff932a]">{changeHeader}</div>
@@ -1693,6 +1700,15 @@ export default function CalculusAbacus() {
                   <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                     {isDef ? fmtCount(size[i]) : "undefined"}
                   </div>
+                  {showYColumn && (
+                    <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isDef
+                        ? wMode
+                          ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
+                          : fmtVal(yRaw[i] ?? 0)
+                        : "undefined"}
+                    </div>
+                  )}
                   {showChangeColumns && (
                     <>
                       <div className={`text-center font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
