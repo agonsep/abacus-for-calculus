@@ -1572,6 +1572,9 @@ export default function CalculusAbacus() {
 
   const showYColumn = level === 0;
 
+  const leibnizCols = slopeHighPrecision
+    ? "3rem 5rem 10rem 7rem 10rem 10rem"
+    : "3rem 5rem 6rem 7rem 6rem 6rem";
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? showYColumn
