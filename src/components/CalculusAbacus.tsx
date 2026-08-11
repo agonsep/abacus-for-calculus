@@ -1647,16 +1647,18 @@ export default function CalculusAbacus() {
                   <div className="text-center text-[#e8352c]"># size-stones</div>
                   <div className="text-center text-[#e8352c]">y</div>
                   <div className="text-center text-[#ff932a]"># change-size-stones</div>
+                  <div className="text-center text-[#ff932a]">delta-y</div>
                   <div className="text-center text-[#ff932a]">dy</div>
                 </div>
                 {xValues.map((xv, i) => {
                   const isDef = defined[i] !== false;
                   const dyDef = isDef && dyDefined[i];
+                  const dDef = isDef && deltaDefined[i];
                   return (
                     <div
                       key={i}
                       className="grid items-center gap-2 rounded-lg bg-background/40 px-2 py-1 text-[10px]"
-                      style={{ gridTemplateColumns: slopeHighPrecision ? "3rem 5rem 10rem 7rem 10rem" : "3rem 5rem 6rem 7rem 6rem" }}
+                      style={{ gridTemplateColumns: leibnizCols }}
                     >
                       <div className={`font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {formatDual(xv, xW[i] ?? 0, formatNum)}
@@ -1673,6 +1675,13 @@ export default function CalculusAbacus() {
                       </div>
                       <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dyDef ? fmtCount(change[i]) : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${dDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {dDef
+                          ? wMode
+                            ? formatDual(0, deltaValues[i] ?? 0, fmtVal)
+                            : fmtVal(deltaValues[i] ?? 0)
+                          : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dyDef
