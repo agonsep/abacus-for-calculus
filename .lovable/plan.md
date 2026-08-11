@@ -22,5 +22,5 @@ Remove the now-unused `level === 1` branch and the `superscriptDelta` higher-lev
 ## Verification
 - With `y = x^2`, midpoint `5`, increment `1`, max stones `100`, click **Find Differences** then **Difference Curve**.
 - Confirm the left panel header reads `# change-size-stone/increment` instead of `Size (Δy/Δx)`.
+- Click **Difference Curve** again to reach level 2 and confirm the first numeric column header still reads `# change-size-stone/increment`.
 - Uncheck **Difference Curve** and confirm the header returns to `# size-stones`.
-- Click **Difference Curve** twice to reach level 2 and confirm the header still shows the Δ² math notation.
