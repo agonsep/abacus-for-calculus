@@ -1550,14 +1550,15 @@ export default function CalculusAbacus() {
     level === 0 ? "Slope estimate" : `Slope estimate (${level + 1}${orderSuffix(level + 1)})`;
 
   const showChangeColumns = level === 0 || change.some((c) => c !== 0);
+  const showPromotedSlope = level > 0 && !showChangeColumns;
 
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? "2rem 10rem 10rem 5rem"
       : "2rem 6rem 9rem 2rem"
     : slopeHighPrecision
-      ? "2rem 10rem"
-      : "2rem 5.5rem";
+      ? "2rem 10rem 10rem"
+      : "2rem 5.5rem 6rem";
 
 
 
@@ -1674,6 +1675,7 @@ export default function CalculusAbacus() {
                   <div className="text-right">{slopeHeader}</div>
                 </>
               )}
+              {showPromotedSlope && <div className="text-right">Slope estimate</div>}
             </div>
             {xValues.map((xv, i) => {
               const slopeValue = (change[i] ?? 0) * unit / (incValue || 1);
@@ -1702,6 +1704,16 @@ export default function CalculusAbacus() {
                           : "undefined"}
                       </div>
                     </>
+                  )}
+                  {showPromotedSlope && (
+                    <div className={`whitespace-nowrap text-right font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isDef
+                        ? (() => {
+                            const v = floorValue + (size[i] ?? 0) * unit;
+                            return slopeHighPrecision ? v.toFixed(10) : v.toFixed(2);
+                          })()
+                        : "undefined"}
+                    </div>
                   )}
                 </div>
               );
