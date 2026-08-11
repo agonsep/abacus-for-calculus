@@ -1560,8 +1560,8 @@ export default function CalculusAbacus() {
     level === 0
       ? "# change-size-stones"
       : level === 1
-        ? "Change-Size (Δ²y/Δx²)"
-        : `Change-Size (Δ${superscriptDelta(level + 1)}y/Δx${superscriptDelta(level + 1)})`;
+        ? "Δ²y/Δx²"
+        : `Δ${superscriptDelta(level + 1)}y/Δx${superscriptDelta(level + 1)}`;
 
 
   const slopeHeader =
