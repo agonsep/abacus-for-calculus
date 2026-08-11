@@ -1675,6 +1675,7 @@ export default function CalculusAbacus() {
                   <div className="text-right">{slopeHeader}</div>
                 </>
               )}
+              {showPromotedSlope && <div className="text-right">Slope estimate</div>}
             </div>
             {xValues.map((xv, i) => {
               const slopeValue = (change[i] ?? 0) * unit / (incValue || 1);
