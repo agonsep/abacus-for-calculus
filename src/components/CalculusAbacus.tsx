@@ -917,6 +917,8 @@ export default function CalculusAbacus() {
   const [leibniz, setLeibniz] = useState(false);
   const [dyValues, setDyValues] = useState<number[]>(Array(COLUMNS).fill(0));
   const [dyDefined, setDyDefined] = useState<boolean[]>(Array(COLUMNS).fill(false));
+  const [deltaValues, setDeltaValues] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [deltaDefined, setDeltaDefined] = useState<boolean[]>(Array(COLUMNS).fill(false));
   const leibnizSnap = useRef<{
     size: number[];
     change: number[];
