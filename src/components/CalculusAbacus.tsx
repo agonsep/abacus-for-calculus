@@ -1888,9 +1888,6 @@ export default function CalculusAbacus() {
                 <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the red stacks and adds a straight line tangent to that curve at the midpoint column.
               </p>
               <p>
-                The <strong>+</strong> and <strong>−</strong> buttons let you add or remove stones manually.
-              </p>
-              <p>
                 You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
               
