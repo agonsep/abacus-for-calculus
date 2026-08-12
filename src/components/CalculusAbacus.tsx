@@ -1912,7 +1912,7 @@ export default function CalculusAbacus() {
                 You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
-                Checking <strong>"Difference Curve"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level.
+                Checking <strong>"Divide Differences By Increment"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the orange stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of red stones. Because that derivative is constant, there is nothing further to difference.
@@ -2061,7 +2061,7 @@ export default function CalculusAbacus() {
                 }}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={leibniz ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
+              <span className={leibniz ? "text-muted-foreground" : "text-foreground"}>Divide Differences By Increment</span>
             </label>
             <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
               <input
