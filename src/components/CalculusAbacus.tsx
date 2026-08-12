@@ -940,6 +940,7 @@ export default function CalculusAbacus() {
       floorValue: number;
       defined: boolean[];
       wBase: number;
+      wMode: boolean;
       showLine: boolean;
     }[]
   >([]);
@@ -961,23 +962,32 @@ export default function CalculusAbacus() {
   };
 
   const computePromotion = (): Promotion | string => {
-    if (wMode) return "Difference Curve cannot be used with the infinitesimal increment w.";
     if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
     if (shift.some((v) => v !== 0) || changeGap.some((v) => v !== 0))
       return "Restore the stones to their original positions before removing stones.";
     if (showLine) return "Uncheck Midpoint Tangent before removing stones.";
     const newYRaw: number[] = [];
     const newDefined: boolean[] = [];
+    const counts: number[] = [];
     for (let i = 0; i < COLUMNS; i++) {
       const j = leftCompare ? i - 1 : i + 1;
       if (j < 0 || j >= COLUMNS || !defined[i] || !defined[j]) {
         newYRaw.push(0);
         newDefined.push(false);
+        counts.push(0);
       } else {
         const d = leftCompare ? yRaw[i] - yRaw[j] : yRaw[j] - yRaw[i];
-        newYRaw.push(d / incValue);
+        const v = d / incValue;
+        newYRaw.push(v);
         newDefined.push(true);
+        counts.push(change[i]);
       }
+    }
+    if (wMode) {
+      // With increment w the quotient is the exact derivative, a plain real.
+      // Stone counts stay the same; only the unit and floor change.
+      const u = unit / incValue;
+      return { newYRaw, newDefined, counts, u, floor: 0 };
     }
     const res = computeCounts(newYRaw, newDefined, fractional, maxStones);
     if (!res) return "Could not promote: all columns are undefined.";
@@ -995,6 +1005,7 @@ export default function CalculusAbacus() {
       floorValue,
       defined: defined.slice(),
       wBase,
+      wMode,
       showLine,
     });
     setYRaw(p.newYRaw);
@@ -1006,6 +1017,7 @@ export default function CalculusAbacus() {
     setShift(Array(COLUMNS).fill(0));
     setChangeGap(Array(COLUMNS).fill(0));
     setShowLine(false);
+    if (wMode) setWBase(0);
     setLevel((l) => l + 1);
     setError(null);
     setNote(null);
@@ -1139,6 +1151,7 @@ export default function CalculusAbacus() {
     setFloorValue(snap.floorValue);
     setDefined(snap.defined);
     setWBase(snap.wBase);
+    setWMode(snap.wMode);
     setShowLine(snap.showLine);
     setLevel((l) => l - 1);
     setRunId((r) => r + 1);
@@ -1520,6 +1533,8 @@ export default function CalculusAbacus() {
   const incParsed = parseIncrement(increment);
   const incValue = incParsed ? incParsed.value : 0.5;
 
+  const wValues = wMode && level === 0;
+
   const fmtVal = (v: number) => (slopeHighPrecision ? v.toFixed(10) : formatNum(v));
 
   const fmtCount = (v: number) =>
@@ -1635,9 +1650,9 @@ export default function CalculusAbacus() {
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
-              One stone = <span className="font-mono text-foreground">{wMode ? formatDual(0, unit, fmtVal) : fmtVal(unit)}</span>.
-              {(floorValue !== 0 || (wMode && wBase !== 0)) && (
-                <> &nbsp;Size-Stone Floor: <span className="font-mono text-foreground">{wMode ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
+              One stone = <span className="font-mono text-foreground">{wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}</span>.
+              {(floorValue !== 0 || (wValues && wBase !== 0)) && (
+                <> &nbsp;Size-Stone Floor: <span className="font-mono text-foreground">{wValues ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
               )}
             </p>
             {leibniz ? (
@@ -1672,7 +1687,7 @@ export default function CalculusAbacus() {
                       </div>
                       <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {isDef
-                          ? wMode
+                          ? wValues
                             ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
                             : fmtVal(yRaw[i] ?? 0)
                           : "undefined"}
@@ -1682,14 +1697,14 @@ export default function CalculusAbacus() {
                       </div>
                       <div className={`text-center font-mono ${dDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dDef
-                          ? wMode
+                          ? wValues
                             ? formatDual(0, deltaValues[i] ?? 0, fmtVal)
                             : fmtVal(deltaValues[i] ?? 0)
                           : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dyDef
-                          ? wMode
+                          ? wValues
                             ? formatDual(0, dyValues[i] ?? 0, fmtVal)
                             : fmtVal(dyValues[i] ?? 0)
                           : "undefined"}
@@ -1734,7 +1749,7 @@ export default function CalculusAbacus() {
                   {showYColumn && (
                     <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                       {isDef
-                        ? wMode
+                        ? wValues
                           ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
                           : fmtVal(yRaw[i] ?? 0)
                         : "undefined"}
@@ -1897,7 +1912,10 @@ export default function CalculusAbacus() {
                 You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
-                Checking <strong>"Difference Curve"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level. This is not available when the increment is <span className="font-mono text-foreground">w</span>, because <span className="font-mono text-foreground">w</span> already makes the first differences exact and higher differences are zero.
+                Checking <strong>"Difference Curve"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level.
+              </p>
+              <p>
+                When the increment is <span className="font-mono text-foreground">w</span>, promoting the orange stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of red stones. Because that derivative is constant, there is nothing further to difference.
               </p>
               <p>
                 Checking <strong>"Leibniz Mode"</strong> keeps the red size stones and adds a narrow wooden shelf across the middle of the board. Resting on that shelf, with every stack starting at the same height, are the orange differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the red stones. Max Stones is capped at 50 so the red stacks never reach the shelf.
@@ -2001,8 +2019,14 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={calcDiff}
-            disabled={!!anim || leibniz}
-            title={leibniz ? "Not available in Leibniz Mode." : undefined}
+            disabled={!!anim || leibniz || (wMode && level > 0)}
+            title={
+              leibniz
+                ? "Not available in Leibniz Mode."
+                : wMode && level > 0
+                  ? "The difference curve of an infinitesimal step is constant."
+                  : undefined
+            }
             className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a] disabled:opacity-50"
           >
             Find Differences
@@ -2013,20 +2037,17 @@ export default function CalculusAbacus() {
               title={
                 level === 0 && !change.some((v) => v !== 0)
                   ? "Find differences first."
-                  : ""
+                  : wMode && level > 0
+                    ? "The difference curve of an infinitesimal step is constant."
+                    : ""
               }
               className={`flex items-center gap-2 ${level === 0 && !change.some((v) => v !== 0) ? "cursor-not-allowed" : "cursor-pointer"}`}
             >
               <input
                 type="checkbox"
                 checked={level > 0}
-                disabled={(level === 0 && !change.some((v) => v !== 0) && !wMode) || !!anim || leibniz}
+                disabled={(level === 0 && !change.some((v) => v !== 0)) || !!anim || leibniz}
                 onChange={(e) => {
-                  if (wMode) {
-                    setError("Difference Curve cannot be used with the infinitesimal increment w.");
-                    setNote(null);
-                    return;
-                  }
                   if (e.target.checked) {
                     if (!change.some((v) => v !== 0)) {
                       setError("No change-size stones to promote.");
@@ -2040,7 +2061,7 @@ export default function CalculusAbacus() {
                 }}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={wMode || leibniz ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
+              <span className={leibniz ? "text-muted-foreground" : "text-foreground"}>Difference Curve</span>
             </label>
             <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
               <input
