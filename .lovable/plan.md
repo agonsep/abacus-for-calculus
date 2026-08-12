@@ -15,7 +15,7 @@ Second consequence: because the promoted level is constant, its differences are 
 - **Difference Curve** becomes enabled in `w` mode once orange stones exist (Find Differences has been run). The existing preconditions still apply: no dragged stones, Midpoint Tangent off, not in Leibniz Mode.
 - The animation runs exactly as it does for finite increments: red/black stones clear column by column, left to right; orange stones drop to the floor; then each column is recoloured to the size palette. Counts stay the same, so the "adjust count" pass is a no-op here.
 - One edge column is lost (right, or left with Lefthand comparison), as always.
-- Left panel at the promoted level: `x` still reads `5 - 3w` etc. (x is still infinitesimally spaced), while the value columns read plain reals. `One stone = u/h` and `Floor: 0` print without a `w` term.
+- Left panel at the promoted level: `x` still reads `5 - 3w` etc. (x is still infinitesimally spaced), while the value columns read plain reals. `One stone = u/h` and `Floor: 0` print without a `w` term. The floor is forced to 0 because the promoted value is the signed derivative.
 - **Find Differences** and a further **Difference Curve** promotion are disabled while at the promoted level in `w` mode, with the tooltip "The difference curve of an infinitesimal step is constant."
 - Unchecking Difference Curve restores the infinitesimal level exactly, `w`-formatting included.
 
