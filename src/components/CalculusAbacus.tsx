@@ -1054,15 +1054,19 @@ export default function CalculusAbacus() {
         state.changeBase[i] = 0;
       });
     }
-    // Step 2b — adjust the count, then recolor
+    // Step 2b — resize every column, left to right
     for (let i = 0; i < COLUMNS; i++) {
       steps.push(() => {
         state.change[i] = p.newDefined[i] ? p.counts[i] : 0;
       });
+    }
+    // Step 2c — recolor every column, left to right
+    for (let i = 0; i < COLUMNS; i++) {
       steps.push(() => {
         state.asSize[i] = true;
       });
     }
+
 
     let idx = 0;
     const finish = () => {
