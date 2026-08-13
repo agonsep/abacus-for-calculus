@@ -1,7 +1,7 @@
-# Convert "Divide Differences By Increment" Checkbox to a Button
+# Convert "Divide By Increment" Checkbox to a Button
 
 ## Goal
-Replace the current "Divide Differences By Increment" checkbox in the right-side controls with a button that sits directly below the "Find Differences" button. The button should retain the same promote/demote toggle behavior.
+Replace the current "Divide By Increment" checkbox in the right-side controls with a button that sits directly below the "Find Differences" button. The button should retain the same promote/demote toggle behavior.
 
 ## Current state
 - The "Find Differences" button is rendered first in the right panel.
@@ -11,9 +11,9 @@ Replace the current "Divide Differences By Increment" checkbox in the right-side
 
 In `src/components/CalculusAbacus.tsx`:
 
-1. Remove the "Divide Differences By Increment" `<label>` block from the checkbox group.
+1. Remove the "Divide By Increment" `<label>` block from the checkbox group.
 2. Add a new `<button>` immediately after the "Find Differences" button.
-   - Label: "Divide Differences By Increment".
+   - Label: "Divide By Increment".
    - `type="button"`.
    - `onClick`: if `level === 0`, call `promoteLevel()` (with the same guard that requires change-size stones to exist); otherwise call `demoteLevel()`.
    - `disabled`: same conditions as the current checkbox — disabled while an animation is running, in Leibniz Mode, or when at level 0 with no change-size stones to promote.
@@ -24,7 +24,7 @@ In `src/components/CalculusAbacus.tsx`:
 
 ## Verification
 - Open the app and show the right panel.
-- Confirm a button labeled "Divide Differences By Increment" appears directly below "Find Differences".
+- Confirm a button labeled "Divide By Increment" appears directly below "Find Differences".
 - With `y = x^2`, midpoint `5`, increment `1`, click "Find Differences" then the new button; confirm the board promotes to the difference curve and the button label or pressed state indicates it can be clicked again to restore.
 - Click the button a second time and confirm the board reverts to the pre-promotion state.
 - Confirm the button is disabled when no change-size stones exist, during animations, and in Leibniz Mode.
