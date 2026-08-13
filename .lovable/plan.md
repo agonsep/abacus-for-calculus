@@ -24,7 +24,7 @@ In `src/components/CalculusAbacus.tsx`:
 
 ## Verification
 - Open the app and show the right panel.
-- Confirm a button labeled "Divide Differences By Increment" appears directly below "Find Differences".
+- Confirm a button labeled "Divide By Increment" appears directly below "Find Differences".
 - With `y = x^2`, midpoint `5`, increment `1`, click "Find Differences" then the new button; confirm the board promotes to the difference curve and the button label or pressed state indicates it can be clicked again to restore.
 - Click the button a second time and confirm the board reverts to the pre-promotion state.
 - Confirm the button is disabled when no change-size stones exist, during animations, and in Leibniz Mode.
