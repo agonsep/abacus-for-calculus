@@ -2037,7 +2037,6 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={() => {
-              console.log("Divide By Increment clicked", { level, changeHasNonZero: change.some((v) => v !== 0), anim, leibniz });
               if (level === 0) {
                 if (!change.some((v) => v !== 0)) {
                   setError("No change-size stones to promote.");
