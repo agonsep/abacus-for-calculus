@@ -1,7 +1,7 @@
-# Convert "Divide Differences By Increment" Checkbox to a Button
+# Convert "Divide By Increment" Checkbox to a Button
 
 ## Goal
-Replace the current "Divide Differences By Increment" checkbox in the right-side controls with a button that sits directly below the "Find Differences" button. The button should retain the same promote/demote toggle behavior.
+Replace the current "Divide By Increment" checkbox in the right-side controls with a button that sits directly below the "Find Differences" button. The button should retain the same promote/demote toggle behavior.
 
 ## Current state
 - The "Find Differences" button is rendered first in the right panel.
