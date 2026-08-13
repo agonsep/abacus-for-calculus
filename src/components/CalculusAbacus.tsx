@@ -1120,7 +1120,9 @@ export default function CalculusAbacus() {
 
 
   const promoteLevel = () => {
+    console.log("promoteLevel called");
     const p = computePromotion();
+    console.log("computePromotion result:", typeof p === "string" ? p : "object");
     if (typeof p === "string") {
       setError(p);
       setNote(null);
@@ -1129,6 +1131,7 @@ export default function CalculusAbacus() {
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    console.log("reduced motion:", reduced);
     if (reduced) {
       setInstant(false);
       setRunId((r) => r + 1);
