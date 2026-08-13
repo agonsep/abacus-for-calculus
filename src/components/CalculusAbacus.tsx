@@ -1904,15 +1904,6 @@ export default function CalculusAbacus() {
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Interacting with the Abacus</h3>
               <p>
-                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the red stacks and adds a straight line tangent to that curve at the midpoint column.
-              </p>
-              <p>
-                You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
-              </p>
-              
-<p>The abacus supports increments as small as 0.001 and as many as 100 stones per column.</p>
-              <p>A grey column means that the equation is undefined at that particular value of x.</p>
-              <p>
                 You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
@@ -1924,6 +1915,14 @@ export default function CalculusAbacus() {
               <p>
                 Checking <strong>"Leibniz Mode"</strong> keeps the red size stones and adds a narrow wooden shelf across the middle of the board. Resting on that shelf, with every stack starting at the same height, are the orange differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the red stones. Max Stones is capped at 50 so the red stacks never reach the shelf.
               </p>
+              <p>
+                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the red stacks and adds a straight line tangent to that curve at the midpoint column.
+              </p>
+              <p>
+                You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
+              </p>
+              <p>The abacus supports increments as small as 0.001 and as many as 100 stones per column.</p>
+              <p>A grey column means that the equation is undefined at that particular value of x.</p>
 
               <p className="pt-4 text-sm text-muted-foreground">
                 Created by Cliff Landesman, <a href="mailto:cliff.landesman@gmail.com" className="underline">cliff.landesman@gmail.com</a>. Creative Commons BY license 2026
