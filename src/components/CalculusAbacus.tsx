@@ -1600,11 +1600,11 @@ export default function CalculusAbacus() {
         ? "2rem 10rem 10rem 10rem 5rem"
         : "2rem 10rem 10rem 5rem"
       : showYColumn
-        ? "2rem 6rem 6rem 9rem 2rem"
-        : "2rem 6rem 9rem 2rem"
+        ? "2rem 4rem 4rem 5.5rem 2rem"
+        : "2rem 4rem 5.5rem 2rem"
     : slopeHighPrecision
       ? "2rem 10rem 10rem"
-      : "2rem 5.5rem 6rem";
+      : "2rem 4rem 4.5rem";
 
 
 
