@@ -1912,7 +1912,7 @@ export default function CalculusAbacus() {
                 You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
-                Checking <strong>"Divide Differences By Increment"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Uncheck the box to restore the previous level.
+                Clicking <strong>"Divide By Increment"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Click the button again to restore the previous level.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the orange stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of red stones. Because that derivative is constant, there is nothing further to difference.
@@ -2031,38 +2031,34 @@ export default function CalculusAbacus() {
           >
             Find Differences
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (level === 0) {
+                if (!change.some((v) => v !== 0)) {
+                  setError("No change-size stones to promote.");
+                  setNote(null);
+                  return;
+                }
+                promoteLevel();
+              } else {
+                demoteLevel();
+              }
+            }}
+            disabled={(level === 0 && !change.some((v) => v !== 0)) || !!anim || leibniz}
+            title={
+              level === 0 && !change.some((v) => v !== 0)
+                ? "Find differences first."
+                : wMode && level > 0
+                  ? "The difference curve of an infinitesimal step is constant."
+                  : undefined
+            }
+            className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a] disabled:opacity-50"
+          >
+            Divide By Increment
+          </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
-            <label
-              title={
-                level === 0 && !change.some((v) => v !== 0)
-                  ? "Find differences first."
-                  : wMode && level > 0
-                    ? "The difference curve of an infinitesimal step is constant."
-                    : ""
-              }
-              className={`flex items-center gap-2 ${level === 0 && !change.some((v) => v !== 0) ? "cursor-not-allowed" : "cursor-pointer"}`}
-            >
-              <input
-                type="checkbox"
-                checked={level > 0}
-                disabled={(level === 0 && !change.some((v) => v !== 0)) || !!anim || leibniz}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    if (!change.some((v) => v !== 0)) {
-                      setError("No change-size stones to promote.");
-                      setNote(null);
-                      return;
-                    }
-                    promoteLevel();
-                  } else {
-                    demoteLevel();
-                  }
-                }}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className={leibniz ? "text-muted-foreground" : "text-foreground"}>Divide Differences By Increment</span>
-            </label>
             <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
               <input
                 type="checkbox"
