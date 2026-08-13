@@ -11,9 +11,9 @@ Replace the current "Divide By Increment" checkbox in the right-side controls wi
 
 In `src/components/CalculusAbacus.tsx`:
 
-1. Remove the "Divide Differences By Increment" `<label>` block from the checkbox group.
+1. Remove the "Divide By Increment" `<label>` block from the checkbox group.
 2. Add a new `<button>` immediately after the "Find Differences" button.
-   - Label: "Divide Differences By Increment".
+   - Label: "Divide By Increment".
    - `type="button"`.
    - `onClick`: if `level === 0`, call `promoteLevel()` (with the same guard that requires change-size stones to exist); otherwise call `demoteLevel()`.
    - `disabled`: same conditions as the current checkbox — disabled while an animation is running, in Leibniz Mode, or when at level 0 with no change-size stones to promote.
