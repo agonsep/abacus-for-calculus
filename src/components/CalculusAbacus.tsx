@@ -1904,7 +1904,7 @@ export default function CalculusAbacus() {
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Interacting with the Abacus</h3>
               <p>
-                You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
+                The abacus supports increments as small as 0.001 and as many as 100 stones per column. You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
                 Clicking <strong>"Divide By Increment"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new red size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Click the button again to restore the previous level.
@@ -1921,7 +1921,7 @@ export default function CalculusAbacus() {
               <p>
                 You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
-              <p>The abacus supports increments as small as 0.001 and as many as 100 stones per column.</p>
+              
               <p>A grey column means that the equation is undefined at that particular value of x.</p>
 
               <p className="pt-4 text-sm text-muted-foreground">
