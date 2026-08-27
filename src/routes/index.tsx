@@ -54,7 +54,7 @@ function Home() {
             className="flex-1 rounded-xl px-8 py-5 text-lg font-semibold text-white shadow-lg transition-transform hover:scale-[1.02]"
             style={{ backgroundColor: "#e8352c" }}
           >
-            The Calculus Abacus
+            Open Calculus Abacus
           </Link>
           <Link
             to="/library"
