@@ -947,7 +947,7 @@ export default function CalculusAbacus() {
 
 
   const [anim, setAnim] = useState<AnimState | null>(null);
-  const [instant, setInstant] = useState(false);
+  const [instant, setInstant] = useState(true);
   const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
 
