@@ -1118,7 +1118,7 @@ export default function CalculusAbacus() {
   // Only the pieces that appear at the moment of the commit skip their entry.
   useEffect(() => {
     if (!instant) return;
-    const t = setTimeout(() => setInstant(false), 250);
+    const t = setTimeout(() => setInstant(false), 6000);
     return () => clearTimeout(t);
   }, [instant]);
 
