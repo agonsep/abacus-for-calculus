@@ -129,7 +129,7 @@ function Piece({
       <RoundedBox
         args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_DEPTH]}
         radius={0.08}
-        smoothness={2}
+        smoothness={4}
         castShadow
         receiveShadow
       >
@@ -173,7 +173,7 @@ function Board({
       <RoundedBox
         args={[width, 0.3, depth]}
         radius={0.08}
-        smoothness={2}
+        smoothness={4}
         position={[0, -0.15, 0]}
         castShadow
         receiveShadow
@@ -183,7 +183,7 @@ function Board({
       <RoundedBox
         args={[width - 0.2, 0.05, depth - 0.2]}
         radius={0.04}
-        smoothness={2}
+        smoothness={4}
         position={[0, 0.02, 0]}
         receiveShadow
       >
@@ -192,7 +192,7 @@ function Board({
       <RoundedBox
         args={[width, sepHeight, backThickness]}
         radius={0.04}
-        smoothness={2}
+        smoothness={4}
         position={[0, sepHeight / 2 + 0.05, -depth / 2 + backThickness / 2 + 0.05]}
         castShadow
         receiveShadow
@@ -206,7 +206,7 @@ function Board({
             key={`sep-${i}`}
             args={[sepThickness, sepHeight, sepDepth]}
             radius={0.04}
-            smoothness={2}
+            smoothness={4}
             position={[x, sepHeight / 2 + 0.05, 0.05]}
             castShadow
             receiveShadow
@@ -219,7 +219,7 @@ function Board({
         <RoundedBox
           args={[width, SHELF_THICKNESS, sepDepth + 0.1]}
           radius={0.03}
-          smoothness={2}
+          smoothness={4}
           position={[0, shelfTopY() - SHELF_THICKNESS / 2, 0.05]}
           castShadow
           receiveShadow
@@ -1611,7 +1611,7 @@ export default function CalculusAbacus() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
-      <Canvas shadows camera={{ position: [0, BOARD_CENTER_Y, 29.2], fov: 45 }} dpr={[1, 2]} gl={{ preserveDrawingBuffer: true }}>
+      <Canvas shadows camera={{ position: [0, BOARD_CENTER_Y, 29.2], fov: 45 }} dpr={[1, 2]}>
         <Scene
           size={size}
           change={change}
