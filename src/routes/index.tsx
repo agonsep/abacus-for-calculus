@@ -42,10 +42,10 @@ function Home() {
 
         <img
           src={abacusImage}
-          alt="A wooden calculus abacus with red stones stacked into a curve and orange difference stones above them"
-          width={1280}
-          height={800}
-          className="mt-10 w-full rounded-2xl border border-white/10 shadow-2xl"
+          alt="The Calculus Abacus showing y = x squared: red size stones stacked into a parabola with orange change-size stones above them"
+          width={1275}
+          height={1290}
+          className="mx-auto mt-10 w-full max-w-md rounded-2xl border border-white/10 shadow-2xl"
         />
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
