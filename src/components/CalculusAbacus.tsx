@@ -947,7 +947,7 @@ export default function CalculusAbacus() {
 
 
   const [anim, setAnim] = useState<AnimState | null>(null);
-  const [instant, setInstant] = useState(true);
+  const [instant, setInstant] = useState(false);
   const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
 
@@ -1118,7 +1118,7 @@ export default function CalculusAbacus() {
   // Only the pieces that appear at the moment of the commit skip their entry.
   useEffect(() => {
     if (!instant) return;
-    const t = setTimeout(() => setInstant(false), 6000);
+    const t = setTimeout(() => setInstant(false), 250);
     return () => clearTimeout(t);
   }, [instant]);
 
@@ -1419,7 +1419,7 @@ export default function CalculusAbacus() {
 
 
   useEffect(() => {
-    const t = setTimeout(setup, 0);
+    const t = setTimeout(setup, 400);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
