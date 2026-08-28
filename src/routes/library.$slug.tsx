@@ -113,15 +113,6 @@ function LibraryEntryPage() {
         </nav>
       )}
 
-      <div className="mt-12 text-center">
-        <Link
-          to="/abacus"
-          className="inline-block rounded-xl px-6 py-3 text-base font-semibold text-white transition-transform hover:scale-[1.02]"
-          style={{ backgroundColor: "#e8352c" }}
-        >
-          Open Calculus Abacus
-        </Link>
-      </div>
     </Shell>
   );
 }
