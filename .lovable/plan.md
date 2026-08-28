@@ -75,6 +75,7 @@ word and I reorder the list or move an item between Articles and Exercises.
 
 ## First step
 
-Send one representative `.docx` — ideally one with exponents and a figure — and I
-build the whole pipeline around it so you can check the result before sending the
-rest.
+Upload the first article. I build the full pipeline around it — the table of
+contents, the article page template, and the styling — so you can review the
+result before sending the remaining three articles and three exercises.
+
