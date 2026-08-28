@@ -35,13 +35,13 @@ function EntryLink({ entry }: { entry: LibraryEntry }) {
       <Link
         to="/library/$slug"
         params={{ slug: entry.slug }}
-        className="block rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 transition-colors hover:border-slate-300 hover:bg-slate-100"
+        className="block rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/10"
       >
-        <span className="font-serif text-lg font-semibold text-slate-900">
+        <span className="font-serif text-lg font-semibold text-[#f5e8c8]">
           {entry.title}
         </span>
         {entry.summary ? (
-          <span className="mt-1 block text-sm text-slate-600">{entry.summary}</span>
+          <span className="mt-1 block text-sm text-slate-300">{entry.summary}</span>
         ) : null}
       </Link>
     </li>
@@ -52,31 +52,31 @@ function LibraryIndex() {
   const hasContent = articles.length > 0 || exercises.length > 0;
 
   return (
-    <main className="min-h-screen bg-white px-6 py-14 text-slate-900">
+    <main className="min-h-screen px-6 py-14 text-[#f5e8c8]" style={{ backgroundColor: "#141c33" }}>
       <div className="mx-auto w-full max-w-2xl">
         <Link
           to="/"
-          className="text-xs tracking-wide text-slate-500 transition-colors hover:text-slate-900"
+          className="text-xs tracking-wide text-slate-400 transition-colors hover:text-[#f5e8c8]"
         >
           ← Home
         </Link>
 
-        <h1 className="mt-10 font-serif text-4xl font-bold text-slate-900 sm:text-5xl">
+        <h1 className="mt-10 font-serif text-4xl font-bold text-[#f5e8c8] sm:text-5xl">
           About the Calculus Abacus
         </h1>
-        <p className="mt-4 text-sm text-slate-600">
+        <p className="mt-4 text-sm text-slate-300">
           Articles and exercises written for teachers.
         </p>
 
         {!hasContent ? (
-          <p className="mt-14 text-center text-sm text-slate-500">
+          <p className="mt-14 text-center text-sm text-slate-400">
             Coming Soon — articles and exercises will appear here.
           </p>
         ) : (
           <>
             {articles.length > 0 && (
               <section className="mt-12">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
                   Articles
                 </h2>
                 <ul className="mt-4 space-y-3">
@@ -89,7 +89,7 @@ function LibraryIndex() {
 
             {exercises.length > 0 && (
               <section className="mt-12">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
                   Exercises
                 </h2>
                 <ul className="mt-4 space-y-3">
