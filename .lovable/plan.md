@@ -25,12 +25,15 @@ pages load instantly.
 
 ### The About page (`/library`)
 
-Replaces the current "Coming Soon" placeholder with a table of contents:
+Replaces the current "Coming Soon" placeholder with a table of contents for the
+four articles and three exercises:
 
 - Two sections: **Articles** and **Exercises**.
 - Each entry is a link showing the title and a one-line summary.
+- Only documents you have sent appear; the list grows as you upload the rest.
 - Same navy/cream/red styling as the home page.
 - `← Home` link at the top and an `Open Calculus Abacus` button at the bottom.
+
 
 ### Article pages (`/library/<slug>`)
 
@@ -72,6 +75,7 @@ word and I reorder the list or move an item between Articles and Exercises.
 
 ## First step
 
-Send one representative `.docx` — ideally one with exponents and a figure — and I
-build the whole pipeline around it so you can check the result before sending the
-rest.
+Upload the first article. I build the full pipeline around it — the table of
+contents, the article page template, and the styling — so you can review the
+result before sending the remaining three articles and three exercises.
+
