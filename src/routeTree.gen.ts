@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbacusRouteImport } from './routes/abacus'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as LibrarySlugRouteImport } from './routes/library.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,43 @@ const LibraryRoute = LibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibrarySlugRoute = LibrarySlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => LibraryRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abacus': typeof AbacusRoute
-  '/library': typeof LibraryRoute
+  '/library': typeof LibraryRouteWithChildren
+  '/library/$slug': typeof LibrarySlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abacus': typeof AbacusRoute
-  '/library': typeof LibraryRoute
+  '/library': typeof LibraryRouteWithChildren
+  '/library/$slug': typeof LibrarySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/abacus': typeof AbacusRoute
-  '/library': typeof LibraryRoute
+  '/library': typeof LibraryRouteWithChildren
+  '/library/$slug': typeof LibrarySlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/abacus' | '/library'
+  fullPaths: '/' | '/abacus' | '/library' | '/library/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/abacus' | '/library'
-  id: '__root__' | '/' | '/abacus' | '/library'
+  to: '/' | '/abacus' | '/library' | '/library/$slug'
+  id: '__root__' | '/' | '/abacus' | '/library' | '/library/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbacusRoute: typeof AbacusRoute
-  LibraryRoute: typeof LibraryRoute
+  LibraryRoute: typeof LibraryRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +91,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/library/$slug': {
+      id: '/library/$slug'
+      path: '/$slug'
+      fullPath: '/library/$slug'
+      preLoaderRoute: typeof LibrarySlugRouteImport
+      parentRoute: typeof LibraryRoute
+    }
   }
 }
+
+interface LibraryRouteChildren {
+  LibrarySlugRoute: typeof LibrarySlugRoute
+}
+
+const LibraryRouteChildren: LibraryRouteChildren = {
+  LibrarySlugRoute: LibrarySlugRoute,
+}
+
+const LibraryRouteWithChildren =
+  LibraryRoute._addFileChildren(LibraryRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbacusRoute: AbacusRoute,
-  LibraryRoute: LibraryRoute,
+  LibraryRoute: LibraryRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
