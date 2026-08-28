@@ -25,12 +25,15 @@ pages load instantly.
 
 ### The About page (`/library`)
 
-Replaces the current "Coming Soon" placeholder with a table of contents:
+Replaces the current "Coming Soon" placeholder with a table of contents for the
+four articles and three exercises:
 
 - Two sections: **Articles** and **Exercises**.
 - Each entry is a link showing the title and a one-line summary.
+- Only documents you have sent appear; the list grows as you upload the rest.
 - Same navy/cream/red styling as the home page.
 - `← Home` link at the top and an `Open Calculus Abacus` button at the bottom.
+
 
 ### Article pages (`/library/<slug>`)
 
