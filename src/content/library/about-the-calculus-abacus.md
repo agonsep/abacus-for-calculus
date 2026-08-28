@@ -6,8 +6,6 @@ section: article
 order: 1
 ---
 
-*A tool for building the idea of change by hand, before the formulas arrive.*
-
 Calculus is the mathematics of change. Most of us say something like this on the first day of the course, and then spend the following weeks on rules that can bury the idea under notation. Yet the heart of the subject never moves: it asks how a quantity grows or shrinks, how steeply a curve rises, how much accumulates across an interval. The slope of a tangent, the area beneath a curve, the speed of a moving object are all versions of one question, which is how something is changing. The Calculus Abacus is a tool built to keep that question in plain sight, by letting students construct change with their own hands before they meet it as a formula.
 
 Students usually encounter derivatives, limits, and the rest of calculus as finished products. They are given a definition to memorize, a rule to apply, an answer to check against. It is entirely possible to compute correctly without ever having seen what is being computed. The Calculus Abacus addresses that gap by reversing the usual order. Rather than presenting a completed result and asking students to trust it, it asks them to build the pattern underneath and notice what it shows. The guiding principle is easy to state and harder to honor in a busy term: construction before formulas, discovery before explanation, intuition before procedure.
