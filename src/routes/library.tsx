@@ -35,13 +35,13 @@ function EntryLink({ entry }: { entry: LibraryEntry }) {
       <Link
         to="/library/$slug"
         params={{ slug: entry.slug }}
-        className="block rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 transition-colors hover:border-white/25 hover:bg-white/[0.06]"
+        className="block rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 transition-colors hover:border-slate-300 hover:bg-slate-100"
       >
-        <span className="font-serif text-lg font-semibold" style={{ color: "#f5e8c8" }}>
+        <span className="font-serif text-lg font-semibold text-slate-900">
           {entry.title}
         </span>
         {entry.summary ? (
-          <span className="mt-1 block text-sm text-slate-400">{entry.summary}</span>
+          <span className="mt-1 block text-sm text-slate-600">{entry.summary}</span>
         ) : null}
       </Link>
     </li>
@@ -52,27 +52,24 @@ function LibraryIndex() {
   const hasContent = articles.length > 0 || exercises.length > 0;
 
   return (
-    <main className="min-h-screen px-6 py-14" style={{ backgroundColor: "#141c33" }}>
+    <main className="min-h-screen bg-white px-6 py-14 text-slate-900">
       <div className="mx-auto w-full max-w-2xl">
         <Link
           to="/"
-          className="text-xs tracking-wide text-slate-400 transition-colors hover:text-slate-200"
+          className="text-xs tracking-wide text-slate-500 transition-colors hover:text-slate-900"
         >
           ← Home
         </Link>
 
-        <h1
-          className="mt-10 font-serif text-4xl font-bold sm:text-5xl"
-          style={{ color: "#f5e8c8" }}
-        >
+        <h1 className="mt-10 font-serif text-4xl font-bold text-slate-900 sm:text-5xl">
           About the Calculus Abacus
         </h1>
-        <p className="mt-4 text-sm text-slate-400">
+        <p className="mt-4 text-sm text-slate-600">
           Articles and exercises written for teachers.
         </p>
 
         {!hasContent ? (
-          <p className="mt-14 text-center text-sm text-slate-400">
+          <p className="mt-14 text-center text-sm text-slate-500">
             Coming Soon — articles and exercises will appear here.
           </p>
         ) : (
