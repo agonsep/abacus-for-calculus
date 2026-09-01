@@ -2037,15 +2037,13 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={() => {
-              if (level === 0) {
-                if (!change.some((v) => v !== 0)) {
-                  setError("No change-size stones to promote.");
-                  setNote(null);
-                  return;
-                }
+              if (change.some((v) => v !== 0)) {
                 promoteLevel();
-              } else {
+              } else if (level > 0) {
                 demoteLevel();
+              } else {
+                setError("No change-size stones to promote.");
+                setNote(null);
               }
             }}
             disabled={(level === 0 && !change.some((v) => v !== 0)) || !!anim || leibniz}
