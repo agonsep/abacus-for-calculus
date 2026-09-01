@@ -1907,7 +1907,7 @@ export default function CalculusAbacus() {
                 The abacus supports increments as small as 0.001 and as many as 100 stones per column. You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
-                Clicking <strong>"Divide By Increment"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²). Click the button again to restore the previous level.
+                Clicking <strong>"Divide By Increment"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no orange change-size stones, the button instead restores the previous level.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the orange stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of red stones. Because that derivative is constant, there is nothing further to difference.
@@ -2037,15 +2037,13 @@ export default function CalculusAbacus() {
           <button
             type="button"
             onClick={() => {
-              if (level === 0) {
-                if (!change.some((v) => v !== 0)) {
-                  setError("No change-size stones to promote.");
-                  setNote(null);
-                  return;
-                }
+              if (change.some((v) => v !== 0)) {
                 promoteLevel();
-              } else {
+              } else if (level > 0) {
                 demoteLevel();
+              } else {
+                setError("No change-size stones to promote.");
+                setNote(null);
               }
             }}
             disabled={(level === 0 && !change.some((v) => v !== 0)) || !!anim || leibniz}
