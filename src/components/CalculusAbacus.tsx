@@ -878,11 +878,18 @@ function CameraController({ trigger }: { trigger: { dir: number; n: number } }) 
   return null;
 }
 
-export default function CalculusAbacus() {
-  const [formula, setFormula] = useState("x^2");
-  const [midpoint, setMidpoint] = useState("5");
-  const [increment, setIncrement] = useState("1");
-  const [maxStones, setMaxStones] = useState("100");
+type InitialDefaults = {
+  formula?: string;
+  midpoint?: string;
+  increment?: string;
+  maxStones?: string;
+};
+
+export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: InitialDefaults }) {
+  const [formula, setFormula] = useState(initialDefaults?.formula ?? "x^2");
+  const [midpoint, setMidpoint] = useState(initialDefaults?.midpoint ?? "5");
+  const [increment, setIncrement] = useState(initialDefaults?.increment ?? "1");
+  const [maxStones, setMaxStones] = useState(initialDefaults?.maxStones ?? "100");
 
   const [xValues, setXValues] = useState<number[]>(
     Array.from({ length: COLUMNS }, (_, i) => i - 5),
