@@ -18,7 +18,7 @@ export interface ArticleGroup {
 
 /** Minimal YAML-ish front matter parser: `key: value` pairs between `---` fences. */
 function parseFrontMatter(raw: string): { data: Record<string, string>; body: string } {
-  const normalized = raw.replace(/^﻿/, "").replace(/\r\n/g, "\n");
+  const normalized = raw.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
   const match = /^---\n([\s\S]*?)\n---\n?/.exec(normalized);
   if (!match) return { data: {}, body: normalized.trim() };
 
