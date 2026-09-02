@@ -1,5 +1,9 @@
 import { createFileRoute, Link, Outlet, useMatches } from "@tanstack/react-router";
-import { articles, exercises, type LibraryEntry } from "@/content/library";
+import {
+  articleGroups,
+  standaloneExercises,
+  type LibraryEntry,
+} from "@/content/library";
 
 export const Route = createFileRoute("/library")({
   component: LibraryLayout,
@@ -31,25 +35,43 @@ function LibraryLayout() {
 
 function EntryLink({ entry }: { entry: LibraryEntry }) {
   return (
-    <li>
-      <Link
-        to="/library/$slug"
-        params={{ slug: entry.slug }}
-        className="block rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/10"
-      >
-        <span className="font-serif text-lg font-semibold text-[#f5e8c8]">
-          {entry.title}
-        </span>
-        {entry.summary ? (
-          <span className="mt-1 block text-sm text-slate-300">{entry.summary}</span>
-        ) : null}
-      </Link>
-    </li>
+    <Link
+      to="/library/$slug"
+      params={{ slug: entry.slug }}
+      className="block rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/10"
+    >
+      <span className="font-serif text-lg font-semibold text-[#f5e8c8]">
+        {entry.title}
+      </span>
+      {entry.summary ? (
+        <span className="mt-1 block text-sm text-slate-300">{entry.summary}</span>
+      ) : null}
+    </Link>
+  );
+}
+
+function ExerciseLink({ entry }: { entry: LibraryEntry }) {
+  return (
+    <Link
+      to="/library/$slug"
+      params={{ slug: entry.slug }}
+      className="block rounded-lg border border-white/5 bg-white/[0.03] px-4 py-3 transition-colors hover:border-white/20 hover:bg-white/10"
+    >
+      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        Exercises
+      </span>
+      <span className="mt-0.5 block font-serif text-base font-semibold text-[#f5e8c8]">
+        {entry.title}
+      </span>
+      {entry.summary ? (
+        <span className="mt-1 block text-sm text-slate-300">{entry.summary}</span>
+      ) : null}
+    </Link>
   );
 }
 
 function LibraryIndex() {
-  const hasContent = articles.length > 0 || exercises.length > 0;
+  const hasContent = articleGroups.length > 0 || standaloneExercises.length > 0;
 
   return (
     <main className="min-h-screen px-6 py-14 text-[#f5e8c8]" style={{ backgroundColor: "#141c33" }}>
@@ -74,27 +96,31 @@ function LibraryIndex() {
           </p>
         ) : (
           <>
-            {articles.length > 0 && (
-              <section className="mt-12">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
-                  Articles
-                </h2>
-                <ul className="mt-4 space-y-3">
-                  {articles.map((entry) => (
-                    <EntryLink key={entry.slug} entry={entry} />
-                  ))}
-                </ul>
+            {articleGroups.map(({ article, exercises }) => (
+              <section key={article.slug} className="mt-12">
+                <EntryLink entry={article} />
+                {exercises.length > 0 && (
+                  <ul className="ml-5 mt-3 space-y-2 border-l border-white/10 pl-4">
+                    {exercises.map((entry) => (
+                      <li key={entry.slug}>
+                        <ExerciseLink entry={entry} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </section>
-            )}
+            ))}
 
-            {exercises.length > 0 && (
+            {standaloneExercises.length > 0 && (
               <section className="mt-12">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
                   Exercises
                 </h2>
                 <ul className="mt-4 space-y-3">
-                  {exercises.map((entry) => (
-                    <EntryLink key={entry.slug} entry={entry} />
+                  {standaloneExercises.map((entry) => (
+                    <li key={entry.slug}>
+                      <EntryLink entry={entry} />
+                    </li>
                   ))}
                 </ul>
               </section>

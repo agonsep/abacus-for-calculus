@@ -1,5 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getAdjacentEntries, getLibraryEntry } from "@/content/library";
+import {
+  articleGroups,
+  getAdjacentEntries,
+  getLibraryEntry,
+} from "@/content/library";
 import { LibraryProse } from "@/components/LibraryProse";
 
 export const Route = createFileRoute("/library/$slug")({
@@ -63,15 +67,35 @@ function EntryNotFound() {
 
 function LibraryEntryPage() {
   const { entry, previous, next } = Route.useLoaderData();
+  const parentArticle = entry.parent ? getLibraryEntry(entry.parent) : undefined;
+  const childExercises =
+    entry.section === "article"
+      ? (articleGroups.find((g) => g.article.slug === entry.slug)?.exercises ?? [])
+      : [];
 
   return (
     <Shell>
-      <Link
-        to="/library"
-        className="text-xs tracking-wide text-slate-500 transition-colors hover:text-slate-900"
-      >
-        ← About the Calculus Abacus
-      </Link>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs tracking-wide">
+        <Link
+          to="/library"
+          className="text-slate-500 transition-colors hover:text-slate-900"
+        >
+          ← About the Calculus Abacus
+        </Link>
+        {parentArticle ? (
+          <>
+            <span className="text-slate-300">·</span>
+            <Link
+              to="/library/$slug"
+              params={{ slug: parentArticle.slug }}
+              className="text-slate-500 transition-colors hover:text-slate-900"
+            >
+              Exercises for: {parentArticle.title}
+            </Link>
+          </>
+        ) : null}
+      </div>
+
 
       <article className="mt-10">
         <h1 className="font-serif text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
@@ -85,6 +109,27 @@ function LibraryEntryPage() {
           <LibraryProse>{entry.body}</LibraryProse>
         </div>
       </article>
+
+      {childExercises.length > 0 && (
+        <section className="mt-14 border-t border-slate-200 pt-6">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+            Exercises for this article
+          </h2>
+          <ul className="mt-4 space-y-2">
+            {childExercises.map((exercise) => (
+              <li key={exercise.slug}>
+                <Link
+                  to="/library/$slug"
+                  params={{ slug: exercise.slug }}
+                  className="text-sm text-blue-700 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-blue-900"
+                >
+                  {exercise.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {(previous || next) && (
         <nav className="mt-16 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-between">
