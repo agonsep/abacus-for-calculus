@@ -1,8 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import CalculusAbacus from "@/components/CalculusAbacus";
+
+const abacusSearchSchema = z.object({
+  formula: z.string().optional(),
+  midpoint: z.string().optional(),
+  increment: z.string().optional(),
+  maxStones: z.string().optional(),
+});
 
 export const Route = createFileRoute("/abacus")({
   component: AbacusPage,
+  validateSearch: abacusSearchSchema,
   head: () => ({
     meta: [
       { title: "The Calculus Abacus — Interactive Board" },
@@ -24,6 +33,7 @@ export const Route = createFileRoute("/abacus")({
 });
 
 function AbacusPage() {
+  const { formula, midpoint, increment, maxStones } = Route.useSearch();
   return (
     <div className="relative">
       <Link
@@ -32,7 +42,14 @@ function AbacusPage() {
       >
         ← Home
       </Link>
-      <CalculusAbacus />
+      <CalculusAbacus
+        initialDefaults={{
+          formula,
+          midpoint,
+          increment,
+          maxStones,
+        }}
+      />
     </div>
   );
 }
