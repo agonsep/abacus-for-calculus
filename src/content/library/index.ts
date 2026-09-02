@@ -6,12 +6,19 @@ export interface LibraryEntry {
   summary: string;
   section: LibrarySection;
   order: number;
+  /** For exercises: slug of the article these exercises belong to. */
+  parent?: string;
   body: string;
+}
+
+export interface ArticleGroup {
+  article: LibraryEntry;
+  exercises: LibraryEntry[];
 }
 
 /** Minimal YAML-ish front matter parser: `key: value` pairs between `---` fences. */
 function parseFrontMatter(raw: string): { data: Record<string, string>; body: string } {
-  const normalized = raw.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+  const normalized = raw.replace(/^﻿/, "").replace(/\r\n/g, "\n");
   const match = /^---\n([\s\S]*?)\n---\n?/.exec(normalized);
   if (!match) return { data: {}, body: normalized.trim() };
 
@@ -39,27 +46,48 @@ const modules = import.meta.glob("./*.md", {
   import: "default",
 }) as Record<string, string>;
 
-export const libraryEntries: LibraryEntry[] = Object.entries(modules)
-  .map(([path, raw]) => {
-    const { data, body } = parseFrontMatter(raw);
-    const fileSlug = path.replace(/^\.\//, "").replace(/\.md$/, "");
-    return {
-      slug: data.slug || fileSlug,
-      title: data.title || fileSlug,
-      summary: data.summary || "",
-      section: (data.section === "exercise" ? "exercise" : "article") as LibrarySection,
-      order: Number.isFinite(Number(data.order)) ? Number(data.order) : 999,
-      body,
-    };
-  })
-  .sort((a, b) => {
-    if (a.section !== b.section) return a.section === "article" ? -1 : 1;
-    if (a.order !== b.order) return a.order - b.order;
-    return a.title.localeCompare(b.title);
-  });
+function byOrderThenTitle(a: LibraryEntry, b: LibraryEntry): number {
+  if (a.order !== b.order) return a.order - b.order;
+  return a.title.localeCompare(b.title);
+}
 
-export const articles = libraryEntries.filter((e) => e.section === "article");
-export const exercises = libraryEntries.filter((e) => e.section === "exercise");
+const allEntries: LibraryEntry[] = Object.entries(modules).map(([path, raw]) => {
+  const { data, body } = parseFrontMatter(raw);
+  const fileSlug = path.replace(/^\.\//, "").replace(/\.md$/, "");
+  return {
+    slug: data.slug || fileSlug,
+    title: data.title || fileSlug,
+    summary: data.summary || "",
+    section: (data.section === "exercise" ? "exercise" : "article") as LibrarySection,
+    order: Number.isFinite(Number(data.order)) ? Number(data.order) : 999,
+    parent: data.parent || undefined,
+    body,
+  };
+});
+
+export const articles = allEntries
+  .filter((e) => e.section === "article")
+  .sort(byOrderThenTitle);
+export const exercises = allEntries
+  .filter((e) => e.section === "exercise")
+  .sort(byOrderThenTitle);
+
+/** Exercises grouped under their parent article, in article order. */
+export const articleGroups: ArticleGroup[] = articles.map((article) => ({
+  article,
+  exercises: exercises.filter((e) => e.parent === article.slug),
+}));
+
+/** Exercises whose parent slug matches no article (kept visible, not dropped). */
+export const standaloneExercises = exercises.filter(
+  (e) => !e.parent || !articles.some((a) => a.slug === e.parent),
+);
+
+/** Reading sequence: each article followed by its exercises, then standalone exercises. */
+export const libraryEntries: LibraryEntry[] = [
+  ...articleGroups.flatMap((g) => [g.article, ...g.exercises]),
+  ...standaloneExercises,
+];
 
 export function getLibraryEntry(slug: string): LibraryEntry | undefined {
   return libraryEntries.find((e) => e.slug === slug);
