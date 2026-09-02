@@ -2,11 +2,20 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import CalculusAbacus from "@/components/CalculusAbacus";
 
+// Search values may arrive as raw strings or be parsed into numbers/booleans by
+// the router's default deserializer, so coerce everything back to a string.
+const asOptionalString = z
+  .unknown()
+  .optional()
+  .transform((v) =>
+    v === undefined || v === null || v === "" ? undefined : String(v),
+  );
+
 const abacusSearchSchema = z.object({
-  formula: z.string().optional(),
-  midpoint: z.string().optional(),
-  increment: z.string().optional(),
-  maxStones: z.string().optional(),
+  formula: asOptionalString,
+  midpoint: asOptionalString,
+  increment: asOptionalString,
+  maxStones: asOptionalString,
 });
 
 export const Route = createFileRoute("/abacus")({
