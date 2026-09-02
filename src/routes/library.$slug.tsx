@@ -110,6 +110,27 @@ function LibraryEntryPage() {
         </div>
       </article>
 
+      {childExercises.length > 0 && (
+        <section className="mt-14 border-t border-slate-200 pt-6">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+            Exercises for this article
+          </h2>
+          <ul className="mt-4 space-y-2">
+            {childExercises.map((exercise) => (
+              <li key={exercise.slug}>
+                <Link
+                  to="/library/$slug"
+                  params={{ slug: exercise.slug }}
+                  className="text-sm text-blue-700 underline decoration-slate-300 underline-offset-4 transition-colors hover:text-blue-900"
+                >
+                  {exercise.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {(previous || next) && (
         <nav className="mt-16 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-between">
           {previous ? (
