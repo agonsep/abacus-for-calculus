@@ -57,10 +57,7 @@ function ExerciseLink({ entry }: { entry: LibraryEntry }) {
       params={{ slug: entry.slug }}
       className="block rounded-lg border border-white/5 bg-white/[0.03] px-4 py-3 transition-colors hover:border-white/20 hover:bg-white/10"
     >
-      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-        Exercises
-      </span>
-      <span className="mt-0.5 block font-serif text-base font-semibold text-[#f5e8c8]">
+      <span className="block font-serif text-base font-semibold text-[#f5e8c8]">
         {entry.title}
       </span>
       {entry.summary ? (
@@ -100,13 +97,18 @@ function LibraryIndex() {
               <section key={article.slug} className="mt-12">
                 <EntryLink entry={article} />
                 {exercises.length > 0 && (
-                  <ul className="ml-5 mt-3 space-y-2 border-l border-white/10 pl-4">
-                    {exercises.map((entry) => (
-                      <li key={entry.slug}>
-                        <ExerciseLink entry={entry} />
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="ml-5 mt-4 border-l border-white/10 pl-4">
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
+                      Exercises
+                    </h2>
+                    <ul className="mt-3 space-y-2">
+                      {exercises.map((entry) => (
+                        <li key={entry.slug}>
+                          <ExerciseLink entry={entry} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </section>
             ))}
