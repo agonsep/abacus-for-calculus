@@ -57,10 +57,7 @@ function ExerciseLink({ entry }: { entry: LibraryEntry }) {
       params={{ slug: entry.slug }}
       className="block rounded-lg border border-white/5 bg-white/[0.03] px-4 py-3 transition-colors hover:border-white/20 hover:bg-white/10"
     >
-      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-        Exercises
-      </span>
-      <span className="mt-0.5 block font-serif text-base font-semibold text-[#f5e8c8]">
+      <span className="block font-serif text-base font-semibold text-[#f5e8c8]">
         {entry.title}
       </span>
       {entry.summary ? (
