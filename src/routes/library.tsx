@@ -97,13 +97,18 @@ function LibraryIndex() {
               <section key={article.slug} className="mt-12">
                 <EntryLink entry={article} />
                 {exercises.length > 0 && (
-                  <ul className="ml-5 mt-3 space-y-2 border-l border-white/10 pl-4">
-                    {exercises.map((entry) => (
-                      <li key={entry.slug}>
-                        <ExerciseLink entry={entry} />
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="ml-5 mt-4 border-l border-white/10 pl-4">
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
+                      Exercises
+                    </h2>
+                    <ul className="mt-3 space-y-2">
+                      {exercises.map((entry) => (
+                        <li key={entry.slug}>
+                          <ExerciseLink entry={entry} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </section>
             ))}
