@@ -51,6 +51,12 @@ function Home() {
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
           <Link
             to="/abacus"
+            search={{
+              formula: "(x^2 + x)/2",
+              midpoint: "5",
+              increment: "1",
+              maxStones: "55",
+            }}
             className="flex-1 rounded-xl px-8 py-5 text-lg font-semibold text-white shadow-lg transition-transform hover:scale-[1.02]"
             style={{ backgroundColor: "#e8352c" }}
           >
