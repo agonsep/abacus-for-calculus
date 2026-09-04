@@ -7,8 +7,6 @@ parent: how-the-abacus-works
 order: 2
 ---
 
-*Exercise for How the Abacus Works*
-
 ## Learning Objective
 
 Students will prepare a complete paper strip, assign a value to (price) the size-stone, in the same way the machine does, and construct the size-curve and change-curve in stones, learning that a board without its strip is a stack of rocks and with it is a specific curve, one we associate with a particular equation.
