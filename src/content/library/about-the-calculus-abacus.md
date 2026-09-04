@@ -1,5 +1,5 @@
 ---
-title: About the Calculus Abacus
+title: Introducing the Calculus Abacus
 slug: about-the-calculus-abacus
 summary: A tool for building the idea of change by hand, before the formulas arrive.
 section: article
