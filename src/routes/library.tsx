@@ -41,7 +41,7 @@ function EntryLink({ entry }: { entry: LibraryEntry }) {
       className="block rounded-xl border border-white/10 bg-white/5 px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/10"
     >
       <span className="font-serif text-lg font-semibold text-[#f5e8c8]">
-        {entry.title}
+        {entry.tocTitle || entry.title}
       </span>
       {entry.summary ? (
         <span className="mt-1 block text-sm text-slate-300">{entry.summary}</span>
