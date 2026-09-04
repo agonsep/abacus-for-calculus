@@ -3,6 +3,8 @@ export type LibrarySection = "article" | "exercise";
 export interface LibraryEntry {
   slug: string;
   title: string;
+  /** Optional shorter title used in the library index. */
+  tocTitle?: string;
   summary: string;
   section: LibrarySection;
   order: number;
