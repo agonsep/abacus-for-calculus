@@ -9,8 +9,6 @@ order: 2
 
 *Exercise for How the Abacus Works*
 
-A construction activity for classrooms with a physical board and stones, in which students prepare a paper strip that anchors a physical board's meaning, then build both curves by hand.
-
 ## Learning Objective
 
 Students will prepare a complete paper strip, assign a value to (price) the size-stone, in the same way the machine does, and construct the size-curve and change-curve in stones, learning that a board without its strip is a stack of rocks and with it is a specific curve, one we associate with a particular equation.
