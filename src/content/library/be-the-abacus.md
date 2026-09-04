@@ -7,7 +7,6 @@ parent: how-the-abacus-works
 order: 1
 ---
 
-*Exercise for How the Abacus Works*
 
 A hands-on activity in which students reproduce the abacus's own arithmetic, pricing a size-stone, deriving every number in the left panel, and placing the stones themselves before letting the software check their work.
 

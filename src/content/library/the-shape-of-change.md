@@ -7,7 +7,6 @@ parent: about-the-calculus-abacus
 order: 1
 ---
 
-*Exercise for About the Calculus Abacus*
 
 A visual, inquiry-based activity in which students build the change-curve of y = x² and discover that a bending curve can have a perfectly straight pattern of change. Written for teachers; no formulas, rates, or calculations required.
 

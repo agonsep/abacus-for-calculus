@@ -7,7 +7,6 @@ parent: about-the-calculus-abacus
 order: 2
 ---
 
-*Exercise for About the Calculus Abacus*
 
 A visual, inquiry-based activity in which students narrow their attention to a single point on a curve and estimate how fast it is changing there, discovering that a rate of change can be approached by looking at ever-closer neighbors. Written for teachers; no derivative rules or formal notation required.
 
