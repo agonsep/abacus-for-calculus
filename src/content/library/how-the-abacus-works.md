@@ -1,5 +1,6 @@
 ---
 title: "How the Abacus Works: Setup and Mechanics"
+tocTitle: "How the Abacus Works"
 slug: how-the-abacus-works
 summary: What every object and number on the board means, and why the machine was built this way.
 section: article
