@@ -55,6 +55,9 @@ function byOrderThenTitle(a: LibraryEntry, b: LibraryEntry): number {
   return a.title.localeCompare(b.title);
 }
 
+const DEFAULT_ACKNOWLEDGEMENT =
+  "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026.";
+
 const allEntries: LibraryEntry[] = Object.entries(modules).map(([path, raw]) => {
   const { data, body } = parseFrontMatter(raw);
   const fileSlug = path.replace(/^\.\//, "").replace(/\.md$/, "");
@@ -65,6 +68,7 @@ const allEntries: LibraryEntry[] = Object.entries(modules).map(([path, raw]) => 
     section: (data.section === "exercise" ? "exercise" : "article") as LibrarySection,
     order: Number.isFinite(Number(data.order)) ? Number(data.order) : 999,
     parent: data.parent || undefined,
+    acknowledgement: data.acknowledgement || DEFAULT_ACKNOWLEDGEMENT,
     body,
   };
 });
