@@ -48,3 +48,5 @@ Treating the strip as optional paperwork. It is the board's meaning; the reflect
 ## Teacher Notes
 
 The discipline built by constructing a strip here pays off later on the virtual abacus, where the same two anchors live in the top line of the left panel. If teams finish early, ask them to predict what the strip and stones would look like at midpoint `6` without rebuilding; the discussion covers most of the same ground as a second build at a fraction of the time.
+
+Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026.

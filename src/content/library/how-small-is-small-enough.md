@@ -67,3 +67,5 @@ The full account. The formula adds a narrow bump to the line y = x. The departur
 **Why this curve.** Students who have learned to ask for agreement across readings, which is the right instinct, meet a case where agreement is exactly what fools them, and the repair is not more agreement but finer resolution. That is the honest groundwork for the question calculus eventually answers with care: what it should mean, precisely, for estimates to settle, and how close is close enough. When students later meet the formal account of limits, the experience of pressing past a false consensus to a settled, two-sided answer is the picture that account will make exact.
 
 **Classroom logistics.** One class period. Whole stones keep the readings friendly.
+
+Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026.
