@@ -5,6 +5,7 @@ summary: "A visual, inquiry-based activity in which students build the change-cu
 section: exercise
 parent: about-the-calculus-abacus
 order: 1
+acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
 
