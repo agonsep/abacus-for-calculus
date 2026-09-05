@@ -5,6 +5,7 @@ slug: how-the-abacus-works
 summary: What every object and number on the board means, and why the machine was built this way.
 section: article
 order: 2
+acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
 The first article argued that students understand change better when they build it by hand before they meet it as a formula. This article is about the building itself: how to set up the Calculus Abacus, physical or virtual, and what is happening underneath, so that a teacher can read every stone and number on a completed board with confidence. A student who has reproduced the board's arithmetic herself is reading mathematics; a student who has not is reading the output of a black box.

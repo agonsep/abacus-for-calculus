@@ -5,6 +5,7 @@ summary: "A visual, inquiry-based activity in which students narrow their attent
 section: exercise
 parent: about-the-calculus-abacus
 order: 2
+acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
 

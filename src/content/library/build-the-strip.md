@@ -5,6 +5,7 @@ summary: "A construction activity for classrooms with a physical board and stone
 section: exercise
 parent: how-the-abacus-works
 order: 2
+acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
 ## Learning Objective

@@ -4,6 +4,7 @@ slug: about-the-calculus-abacus
 summary: A tool for building the idea of change by hand, before the formulas arrive.
 section: article
 order: 1
+acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
 Calculus is the mathematics of change. Most of us say something like this on the first day of the course, and then spend the following weeks on rules that can bury the idea under notation. Yet the heart of the subject never moves: it asks how a quantity grows or shrinks, how steeply a curve rises, how much accumulates across an interval. The slope of a tangent, the area beneath a curve, the speed of a moving object are all versions of one question, which is how something is changing. The Calculus Abacus is a tool built to keep that question in plain sight, by letting students construct change with their own hands before they meet it as a formula.

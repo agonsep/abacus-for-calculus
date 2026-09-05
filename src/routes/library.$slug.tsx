@@ -108,6 +108,12 @@ function LibraryEntryPage() {
         <div className="mt-8">
           <LibraryProse>{entry.body}</LibraryProse>
         </div>
+
+        {entry.acknowledgement ? (
+          <p className="mt-10 text-sm text-slate-500">
+            {entry.acknowledgement}
+          </p>
+        ) : null}
       </article>
 
       {childExercises.length > 0 && (

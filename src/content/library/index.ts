@@ -10,6 +10,8 @@ export interface LibraryEntry {
   order: number;
   /** For exercises: slug of the article these exercises belong to. */
   parent?: string;
+  /** Attribution line rendered at the bottom of the entry. */
+  acknowledgement?: string;
   body: string;
 }
 

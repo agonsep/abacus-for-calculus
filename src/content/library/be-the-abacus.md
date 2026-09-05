@@ -5,6 +5,7 @@ summary: "A hands-on activity in which students reproduce the abacus's own arith
 section: exercise
 parent: how-the-abacus-works
 order: 1
+acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
 
