@@ -7,7 +7,7 @@ parent: about-the-calculus-abacus
 order: 3
 ---
 
-*A visual, inquiry-based activity in which students meet a smooth curve that impersonates a straight line at every ordinary scale, and discover that agreement among many readings is not the same as truth. Written for teachers; no limit or derivative notation required.*
+
 
 ## Short Introduction
 
