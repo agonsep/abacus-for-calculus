@@ -51,3 +51,5 @@ Believing the Size counts are always the y-values. They are here only because th
 ## Teacher Notes
 
 This configuration was chosen deliberately. With the stone worth exactly 1, the scaling rule can be verified mentally, and the triangular number pattern rewards the effort with something memorable. If time allows, the first reflection question makes a strong live demonstration: refilling with max stones 50 reprices the stone at 1.1 and the tidy whole numbers disappear, which shows vividly that the counts depend on the scale, not just the curve.
+
+Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026.

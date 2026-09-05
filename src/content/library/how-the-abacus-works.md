@@ -78,3 +78,5 @@ Finally, the board always rescales to its window: a sharp picture at any zoom, a
 ## What the mechanics prepare
 
 A teacher who has walked this far can read any board the abacus produces: the window, the scale, the floor, the stones, the estimates. That literacy lets the rest of the curriculum stay conceptual: when students read patterns of change, estimate a rate at a point, or ask when an estimate deserves their trust, they will be handling numbers they understand. The same board will later carry the historical material on estimation and, further on, an article on integration and the Fundamental Theorem of Calculus, where the columns accumulate instead of differ.
+
+Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026.
