@@ -2080,6 +2080,25 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
+            <label
+              className={`flex items-center gap-2 ${level > 0 || anim ? "cursor-not-allowed" : "cursor-pointer"}`}
+              title={
+                level > 0 || anim
+                  ? "Stack-height preservation is fixed once stones have been removed."
+                  : "Keep the same stack heights when dividing; only the value of one stone changes."
+              }
+            >
+              <input
+                type="checkbox"
+                checked={preserveStackHeights}
+                disabled={level > 0 || !!anim}
+                onChange={(e) => setPreserveStackHeights(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>
+                Preserve stack heights
+              </span>
+            </label>
             <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
               <input
                 type="checkbox"
