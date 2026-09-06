@@ -913,6 +913,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [fractional, setFractional] = useState(false);
   const [leftCompare, setLeftCompare] = useState(false);
   const [slopeHighPrecision, setSlopeHighPrecision] = useState(false);
+  const [preserveStackHeights, setPreserveStackHeights] = useState(false);
+  const [unitFlash, setUnitFlash] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
@@ -957,6 +959,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [instant, setInstant] = useState(false);
   const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
+  const unitFlashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
@@ -990,9 +993,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         counts.push(change[i]);
       }
     }
-    if (wMode) {
+    if (wMode || preserveStackHeights) {
       // With increment w the quotient is the exact derivative, a plain real.
-      // Stone counts stay the same; only the unit and floor change.
+      // When preserving stack heights, the quotient is numeric but we still want
+      // the same visual continuity: keep counts, divide the stone value.
       const u = unit / incValue;
       return { newYRaw, newDefined, counts, u, floor: 0 };
     }
@@ -1028,6 +1032,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setLevel((l) => l + 1);
     setError(null);
     setNote(null);
+    if (preserveStackHeights || wMode) {
+      if (unitFlashTimer.current) clearTimeout(unitFlashTimer.current);
+      setUnitFlash(true);
+      unitFlashTimer.current = setTimeout(() => {
+        setUnitFlash(false);
+        unitFlashTimer.current = null;
+      }, 1200);
+    }
   };
 
   const snapshot = (s: AnimState): AnimState => ({
@@ -1118,6 +1130,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   useEffect(
     () => () => {
       if (animTimer.current) clearInterval(animTimer.current);
+      if (unitFlashTimer.current) clearTimeout(unitFlashTimer.current);
     },
     [],
   );
@@ -1661,7 +1674,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         <div className="pointer-events-none absolute left-6 top-[40%] z-10 w-fit">
           <div className="pointer-events-auto flex flex-col gap-1 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl backdrop-blur-md">
             <p className="px-2 text-sm text-muted-foreground">
-              One stone = <span className="font-mono text-foreground">{wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}</span>.
+              One stone ={" "}
+              <span
+                className={`rounded px-1 font-mono text-foreground transition-colors duration-300 ${unitFlash ? "bg-stone-orange/40 text-stone-orange-dark" : ""}`}
+              >
+                {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
+              </span>
+              .
               {(floorValue !== 0 || (wValues && wBase !== 0)) && (
                 <> &nbsp;Size-Stone Floor: <span className="font-mono text-foreground">{wValues ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
               )}
@@ -2067,6 +2086,25 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
+            <label
+              className={`flex items-center gap-2 ${level > 0 || anim ? "cursor-not-allowed" : "cursor-pointer"}`}
+              title={
+                level > 0 || anim
+                  ? "Stack-height preservation is fixed once stones have been removed."
+                  : "Keep the same stack heights when dividing; only the value of one stone changes."
+              }
+            >
+              <input
+                type="checkbox"
+                checked={preserveStackHeights}
+                disabled={level > 0 || !!anim}
+                onChange={(e) => setPreserveStackHeights(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>
+                Preserve stack heights
+              </span>
+            </label>
             <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
               <input
                 type="checkbox"
