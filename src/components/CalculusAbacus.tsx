@@ -992,9 +992,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         counts.push(change[i]);
       }
     }
-    if (wMode) {
+    if (wMode || preserveStackHeights) {
       // With increment w the quotient is the exact derivative, a plain real.
-      // Stone counts stay the same; only the unit and floor change.
+      // When preserving stack heights, the quotient is numeric but we still want
+      // the same visual continuity: keep counts, divide the stone value.
       const u = unit / incValue;
       return { newYRaw, newDefined, counts, u, floor: 0 };
     }
