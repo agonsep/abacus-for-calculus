@@ -1245,7 +1245,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     }
   };
 
-  const firstRunRef = useRef(true);
   const setup = (opts?: { leibniz?: boolean; maxStones?: string }) => {
     const lb = opts?.leibniz ?? leibniz;
     const ms = opts?.maxStones ?? maxStones;
@@ -1358,18 +1357,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         setDyDefined(dyVals.map((v, i) => def[i] && v !== null));
         setDeltaValues(deltaVals.map((v) => v ?? 0));
         setDeltaDefined(deltaVals.map((v, i) => def[i] && v !== null));
-        firstRunRef.current = false;
-      } else if (firstRunRef.current) {
-        const initialChange = ys.map((y, i) => {
-          const j = leftCompare ? i - 1 : i + 1;
-          if (j < 0 || j >= ys.length || !def[i] || !def[j]) return 0;
-          const d = leftCompare ? y - ys[j] : ys[j] - y;
-          const raw = d / res.u;
-          const v = fractional ? raw : Math.round(raw);
-          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
-        });
-        setChange(initialChange);
-        firstRunRef.current = false;
       } else {
         setChange(Array(COLUMNS).fill(0));
       }
