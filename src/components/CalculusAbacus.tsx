@@ -1247,7 +1247,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const firstRunRef = useRef(true);
   const setup = (opts?: { leibniz?: boolean; maxStones?: string }) => {
-    console.log("[setup] run, firstRun =", firstRunRef.current, "opts =", opts, new Error().stack?.split("\n").slice(2, 5).join(" <- "));
     const lb = opts?.leibniz ?? leibniz;
     const ms = opts?.maxStones ?? maxStones;
     try {
@@ -1427,13 +1426,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Re-fill when max stones changes so the unit label stays in sync
-  const skipRefillRef = useRef(true);
+  // Re-fill when max stones changes so the unit label stays in sync.
+  // Compare against the previous value instead of a skip-first flag: React may
+  // invoke effects more than once on mount, and a flag-based guard then fires
+  // a spurious second fill that wipes the seeded change stones.
+  const prevMaxStonesRef = useRef(maxStones);
   useEffect(() => {
-    if (skipRefillRef.current) {
-      skipRefillRef.current = false;
-      return;
-    }
+    if (prevMaxStonesRef.current === maxStones) return;
+    prevMaxStonesRef.current = maxStones;
     if (skipMaxRefill.current) {
       skipMaxRefill.current = false;
       return;
