@@ -1247,6 +1247,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const firstRunRef = useRef(true);
   const setup = (opts?: { leibniz?: boolean; maxStones?: string }) => {
+    console.log("[setup] run, firstRun =", firstRunRef.current, "opts =", opts, new Error().stack?.split("\n").slice(2, 5).join(" <- "));
     const lb = opts?.leibniz ?? leibniz;
     const ms = opts?.maxStones ?? maxStones;
     try {
