@@ -959,6 +959,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [instant, setInstant] = useState(false);
   const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
+  const unitFlashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
