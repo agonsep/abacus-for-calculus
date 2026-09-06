@@ -913,8 +913,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [fractional, setFractional] = useState(false);
   const [leftCompare, setLeftCompare] = useState(false);
   const [slopeHighPrecision, setSlopeHighPrecision] = useState(false);
-  const [preserveStackHeights, setPreserveStackHeights] = useState(false);
-  const [unitFlash, setUnitFlash] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
@@ -959,7 +957,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [instant, setInstant] = useState(false);
   const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
-  const unitFlashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
 
   const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
 
@@ -993,16 +991,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         counts.push(change[i]);
       }
     }
-    if (wMode || preserveStackHeights) {
-      // With increment w the quotient is the exact derivative, a plain real.
-      // When preserving stack heights, the quotient is numeric but we still want
-      // the same visual continuity: keep counts, divide the stone value.
-      const u = unit / incValue;
-      return { newYRaw, newDefined, counts, u, floor: 0 };
-    }
-    const res = computeCounts(newYRaw, newDefined, fractional, maxStones);
-    if (!res) return "Could not promote: all columns are undefined.";
-    return { newYRaw, newDefined, counts: res.counts, u: res.u, floor: res.floor };
+    // Keep the same stack heights and divide only the value of one stone.
+    const u = unit / incValue;
+    return { newYRaw, newDefined, counts, u, floor: 0 };
   };
 
   const commitPromotion = (p: Promotion) => {
@@ -1032,14 +1023,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setLevel((l) => l + 1);
     setError(null);
     setNote(null);
-    if (preserveStackHeights || wMode) {
-      if (unitFlashTimer.current) clearTimeout(unitFlashTimer.current);
-      setUnitFlash(true);
-      unitFlashTimer.current = setTimeout(() => {
-        setUnitFlash(false);
-        unitFlashTimer.current = null;
-      }, 1200);
-    }
   };
 
   const snapshot = (s: AnimState): AnimState => ({
@@ -1676,7 +1659,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             <p className="px-2 text-sm text-muted-foreground">
               One stone ={" "}
               <span
-                className={`rounded px-1 font-mono text-foreground transition-colors duration-300 ${unitFlash ? "bg-stone-orange/40 text-stone-orange-dark" : ""}`}
+                className="rounded px-1 font-mono text-foreground"
               >
                 {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
               </span>
@@ -1933,7 +1916,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 The abacus supports increments as small as 0.001 and as many as 100 stones per column. You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
-                Clicking <strong>"Divide By Increment"</strong> removes the red size stones, divides the orange change-size stones by the increment, and turns them into a new size curve. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no orange change-size stones, the button instead restores the previous level.
+                Clicking <strong>"Divide By Increment"</strong> removes the red size stones and drops the orange change-size stones to the board floor, turning them into a new size curve. The stack heights stay exactly the same; only the value represented by one stone is divided by the increment. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no orange change-size stones, the button instead restores the previous level.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the orange stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of red stones. Because that derivative is constant, there is nothing further to difference.
@@ -2086,25 +2069,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
-            <label
-              className={`flex items-center gap-2 ${level > 0 || anim ? "cursor-not-allowed" : "cursor-pointer"}`}
-              title={
-                level > 0 || anim
-                  ? "Stack-height preservation is fixed once stones have been removed."
-                  : "Keep the same stack heights when dividing; only the value of one stone changes."
-              }
-            >
-              <input
-                type="checkbox"
-                checked={preserveStackHeights}
-                disabled={level > 0 || !!anim}
-                onChange={(e) => setPreserveStackHeights(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>
-                Preserve stack heights
-              </span>
-            </label>
             <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
               <input
                 type="checkbox"
