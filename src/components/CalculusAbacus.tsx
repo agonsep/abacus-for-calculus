@@ -1113,7 +1113,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   useEffect(
     () => () => {
       if (animTimer.current) clearInterval(animTimer.current);
-      if (unitFlashTimer.current) clearTimeout(unitFlashTimer.current);
     },
     [],
   );
