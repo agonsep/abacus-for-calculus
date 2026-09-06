@@ -1245,7 +1245,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     }
   };
 
-  const firstRunRef = useRef(true);
   const setup = (opts?: { leibniz?: boolean; maxStones?: string }) => {
     const lb = opts?.leibniz ?? leibniz;
     const ms = opts?.maxStones ?? maxStones;
@@ -1358,18 +1357,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         setDyDefined(dyVals.map((v, i) => def[i] && v !== null));
         setDeltaValues(deltaVals.map((v) => v ?? 0));
         setDeltaDefined(deltaVals.map((v, i) => def[i] && v !== null));
-        firstRunRef.current = false;
-      } else if (firstRunRef.current) {
-        const initialChange = ys.map((y, i) => {
-          const j = leftCompare ? i - 1 : i + 1;
-          if (j < 0 || j >= ys.length || !def[i] || !def[j]) return 0;
-          const d = leftCompare ? y - ys[j] : ys[j] - y;
-          const raw = d / res.u;
-          const v = fractional ? raw : Math.round(raw);
-          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
-        });
-        setChange(initialChange);
-        firstRunRef.current = false;
       } else {
         setChange(Array(COLUMNS).fill(0));
       }
@@ -1426,13 +1413,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Re-fill when max stones changes so the unit label stays in sync
-  const skipRefillRef = useRef(true);
+  // Re-fill when max stones changes so the unit label stays in sync.
+  // Compare against the previous value instead of a skip-first flag: React may
+  // invoke effects more than once on mount, and a flag-based guard then fires
+  // a spurious second fill that wipes the seeded change stones.
+  const prevMaxStonesRef = useRef(maxStones);
   useEffect(() => {
-    if (skipRefillRef.current) {
-      skipRefillRef.current = false;
-      return;
-    }
+    if (prevMaxStonesRef.current === maxStones) return;
+    prevMaxStonesRef.current = maxStones;
     if (skipMaxRefill.current) {
       skipMaxRefill.current = false;
       return;
