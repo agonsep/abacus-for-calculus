@@ -1032,6 +1032,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setLevel((l) => l + 1);
     setError(null);
     setNote(null);
+    if (preserveStackHeights || wMode) {
+      if (unitFlashTimer.current) clearTimeout(unitFlashTimer.current);
+      setUnitFlash(true);
+      unitFlashTimer.current = setTimeout(() => {
+        setUnitFlash(false);
+        unitFlashTimer.current = null;
+      }, 1200);
+    }
   };
 
   const snapshot = (s: AnimState): AnimState => ({
