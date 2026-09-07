@@ -38,6 +38,8 @@ Conversions applied:
   plain Unicode: Δy/Δx and 1/Δx, matching the other entries.
 - The duplicated one-line summary at the top of the body is dropped, since the
   page already renders the summary under the title.
+- In the Student Activity NOTICE step, the phrase "the rate is double the
+  difference" becomes "the average rate is double the difference", as requested.
 
 ### No code changes
 
