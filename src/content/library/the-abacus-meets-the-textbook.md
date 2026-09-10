@@ -1,50 +1,117 @@
 ---
 title: "The Abacus Meets the Textbook"
 slug: the-abacus-meets-the-textbook
-summary: "Classic textbook problems—the falling ball, limits without arriving, a falling curve, and the hunt for a special base—worked on the board your students already know."
+summary: "From physical experience to the language of calculus: velocity at an instant, limits near a missing point, and the hunt for the base whose slope is exactly 1."
 section: article
 order: 3
 acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
-*An opening calculus problem, worked on the board your students already know.*
+*From physical experience to the language of calculus*
 
-The first two articles in this series introduced a way of building a calculus of differences by hand and explained the machine that makes the building possible. This one changes direction. It introduces no new mathematics at all. Instead it takes the skills those articles established, reading a window, assigning a value to (pricing) a stone, forming a change-curve, weighing an estimate, and points them at problems a standard first course in calculus actually considers. The examples that follow are mostly drawn from the opening chapters of James Stewart's widely used *Single Variable Calculus*. They were chosen for a reason a teacher will recognize immediately: they are the problems your students will meet in the first two weeks of a course, whatever textbook they use. The claim of this article is modest and specific. The Calculus Abacus is not an alternative to a standard course. It prepares the student for a standard course, using a physical model. The point is not that the abacus solves textbook problems more efficiently. It gives students a physical way to experience the ideas those problems are about before they encounter them in symbolic form.
+The first articles in this series introduced a way of working with differences by hand and explained how the machine makes it possible. Students have learned to read a window of a curve, assign values to stones, form a curve of differences, and use those differences to estimate how a curve is changing.
 
-## You have already done the textbook's early example
+Now the Abacus meets the textbook.
 
-A typical calculus text opens with the tangent problem: take a parabola, fix a point on it, and compute the slopes of secant lines through that point and a neighbor, bringing the neighbor closer and closer. If you have run the first two exercises of this series with your class, your students are already familiar with the shape of the curve y = x². They are also familiar with narrowing an increment while estimating the slope of a tangent, having done this for the curve y = x³. Students chose a point on y = x³, estimated how fast the curve was changing there from a neighboring value, then narrowed the step and watched the estimates settle. The Stewart textbook presents it as a table of secant slopes; the abacus presents it as stacks of stones; the underlying mathematics is the same. Which means your class does not start this article at the beginning. They start it already fluent in the textbook's first move. The textbook presents a velocity problem immediately after the tangent problem. The second example drops a ball.
+The purpose is not to replace a standard calculus course. It is to prepare students for one. The Calculus Abacus gives students a physical way to experience ideas that a calculus textbook will soon express with equations, symbols, definitions, and mathematical arguments.
 
-## The falling ball
+The three exercises accompanying this article take the Abacus into familiar territory: instantaneous velocity, limits, and the number *e*. These are ordinary early-calculus questions. What is different is that students encounter the underlying ideas in a hands-on way before encountering them formally.
 
-A ball is dropped from a tower 450 meters tall. Galileo's law says the distance fallen after x seconds is y = 4.9x² meters, so the ball reaches the ground at about x = 9.58 seconds. (One can assign this as a further exercise.) The textbook's question is the one that summons calculus into existence: how fast is the ball moving at the instant it lands?
+## How fast at an instant?
 
-Average speed over an interval is easy, distance traveled divided by time. Speed at an instant is the puzzle, because an instant has no duration by which to divide. The textbook's alternative approach is to sneak up on it with average speeds over shrinking intervals, and the abacus makes that hunt physical. Set y = 4.9*x^2, midpoint 9.58, increment 0.5, 50 stones, and press "Fill Board", then click on "Find Differences". One size-stone prices at about 9.39 meters, and the floor reads about 245.62: not zero, and rightly so, because 245.62 meters is about the distance already fallen when the window opens at x = 7.08. Give the class a moment with that number; a floor with physical meaning is worth ten definitions. The board shows the final seconds of the modeled fall, size stone columns climbing to full height, change-size stones recording how far the ball dropped in each half second.
+### How fast is something moving at a particular instant?
 
-Now read the Slope estimate column with fractional stones on. The row beside x = 9.58 reads 96.33: the average speed over the next half second. The row one step to the left, x = 9.08, reads 91.43: the average speed over the half second before landing. Neither is the answer; the truth is trapped between them. Averages are easy and instants are hard, and the opening chapter of calculus is the art of getting the second from the first. Refill the board at increments 0.1, 0.01, and 0.001, and watch the trap tighten.
+Average speed is easy to calculate. Divide the distance traveled by the time taken. But an instant has no duration. How can we determine a rate of change at an instant?
 
-With an increment of 0.001, the estimated speed at landing is 93.88 meters per second, and the units are doing real work here: this is not an abstract slope but a speed a student can feel, about 338 kilometers per hour.
+Calculus begins with something we can measure: the average rate over an interval. We then make the interval smaller. That is the essential move.
 
-The textbook asks the same question at x = 5 seconds; the same board, refilled at midpoint 5, hands back 49 meters per second the same way. Finding the velocity requires shrinking intervals around a point the ball actually passes through. A textbook might also ask about a point the ball never reaches at all (unless there is a hole in the ground).
+Suppose we want to estimate the speed of a falling ball at a particular moment. We can calculate its average speed during a half-second interval. We can then use a tenth of a second, a hundredth, or a thousandth. As the interval becomes smaller, the average rate can provide a more accurate estimate of the rate at the instant.
 
-## Limits that approach without arriving
+The Calculus Abacus makes this process visible. Its change-stones record how much a curve changes over an interval. By changing the value assigned to those stones, they can represent the rate of change rather than simply the amount of change.
 
-Every early calculus course meets the curve y = sin(x)/x and the claim that it approaches 1 as x approaches 0. The delicate part is the word approaches: at x = 0 the value of y does not exist, since nothing may be divided by zero. Input the curve with the midpoint = 0, the increment = 0.5, and a 50 stone maximum. Here the abacus does something quietly significant. It marks the column for x = 0 as undefined. A limit is about the neighborhood, not the point.
+One can use a difference on the left, a difference on the right, or both. Averaging the two readings can sometimes improve an estimate, but the underlying idea remains the same. The fundamental idea is:
 
-So the window must stop short. Reset the midpoint to 0.06 with the increment to 0.01. Keep the maximum number of stones at 50. Check the box for fractional stones. The eleven columns run from x = 0.01 to x = 0.11, marching toward zero and halting one step before it. The values are extraordinarily close together, climbing from just below 0.998 almost to 1, and this is where the reading habits of the second article earn their keep: the whole drama lives in the third and fourth decimals, the floor and the size-stone carry everything, and the abacus's high-precision display will show a class every digit of the climb. Read from right to left, toward zero, the values rise steadily toward 1 and never touch it. A mirrored window on the negative side (midpoint = −0.06) tells the same story from the left flank.
+### Start with a rate over an interval, then make the interval smaller and observe how the estimate changes.
 
-A second classic makes the point structurally. The curve y = (x − 1)/(x² − 1) has a hole at x = 1: top and bottom both vanish there. The abacus indicates this when one inputs the curve with a midpoint of 1 and an increment of 0.25 (and a maximum of 50 stones).
+The falling-ball problem makes this idea especially vivid. A ball falling from a tower follows the curve:
 
-Set midpoint 1.005 with increment 0.01 and something elegant happens: the eleven columns fall at increments of 0.01 around the midpoint, from 0.955 to 1.055, straddling x = 1 without any column landing on it. The board looks perfectly continuous. The y value on the left flank reads 0.50125, the y value on the right flank 0.49875, and both sides are closing on one half, the limit, at a point for which there is no y value. A student who asks why no column sits at x = 1 has asked exactly the right question, and the honest answer, that the board would crash there, is the definition of a limit wearing work clothes. The point is missing; the destination is not.
+*y = 4.9x²*
 
-Every curve examined closely so far has climbed. The textbook's next problems do not.
+The question is its speed at the moment it reaches the ground. The Abacus does not measure speed at an instant directly. Instead, it calculates average rates over intervals. The student then reduces the increment and calculates again.
 
-## A curve that falls
+With a relatively large increment, the estimate is crude. As the increment becomes smaller, the estimate can become more precise.
 
-Set y = 1/x with midpoint 2, increment 0.25, 50 maximum stones, and fractional stones turned off. Find the differences. The change stones come out dark grey, because every difference is negative: this curve loses height at every step. The estimate beside x = 2 reads −0.25, and the sign is the lesson. A rate of change has a direction, and the board wears it as a color. Students who built a color glossary in the second article now see it doing arithmetic in a real problem, and the true slope of this curve at x = 2 happens to be exactly −1/4, so the whole-stone board has landed on the textbook's answer to the digit.
+The first exercise, “The Ball and the Tower,” puts students in the role of investigators. They discover the problem that motivates differential calculus: we cannot measure a rate over zero time in the ordinary way, so we use rates over small intervals to learn about the rate at an instant.
 
-These curves all came from the course's early chapters. One more question from those chapters deserves a hunt of its own.
+Whether a course later develops this idea using limits or infinitesimals, the students' initial experience is the same: **the size of the increment matters.**
 
-## Is there a base whose slope is exactly 1?
+## What happens near a point?
 
-Here is a measurement your class can make in two minutes. Set y = 2^x, midpoint 0, increment 0.1, 50 stone maximum, and fractional stones turned on. Read the rate of change at x = 0 from both flanks: the estimates are 0.67 and 0.72; their average is 0.695. Refill with y = 3^x and the same reading gives 1.1. Sit with that for a moment. The slope of 2^x at zero is less than 1; the slope of 3^x at zero is more than 1. So somewhere between 2 and 3 there must be a base whose curve has a slope of exactly 1 at x = 0, a curve that begins by growing at precisely its own height. Which base? This article will not say. Some numbers are announced; this one deserves to be cornered. The third exercise for this article turns the question into the hunt, and the answer is worth arriving at rather than being told.
+The same experience with smaller increments leads naturally to another fundamental question of calculus: what happens to a curve as we examine values closer and closer to a particular point?
+
+Consider:
+
+*y = (sin x)/x*
+
+At *x = 0*, the expression has no value. Yet values of the expression get very close to 1 near zero. The Abacus can make this distinction concrete. It cannot build a column at an undefined point, but it can build columns increasingly close to that point.
+
+The student can therefore observe two different facts:
+
+- the value at the point may not exist;
+- values near the point may nevertheless be very close to a particular number.
+
+The second exercise, “The Window That Never Arrives,” develops this idea with *y = (sin x)/x* and with another curve that has a hole at *x = 1*. The essential activity is to move closer to the point and observe what happens.
+
+In a limits-based course, this experience provides an intuitive starting point for the idea of a limit. In an infinitesimal approach, the same experience can be connected to what happens when the increment in *x* is infinitesimally small.
+
+The physical investigation does not require students to settle that theoretical question in advance. It gives them a more basic question to investigate:
+
+### What happens to the values of a curve when the distance from a point becomes smaller and smaller?
+
+That question belongs to calculus regardless of which formal framework is subsequently used.
+
+## Hunting for a famous number
+
+The third exercise takes the same approach in a different direction.
+
+Consider the family of curves:
+
+*y = b^x*
+
+At *x = 0*, every curve passes through (0,1), but different bases produce different rates of change there. For *b = 2*, the rate is less than 1. For *b = 3*, it is greater than 1. This suggests that there is a base between 2 and 3 for which the rate of change at *x = 0* is exactly 1.
+
+The student is not told the answer. Instead, the Abacus becomes a measuring instrument. Students test different bases, examine the resulting rates, and narrow the search. They eventually narrow the search to about 2.72.
+
+Only then do they learn that the number they have found is
+
+*e ≈ 2.71828*
+
+This is the purpose of “**The Hunt for the Magic Base.**” It lets students encounter *e* as the solution to a mathematical problem rather than simply as a constant that appears in a formula.
+
+The exercise may also lead to a deeper observation. The curve with this special base has a remarkable relationship between its height and its rate of change. Students can glimpse that relationship before they encounter the formal definition of the natural exponential function.
+
+## From the Abacus to calculus
+
+These three investigations concern different topics, but they share a common method: start with a difference that can be measured, turn the difference into a rate, make the increment smaller, and observe how the estimate changes. These ideas form an important part of the conceptual foundation of calculus.
+
+A conventional textbook then supplies the mathematical language needed to develop these ideas systematically. It gives students definitions, symbolic methods, general rules, algebraic techniques, and proofs. A limits-based course may formalize the process through limits. An infinitesimal approach may instead introduce infinitesimal increments and develop derivatives from them. The Abacus does not require the teacher to choose between these approaches. Its physical model comes before either formal development.
+
+For example, a student who has repeatedly reduced an increment and watched an estimate become more precise can encounter the difference quotient *Δy/Δx* with a concrete understanding of what the quotient represents.
+
+A student who has experimented with values increasingly close to a point can later encounter the formal treatment of limits—or an infinitesimal treatment of what happens when the increment becomes infinitesimally small.
+
+A student who has hunted for the base whose rate of change is exactly 1 can encounter *e* as the answer to a question rather than simply as a constant to memorize.
+
+This is the bridge between the Abacus and the textbook.
+
+## The Abacus and formal calculus
+
+There is a temptation, when introducing a new mathematical device, to ask whether it can replace the traditional method. That is not the claim here. The Calculus Abacus is a physical model for exploring ideas that calculus eventually expresses with greater generality and precision. It gives students experience before formalism, not experience instead of formalism.
+
+The physical model has limitations. It has a finite number of stones and finite precision. It is excellent for helping students see patterns, make conjectures, and investigate the effect of changing an increment. It cannot replace the symbolic mathematics that gives calculus its generality, precision, and rigor.
+
+A student who has seen a rate estimate change as the increment becomes smaller has experienced something that can later be expressed in several mathematically rigorous ways. A student who has seen values near a missing point cluster around a particular number has something concrete to which a formal treatment of limits—or an infinitesimal approach—can be connected. A student who has found *e* by measurement has encountered a mathematical object before encountering all of the theory surrounding it.
+
+Eventually, the stones can be put away. But when the symbols appear on the page, they are no longer describing an entirely unfamiliar world. The student has already seen the mathematics taking shape.
+
+**The physical experience comes first. The formal mathematics comes next.**
