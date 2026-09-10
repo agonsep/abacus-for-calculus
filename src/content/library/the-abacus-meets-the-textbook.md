@@ -76,7 +76,7 @@ The third exercise takes the same approach in a different direction.
 
 Consider the family of curves:
 
-*y = b^x*
+*y = bˣ*
 
 At *x = 0*, every curve passes through (0,1), but different bases produce different rates of change there. For *b = 2*, the rate is less than 1. For *b = 3*, it is greater than 1. This suggests that there is a base between 2 and 3 for which the rate of change at *x = 0* is exactly 1.
 
