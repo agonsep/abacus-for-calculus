@@ -12,7 +12,8 @@ Let the user pick the stone colors from three preset pairs. The first color of e
 
 - A small "Stone colors" picker appears in the left panel, below the checkboxes: three little two-tone swatches, the selected one outlined.
 - Choosing a pair recolors the board immediately. No need to press Fill Board.
-- The matching panel text (the y / size-stone and change-stone column headers, the help text highlights) and the two action buttons take the chosen colors too, so everything stays consistent.
+- The matching panel text (the y / size-stone and change-stone column headers) and the two action buttons take the chosen colors too, so everything stays consistent.
+- Help panel references: the sentence "The red stones (or size-stones) represent amounts..." recolors its highlighted words to the chosen pair. The color *names* in the prose ("red stones", "orange stones") stay as-is since they name the default palette — the names act as fixed vocabulary, and the color swatch picker makes the mapping visually obvious. (Flag: if you'd rather the words change to match the chosen colors, say so and the plan will swap the adjectives too.)
 - The choice is saved in the browser and restored on the next visit.
 
 ## Technical notes
