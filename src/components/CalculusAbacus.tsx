@@ -1934,8 +1934,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const yHeader = !leibniz && dualActive ? "f(x)" : "y";
 
   const leibnizCols = slopeHighPrecision
-    ? "2.5rem 4rem 8rem 5rem 8rem 8rem"
-    : "2.5rem 4rem 4.5rem 5rem 4.5rem 4.5rem";
+    ? "2.5rem 8rem 8rem 4rem 5rem 8rem"
+    : "2.5rem 4.5rem 4.5rem 4rem 5rem 4.5rem";
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? showYColumn
