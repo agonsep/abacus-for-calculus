@@ -2043,17 +2043,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                         {formatDual(xv, xW[i] ?? 0, formatNum)}
                       </div>
                       <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
-                        {isDef ? fmtCount(size[i]) : "undefined"}
-                      </div>
-                      <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {isDef
                           ? wValues
                             ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
                             : fmtVal(yRaw[i] ?? 0)
                           : "undefined"}
-                      </div>
-                      <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
-                        {dyDef ? fmtCount(change[i]) : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${dDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dDef
@@ -2061,6 +2055,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                             ? formatDual(0, deltaValues[i] ?? 0, fmtVal)
                             : fmtVal(deltaValues[i] ?? 0)
                           : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {isDef ? fmtCount(size[i]) : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {dyDef ? fmtCount(change[i]) : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dyDef
