@@ -799,7 +799,7 @@ function DragHandles({
 
         // Change handle covers from top of size stack upward
         const rBottom = oCount > 0 ? sizeTopY : minY;
-        const changeTopY = slotY(oCount + gap + rCount + off) - PIECE_HEIGHT / 2;
+        const changeTopY = slotY(oTopSlot + gap + rCount + off) - PIECE_HEIGHT / 2;
         let rTop = rCount > 0 ? changeTopY : oCount > 0 ? maxY : maxY;
         if (rCount > 0 && rTop - rBottom < MIN_H) {
           rTop = Math.min(rBottom + MIN_H, maxY);
