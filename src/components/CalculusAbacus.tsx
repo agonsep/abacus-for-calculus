@@ -2232,39 +2232,39 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Click <strong>"Find Differences"</strong> to display the differences between neighboring columns.
               </p>
               <p>
-                Drag orange stones up into the empty area to form a new curve.
+                Drag change-size stones up into the empty area to form a new curve.
               </p>
-              <h3 className="font-serif text-lg text-foreground pt-2">How the Red (Size) Stones Work</h3>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Size Stones Work</h3>
               <p>
                 Each of the 11 columns represents a <span className="font-mono text-foreground">y</span>-value for each <span className="font-mono text-foreground">x</span>. The columns are centered on the chosen midpoint and spaced according to the selected increment.
               </p>
               <p>
-                The abacus automatically determines how many red stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-foreground">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
+                The abacus automatically determines how many size stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-foreground">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
               </p>
               <p>
-                For every column the app evaluates <span className="font-mono text-foreground">f(x)</span> to get 11 <span className="font-mono text-foreground">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-foreground">y</span>-values and pick a unit so that one red stone is worth <span className="font-mono">(max − min) / 50</span>. The number of red stones in each column represents <span className="font-mono">f(x) − min</span>.
+                For every column the app evaluates <span className="font-mono text-foreground">f(x)</span> to get 11 <span className="font-mono text-foreground">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-foreground">y</span>-values and pick a unit so that one size stone is worth <span className="font-mono">(max − min) / 50</span>. The number of size stones in each column represents <span className="font-mono">f(x) − min</span>.
               </p>
               <p>
                 Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
               </p>
               <p>Negative size values are represented by black stones.</p>
-              <h3 className="font-serif text-lg text-foreground pt-2">How the Orange (Change-Size) Stones Work</h3>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Change-Size Stones Work</h3>
               <p>
-                When you click <strong>"Find Differences,"</strong> the app places orange stones next to each column.
+                When you click <strong>"Find Differences,"</strong> the app places change-size stones next to each column.
               </p>
-              <p>The number of orange stones represents:</p>
+              <p>The number of change-size stones represents:</p>
               <p className="font-mono text-center">f(x + Δx) − f(x)</p>
               <p>
-                where Δx equals the chosen increment. The orange stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
+                where Δx equals the chosen increment. The change-size stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
               </p>
               <p>
-                You can move the orange stones to form a second curve above the red curve. This orange curve represents differences in the <span className="font-mono text-foreground">y</span>-values for points along the curve rather than the <span className="font-mono text-foreground">y</span>-values themselves.
+                You can move the change-size stones to form a second curve above the size curve. This change-size curve represents differences in the <span className="font-mono text-foreground">y</span>-values for points along the curve rather than the <span className="font-mono text-foreground">y</span>-values themselves.
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Estimating the Slope of a Tangent</h3>
-              <p>The orange stones can be used to estimate the slope of a tangent line.</p>
+              <p>The change-size stones can be used to estimate the slope of a tangent line.</p>
               <p>For a particular column:</p>
               <ol className="list-decimal space-y-1 pl-6">
-                <li>Count the orange stones.</li>
+                <li>Count the change-size stones.</li>
                 <li>Multiply by the value represented by one stone.</li>
                 <li>Divide by the increment.</li>
               </ol>
@@ -2276,22 +2276,22 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 The abacus supports increments as small as 0.001 and as many as 100 stones per column. You can also type <span className="font-mono text-foreground">w</span> as the increment. Here <span className="font-mono text-foreground">w</span> is an infinitesimal: a positive quantity smaller than every positive real number, yet not zero. The values displayed in the left panel are no longer slope estimates. They are exact values for the derivative.
               </p>
               <p>
-                Clicking <strong>"Divide By Increment"</strong> removes the red size stones and drops the orange change-size stones to the board floor, turning them into a new size curve. The stack heights stay exactly the same; only the value represented by one stone is divided by the increment. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no orange change-size stones, the button instead restores the previous level.
+                Clicking <strong>"Divide By Increment"</strong> removes the size stones and drops the change-size stones to the board floor, turning them into a new size curve. The stack heights stay exactly the same; only the value represented by one stone is divided by the increment. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no change-size stones, the button instead restores the previous level.
               </p>
               <p>
-                When the increment is <span className="font-mono text-foreground">w</span>, promoting the orange stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of red stones. Because that derivative is constant, there is nothing further to difference.
+                When the increment is <span className="font-mono text-foreground">w</span>, promoting the change-size stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of size stones. Because that derivative is constant, there is nothing further to difference.
               </p>
               <p>
-                Checking <strong>"Leibniz Mode"</strong> keeps the red size stones and adds a narrow wooden shelf across the middle of the board. Resting on that shelf, with every stack starting at the same height, are the orange differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the red stones. Max Stones is capped at 50 so the red stacks never reach the shelf.
+                Checking <strong>"Leibniz Mode"</strong> keeps the size stones and adds a narrow wooden shelf across the middle of the board. Resting on that shelf, with every stack starting at the same height, are the change-size differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the size stones. Max Stones is capped at 50 so the size stacks never reach the shelf.
               </p>
               <p>
-                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the red stacks and adds a straight line tangent to that curve at the midpoint column.
+                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the size stacks and adds a straight line tangent to that curve at the midpoint column.
               </p>
               <p>
                 Checking <strong>"Dual increments"</strong> gives every column a narrower companion stack on its right, evaluated at <span className="font-mono text-foreground">x</span> plus the second increment. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — companion minus main — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative. Dual increments need fractional stones to keep small pair differences visible, so <strong>"Fractional stones"</strong> turns on automatically and stays on while the box is checked.
               </p>
               <p>
-                You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
+                You can also drag the size or change-size portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
               
               <p>A grey column means that the equation is undefined at that particular value of x.</p>
