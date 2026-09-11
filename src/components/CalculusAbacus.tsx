@@ -2208,7 +2208,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 The Calculus Abacus lets you explore curves, rates of change, and areas using stacks of stones.
               </p>
               <p>
-                The size stones (red by default) represent amounts. Columns of red stones represent values of <span className="font-mono text-foreground">y</span> along a given curve. The change-size stones (orange by default) represent the differences between neighboring columns of red stones. Experiment with succesively smaller increments. Do the orange stones approach a limit as the increment approaches zero? What would happen if the increment were infinitely small?
+                The size stones (red by default) represent amounts. Columns of size stones represent values of <span className="font-mono text-foreground">y</span> along a given curve. The change-size stones (orange by default) represent the differences between neighboring columns of size stones. Experiment with succesively smaller increments. Do the change-size stones approach a limit as the increment approaches zero? What would happen if the increment were infinitely small?
               </p>
               <p>The abacus can be used to:</p>
               <ul className="list-disc space-y-1 pl-6">
