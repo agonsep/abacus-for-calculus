@@ -1581,20 +1581,27 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       return;
     }
     if (!yRaw.length || unit === 0) return;
-    const definedYs = yRaw.filter((_, i) => defined[i]);
+    // In dual mode the same unit/baseline covers both stacks of every pair,
+    // so re-round main and companion counts together over their union.
+    const allRaw = companion !== null ? [...yRaw, ...yRawCompanion] : yRaw;
+    const allDef = companion !== null ? [...defined, ...defined] : defined;
+    const definedYs = allRaw.filter((_, i) => allDef[i]);
     if (!definedYs.length) return;
     const isConstant = definedYs.every((y) => y === definedYs[0]);
     const allPositive = definedYs.every((y) => y > 0);
     const baseline = isConstant ? 0 : allPositive ? Math.min(...definedYs) : 0;
     const signed = !isConstant && !allPositive;
-    const newSize = yRaw.map((y, i) => {
-      if (!defined[i]) return 0;
+    const reroll = (y: number, ok: boolean) => {
+      if (!ok) return 0;
       const raw = (y - baseline) / unit;
       const v = fractional ? raw : Math.round(raw);
       const lo = signed || isConstant ? -MAX_PIECES : 0;
       return Math.max(lo, Math.min(MAX_PIECES, v));
-    });
-    setSize(newSize);
+    };
+    setSize(yRaw.map((y, i) => reroll(y, defined[i] !== false)));
+    if (companion !== null) {
+      setCompanion(yRawCompanion.map((y, i) => reroll(y, defined[i] !== false)));
+    }
     if (leibniz) {
       setChange(
         dyValues.map((d, i) => {
@@ -1606,6 +1613,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       );
     } else if (change.some((v) => v !== 0)) {
       const newChange = yRaw.map((y, i) => {
+        if (dualActive && h2) {
+          // Pair difference: companion minus main.
+          if (!defined[i]) return 0;
+          const d = h2.infinitesimal ? companionW[i] : yRawCompanion[i] - y;
+          const raw = d / unit;
+          const v = fractional ? raw : Math.round(raw);
+          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+        }
         const j = leftCompare ? i - 1 : i + 1;
         if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
         const d = leftCompare ? y - yRaw[j] : yRaw[j] - y;
