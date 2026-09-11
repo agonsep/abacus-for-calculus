@@ -2108,9 +2108,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   style={{ gridTemplateColumns: gridCols }}
                 >
                   <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatDual(xv, xW[i] ?? 0, formatNum)}</div>
-                  <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
-                    {isDef ? fmtCount(size[i]) : "undefined"}
-                  </div>
                   {showYColumn && (
                     <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                       {isDef
@@ -2129,6 +2126,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                         : "undefined"}
                     </div>
                   )}
+                  <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                    {isDef ? fmtCount(size[i]) : "undefined"}
+                  </div>
                   {showChangeColumns && (
                     <>
                       <div className={`text-center font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
