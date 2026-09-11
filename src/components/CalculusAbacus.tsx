@@ -501,7 +501,12 @@ function Stacks({
             ? DARK_GREY
             : ORANGE;
         const rFull = Math.floor(rAbs);
-        const changeBase = leibniz ? LEIBNIZ_SHELF_SLOT : anim ? anim.changeBase[i] : yFull + gap;
+        const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? 1 : 0);
+        const changeBase = leibniz
+          ? LEIBNIZ_SHELF_SLOT
+          : anim
+            ? anim.changeBase[i]
+            : sizeTopSlot + gap;
         const changeFrom = anim && !leibniz ? anim.changeFrom[i] : changeBase;
         const changeOff = leibniz ? 0 : off;
         for (let k = 0; k < rFull; k++) {
