@@ -470,6 +470,24 @@ function Stacks({
             />,
           );
         }
+        const yFrac = absVal - yFull;
+        if (yFrac >= MIN_PARTIAL) {
+          pieces.push(
+            <Piece
+              key={`y-${runId}-${i}-partial`}
+              x={x}
+              fromY={skyY}
+              targetY={partialY(yFull + off, yFrac)}
+              delay={anim ? 0 : i * 0.04 + yFull * 0.02}
+              color={stoneColor}
+              widthScale={wScale}
+              heightScale={yFrac}
+              dim={oDim}
+              highlighted={oH}
+              instant={instant}
+            />,
+          );
+        }
 
         const rVal = changeArr[i] ?? 0;
         const rNeg = rVal < 0;
