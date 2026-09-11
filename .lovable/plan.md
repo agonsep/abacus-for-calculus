@@ -7,7 +7,7 @@ A new checkbox, **Dual increments**, adds a second increment box next to the fir
 - The first increment still sets where the eleven columns sit: the window, spaced around the midpoint as today.
 - The second increment sets how finely the curve is measured *at* each column.
 
-Every column gains a companion stack immediately to its right, holding the stones for `f(x + second increment)`. The board shows eleven pairs.
+With the box unchecked, nothing changes: the board shows the usual eleven single stacks and behaves exactly as today. Only when the box is checked does the board switch to eleven pairs. Every column then gains a companion stack immediately to its right, holding the stones for `f(x + second increment)` — 22 stacks in total.
 
 ## What the user sees
 
