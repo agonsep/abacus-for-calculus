@@ -1733,7 +1733,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   };
 
   const sizeHeader =
-    level === 0 ? "# size-stones" : "# change-size-stones/increment";
+    level === 0 ? "# size-stones" : "# change-size-stones";
 
   const changeHeader =
     level === 0
