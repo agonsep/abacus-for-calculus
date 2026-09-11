@@ -960,6 +960,18 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [level, setLevel] = useState(0);
   const [leibniz, setLeibniz] = useState(false);
   const [dualMode, setDualMode] = useState(false);
+  // Fractional stones are required in dual mode: remember the user's setting
+  // so it can be restored when dual mode is switched off.
+  const prevFractionalRef = useRef(false);
+  const toggleDualMode = (on: boolean) => {
+    if (on) {
+      prevFractionalRef.current = fractional;
+      if (!fractional) setFractional(true);
+    } else if (fractional && !prevFractionalRef.current) {
+      setFractional(false);
+    }
+    setDualMode(on);
+  };
   const [increment2, setIncrement2] = useState("0.5");
   const [yRawCompanion, setYRawCompanion] = useState<number[]>(Array(COLUMNS).fill(0));
   const [companionW, setCompanionW] = useState<number[]>(Array(COLUMNS).fill(0));
@@ -2092,7 +2104,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the red stacks and adds a straight line tangent to that curve at the midpoint column.
               </p>
               <p>
-                Checking <strong>"Dual increments"</strong> gives every column a narrower companion stack on its right, evaluated at <span className="font-mono text-foreground">x</span> plus the second increment. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — companion minus main — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative.
+                Checking <strong>"Dual increments"</strong> gives every column a narrower companion stack on its right, evaluated at <span className="font-mono text-foreground">x</span> plus the second increment. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — companion minus main — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative. Dual increments need fractional stones to keep small pair differences visible, so <strong>"Fractional stones"</strong> turns on automatically and stays on while the box is checked.
               </p>
               <p>
                 You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
@@ -2267,21 +2279,24 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
             </label>
             <label
-              className={`flex items-center gap-2 ${level > 0 || anim ? "cursor-not-allowed" : "cursor-pointer"}`}
+              className={`flex items-center gap-2 ${level > 0 || anim || dualMode ? "cursor-not-allowed" : "cursor-pointer"}`}
               title={
                 level > 0 || anim
                   ? "Fractional rounding is fixed once stones have been removed."
-                  : undefined
+                  : dualMode
+                    ? "Dual increments need fractional stones, so this stays on while dual mode is active."
+                    : undefined
               }
             >
               <input
                 type="checkbox"
                 checked={fractional}
-                disabled={level > 0 || !!anim}
+                disabled={level > 0 || !!anim || dualMode}
                 onChange={(e) => setFractional(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
+              <span className={level > 0 || anim || dualMode ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
+              {dualMode && <span className="text-xs text-muted-foreground">(needed for dual increments)</span>}
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
@@ -2305,7 +2320,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 type="checkbox"
                 checked={dualMode}
                 disabled={level > 0 || !!anim || wMode}
-                onChange={(e) => setDualMode(e.target.checked)}
+                onChange={(e) => toggleDualMode(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
               <span className={level > 0 || anim || wMode ? "text-muted-foreground" : "text-foreground"}>
