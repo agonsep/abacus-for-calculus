@@ -1,29 +1,24 @@
-# Replace zoom buttons with a segmented pill stepper
+# Remove the zoom buttons from the right panel
 
 ## Goal
-Replace the current "Zoom" label plus separate `-` and `+` square buttons at the bottom of the right control panel with a compact segmented pill stepper, matching the selected design direction.
+Remove the "Zoom" label and `-` / `+` buttons from the bottom of the right control panel. Users will still be able to zoom with the mouse wheel or pinch gestures on touch devices.
 
 ## What will change
-- In `src/components/CalculusAbacus.tsx`, restyle the zoom control area at the bottom of the right panel.
-- Keep the existing zoom logic (increment/decrement zoom level on button click).
-- Add a centered percentage readout between the two buttons.
-- Use rounded, compact button styling consistent with the dark slate panel.
+- In `src/components/CalculusAbacus.tsx`, remove the zoom control block at the bottom of the right panel.
+- Keep the underlying zoom state and wheel/pinch handlers intact so zooming still works.
+- Remove any now-unused zoom-button-related state or helper code only if it becomes truly unused; otherwise leave the logic in place for future reuse.
 
-## Visual reference
-Selected direction: **Segmented pill stepper**
-- A single rounded pill container with a subtle border.
-- Left button: minus icon.
-- Center: current zoom percentage (e.g., `100%`).
-- Right button: plus icon.
-- Hover states: slightly lighter background and white icon.
-- Label "Zoom" remains to the left of the pill.
+## What will stay the same
+- Mouse-wheel zoom continues to work.
+- Touch/pinch zoom continues to work.
+- The camera/zoom state management remains unchanged.
 
 ## Implementation notes
-- Preserve all existing zoom behavior and keyboard/accessibility attributes.
-- Use Tailwind CSS only; no new dependencies.
-- Keep the control at the bottom of the right panel, just above "Hide panels".
+- No new dependencies.
+- No replacement UI element is added.
+- The panel bottom will simply end after the checkbox options and action buttons.
 
 ## Verification
 - Run TypeScript typecheck.
 - Run production build.
-- Open `/abacus` in the preview and confirm the new zoom control appears and the +/- buttons still adjust the camera zoom.
+- Open `/abacus` in the preview and confirm the zoom buttons are gone and wheel zoom still functions.
