@@ -922,11 +922,27 @@ type InitialDefaults = {
   maxStones?: string;
 };
 
+type BoardInputs = {
+  formula: string;
+  midpoint: string;
+  increment: string;
+  increment2: string;
+  maxStones: string;
+};
+
 export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: InitialDefaults }) {
   const [formula, setFormula] = useState(initialDefaults?.formula ?? "x^2");
   const [midpoint, setMidpoint] = useState(initialDefaults?.midpoint ?? "5");
   const [increment, setIncrement] = useState(initialDefaults?.increment ?? "1");
   const [maxStones, setMaxStones] = useState(initialDefaults?.maxStones ?? "100");
+  const initialBoardInputs = useRef<BoardInputs>({
+    formula: initialDefaults?.formula ?? "x^2",
+    midpoint: initialDefaults?.midpoint ?? "5",
+    increment: initialDefaults?.increment ?? "1",
+    increment2: "0.5",
+    maxStones: initialDefaults?.maxStones ?? "100",
+  });
+  const [appliedInputs, setAppliedInputs] = useState<BoardInputs>(initialBoardInputs.current);
 
   const [xValues, setXValues] = useState<number[]>(
     Array.from({ length: COLUMNS }, (_, i) => i - 5),
@@ -990,7 +1006,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     floorValue: number;
     maxStones: string;
   } | null>(null);
-  const skipMaxRefill = useRef(false);
   const levelStack = useRef<
     {
       yRaw: number[];
@@ -1032,7 +1047,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       return "Restore the stones to their original positions before removing stones.";
     if (showLine) return "Uncheck Midpoint Tangent before removing stones.";
     // Dual increments: divide each pair difference by the second increment.
-    const incParsedLocal = parseIncrement(increment);
+    const incParsedLocal = parseIncrement(appliedInputs.increment);
     const incValue = dualActive && h2 ? h2.value : (incParsedLocal ? incParsedLocal.value : 1);
     const newYRaw: number[] = [];
     const newDefined: boolean[] = [];
@@ -1242,8 +1257,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const tangentSlope = useMemo(() => {
     try {
-      const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
-      const m = Number(midpoint);
+      const cleaned = appliedInputs.formula.replace(/^\s*y\s*=\s*/i, "");
+      const m = Number(appliedInputs.midpoint);
       if (!isFinite(m)) return 0;
       try {
         return evalDual(cleaned, { a: m, b: 1 }).b;
@@ -1258,7 +1273,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     } catch {
       return 0;
     }
-  }, [formula, midpoint]);
+  }, [appliedInputs.formula, appliedInputs.midpoint]);
 
   // Drag handler: size and change stacks move independently, but pushing into
   // the other color shoves it in the same direction.
@@ -1318,13 +1333,20 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     }
   };
 
-  const setup = (opts?: { leibniz?: boolean; maxStones?: string }) => {
+  const setup = (opts?: {
+    leibniz?: boolean;
+    maxStones?: string;
+    inputs?: BoardInputs;
+    dual?: boolean;
+  }) => {
     const lb = opts?.leibniz ?? leibniz;
-    const ms = opts?.maxStones ?? maxStones;
+    const inputs = opts?.inputs ?? appliedInputs;
+    const useDual = opts?.dual ?? dualMode;
+    const ms = opts?.maxStones ?? inputs.maxStones;
     try {
-      const cleaned = formula.replace(/^\s*y\s*=\s*/i, "");
-      const m = Number(midpoint);
-      const inc = parseIncrement(increment);
+      const cleaned = inputs.formula.replace(/^\s*y\s*=\s*/i, "");
+      const m = Number(inputs.midpoint);
+      const inc = parseIncrement(inputs.increment);
       if (!isFinite(m) || !inc) throw new Error("bad m/h");
       const h = inc.value;
       const isW = inc.infinitesimal;
@@ -1384,7 +1406,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         }
       }
       // Dual increments: each column gets a companion at x + h2.
-      const inc2 = dualMode ? parseIncrement(increment2) : null;
+      const inc2 = useDual ? parseIncrement(inputs.increment2) : null;
       const dual = !!inc2 && !isW;
       const isW2 = !!inc2?.infinitesimal;
       const h2 = inc2 ? inc2.value : 0;
@@ -1511,6 +1533,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         );
       }
       setError(null);
+      setAppliedInputs({ ...inputs, maxStones: ms });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       setNote(null);
@@ -1556,33 +1579,19 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Re-fill when max stones changes so the unit label stays in sync.
-  // Compare against the previous value instead of a skip-first flag: React may
-  // invoke effects more than once on mount, and a flag-based guard then fires
-  // a spurious second fill that wipes the seeded change stones.
-  const prevMaxStonesRef = useRef(maxStones);
+  // Switching Dual increments changes the board immediately. Editing its
+  // second increment afterward remains a draft until Fill Board is clicked.
+  const prevDualRef = useRef(dualMode);
   useEffect(() => {
-    if (prevMaxStonesRef.current === maxStones) return;
-    prevMaxStonesRef.current = maxStones;
-    if (skipMaxRefill.current) {
-      skipMaxRefill.current = false;
-      return;
-    }
-    setup();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxStones]);
-
-  // Refill when Dual increments is toggled or the second increment changes:
-  // the companion stacks are part of the board's base layout.
-  const prevDualRef = useRef({ dualMode, increment2 });
-  useEffect(() => {
-    const prev = prevDualRef.current;
-    prevDualRef.current = { dualMode, increment2 };
-    if (prev.dualMode === dualMode && prev.increment2 === increment2) return;
+    if (prevDualRef.current === dualMode) return;
+    prevDualRef.current = dualMode;
     if (level > 0 || anim) return;
-    setup();
+    const inputs = dualMode
+      ? { ...appliedInputs, increment2 }
+      : appliedInputs;
+    setup({ inputs, dual: dualMode });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dualMode, increment2]);
+  }, [dualMode]);
 
   // Re-round existing size/change in place when the fractional toggle flips,
   // without wiping user drags/shifts or recomputing unit.
@@ -1658,15 +1667,18 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         maxStones,
       };
       const capped =
-        Math.round(Number(maxStones)) > LEIBNIZ_MAX_STONES
+        Math.round(Number(appliedInputs.maxStones)) > LEIBNIZ_MAX_STONES
           ? String(LEIBNIZ_MAX_STONES)
-          : maxStones;
+          : appliedInputs.maxStones;
       setLeibniz(true);
       if (capped !== maxStones) {
-        skipMaxRefill.current = true;
         setMaxStones(capped);
       }
-      setup({ leibniz: true, maxStones: capped });
+      setup({
+        leibniz: true,
+        maxStones: capped,
+        inputs: { ...appliedInputs, maxStones: capped },
+      });
       return;
     }
     setLeibniz(false);
@@ -1674,7 +1686,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     leibnizSnap.current = null;
     if (snap) {
       if (snap.maxStones !== maxStones) {
-        skipMaxRefill.current = true;
         setMaxStones(snap.maxStones);
       }
       setSize(snap.size);
@@ -1694,7 +1705,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
 
 
-  const incParsed = parseIncrement(increment);
+  const incParsed = parseIncrement(appliedInputs.increment);
   const incValue = incParsed ? incParsed.value : 0.5;
 
   const wValues = wMode && level === 0;
@@ -2136,7 +2147,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            setup();
+            setup({
+              inputs: { formula, midpoint, increment, increment2, maxStones },
+            });
           }}
           className="absolute right-4 top-1/2 z-10 flex w-64 -translate-y-1/2 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
         >
