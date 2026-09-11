@@ -1150,10 +1150,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     }
     // In dual increments mode, rescale the board to the range of the slope
     // curve so small second increments (including w) produce visible stones.
-    console.log("computePromotion dualActive", dualActive, "h2", h2, "fractional", fractional, "maxStones", appliedInputs.maxStones);
     if (dualActive && h2) {
       const scaled = computeCounts(newYRaw, newDefined, fractional, appliedInputs.maxStones);
-      console.log("scaled", scaled);
       if (scaled) {
         return { newYRaw, newDefined, counts: scaled.counts, u: scaled.u, floor: scaled.floor };
       }
