@@ -47,6 +47,14 @@ function slotY(slot: number) {
   return PIECE_HEIGHT / 2 + slot * PIECE_HEIGHT + 0.05;
 }
 
+/** Remainders below this fraction of a stone are not drawn. */
+const MIN_PARTIAL = 0.03;
+
+/** Center height of a partial stone of height `frac` whose base sits at `slot`. */
+function partialY(slot: number, frac: number) {
+  return slotY(slot) - PIECE_HEIGHT / 2 + (frac * PIECE_HEIGHT) / 2;
+}
+
 /** Leibniz Mode: the orange dy stones rest on a shelf at this slot. */
 const LEIBNIZ_SHELF_SLOT = 52;
 const SHELF_THICKNESS = 0.12;
@@ -462,6 +470,24 @@ function Stacks({
             />,
           );
         }
+        const yFrac = absVal - yFull;
+        if (yFrac >= MIN_PARTIAL) {
+          pieces.push(
+            <Piece
+              key={`y-${runId}-${i}-partial`}
+              x={x}
+              fromY={skyY}
+              targetY={partialY(yFull + off, yFrac)}
+              delay={anim ? 0 : i * 0.04 + yFull * 0.02}
+              color={stoneColor}
+              widthScale={wScale}
+              heightScale={yFrac}
+              dim={oDim}
+              highlighted={oH}
+              instant={instant}
+            />,
+          );
+        }
 
         const rVal = changeArr[i] ?? 0;
         const rNeg = rVal < 0;
@@ -475,7 +501,12 @@ function Stacks({
             ? DARK_GREY
             : ORANGE;
         const rFull = Math.floor(rAbs);
-        const changeBase = leibniz ? LEIBNIZ_SHELF_SLOT : anim ? anim.changeBase[i] : yFull + gap;
+        const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? 1 : 0);
+        const changeBase = leibniz
+          ? LEIBNIZ_SHELF_SLOT
+          : anim
+            ? anim.changeBase[i]
+            : sizeTopSlot + gap;
         const changeFrom = anim && !leibniz ? anim.changeFrom[i] : changeBase;
         const changeOff = leibniz ? 0 : off;
         for (let k = 0; k < rFull; k++) {
@@ -494,22 +525,58 @@ function Stacks({
             />,
           );
         }
+        const rFrac = rAbs - rFull;
+        if (rFrac >= MIN_PARTIAL) {
+          pieces.push(
+            <Piece
+              key={`r-${runId}-${i}-partial-${changeBase}`}
+              x={x}
+              fromY={anim && !leibniz ? slotY(changeFrom + rFull) : skyY + 2}
+              targetY={partialY(changeBase + rFull + changeOff, rFrac)}
+              delay={anim ? 0 : i * 0.04 + (changeBase + rFull) * 0.02}
+              color={changeStoneColor}
+              widthScale={wScale}
+              heightScale={rFrac}
+              dim={rDim}
+              highlighted={rH}
+              instant={instant}
+            />,
+          );
+        }
 
         if (dual && companion) {
           const cVal = companion[i] ?? 0;
-          const cNeg = cVal < 0;
-          const cFull = Math.floor(Math.abs(cVal));
-          const cColor = cNeg ? BLACK : RED;
+          const cAbs = Math.abs(cVal);
+          const cFull = Math.floor(cAbs);
+          const cColor = cVal < 0 ? BLACK : RED;
+          const cx2 = cx + COL_SPACING / 4;
           for (let k = 0; k < cFull; k++) {
             pieces.push(
               <Piece
                 key={`c-${runId}-${i}-${k}`}
-                x={cx + COL_SPACING / 4}
+                x={cx2}
                 fromY={skyY}
                 targetY={slotY(k)}
                 delay={i * 0.04 + k * 0.02}
                 color={cColor}
                 widthScale={0.5}
+                dim={oDim}
+                instant={instant}
+              />,
+            );
+          }
+          const cFrac = cAbs - cFull;
+          if (cFrac >= MIN_PARTIAL) {
+            pieces.push(
+              <Piece
+                key={`c-${runId}-${i}-partial`}
+                x={cx2}
+                fromY={skyY}
+                targetY={partialY(cFull, cFrac)}
+                delay={i * 0.04 + cFull * 0.02}
+                color={cColor}
+                widthScale={0.5}
+                heightScale={cFrac}
                 dim={oDim}
                 instant={instant}
               />,
@@ -543,7 +610,7 @@ function ConnectingLine({
       }
       const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
       const off = shift[i] ?? 0;
-      const top = PIECE_HEIGHT * (Math.floor(Math.abs(v)) + off) + 0.05;
+      const top = PIECE_HEIGHT * (Math.abs(v) + off) + 0.05;
       cur.push([x, top + 0.04, PIECE_DEPTH / 2 + 0.02]);
     });
     if (cur.length) segs.push(cur);
@@ -586,7 +653,7 @@ function TangentLine({
     const mid = Math.floor(COLUMNS / 2);
     if (defined[mid] === false) return [];
     const off = shift[mid] ?? 0;
-    const midCount = Math.floor(Math.abs(size[mid])) + off;
+    const midCount = Math.abs(size[mid]) + off;
     return size.map((_, i) => {
       const x = (i - mid) * COL_SPACING;
       const stoneOffset = (tangentSlope * increment) / unit * (i - mid);
@@ -709,8 +776,9 @@ function DragHandles({
         const rVal = change[i] ?? 0;
         const oAbs = Math.abs(oVal);
         const rAbs = Math.abs(rVal);
-        const oCount = Math.floor(oAbs);
-        const rCount = Math.floor(rAbs);
+        const oCount = oAbs;
+        const rCount = rAbs;
+        const oTopSlot = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) >= MIN_PARTIAL ? 1 : 0);
         const off = shift[i] ?? 0;
         const gap = changeGap[i] ?? 0;
 
@@ -731,7 +799,7 @@ function DragHandles({
 
         // Change handle covers from top of size stack upward
         const rBottom = oCount > 0 ? sizeTopY : minY;
-        const changeTopY = slotY(oCount + gap + rCount + off) - PIECE_HEIGHT / 2;
+        const changeTopY = slotY(oTopSlot + gap + rCount + off) - PIECE_HEIGHT / 2;
         let rTop = rCount > 0 ? changeTopY : oCount > 0 ? maxY : maxY;
         if (rCount > 0 && rTop - rBottom < MIN_H) {
           rTop = Math.min(rBottom + MIN_H, maxY);
@@ -1123,7 +1191,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   });
 
   const startPromotionAnimation = (p: Promotion) => {
-    const base = size.map((v) => Math.floor(Math.abs(v)));
+    const base = size.map((v) => {
+      const a = Math.abs(v);
+      const f = Math.floor(a);
+      return f + (a - f >= MIN_PARTIAL ? 1 : 0);
+    });
     const state: AnimState = {
       size: size.slice(),
       change: change.slice(),
