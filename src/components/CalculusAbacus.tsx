@@ -1613,16 +1613,20 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       setSize(res.counts.slice(0, COLUMNS));
       setYRaw(ys);
       if (dual) {
+        if (!appliedDual) prevFractionalRef.current = fractional;
+        if (!fractional) setFractional(true);
         setCompanion(res.counts.slice(COLUMNS));
         setYRawCompanion(ycs);
         setCompanionW(ycB);
         setH2({ value: h2, infinitesimal: isW2 });
       } else {
+        if (appliedDual && fractional && !prevFractionalRef.current) setFractional(false);
         setCompanion(null);
         setYRawCompanion(Array(COLUMNS).fill(0));
         setCompanionW(Array(COLUMNS).fill(0));
         setH2(null);
       }
+      setAppliedDual(dual);
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
