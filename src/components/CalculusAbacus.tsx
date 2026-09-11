@@ -1930,7 +1930,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           anim={anim}
           instant={instant}
           leibniz={leibniz}
-          companion={dualMode && level === 0 ? companion : null}
+          companion={appliedDual && level === 0 ? companion : null}
           dualActive={dualActive}
           h2={h2}
         />
