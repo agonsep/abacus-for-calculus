@@ -880,7 +880,6 @@ function Scene({
   setDragging,
   dragging,
   brightness,
-  zoomTrigger,
   panY,
   highlight,
   onHover,
@@ -907,7 +906,7 @@ function Scene({
   setDragging: (b: boolean) => void;
   dragging: boolean;
   brightness: number;
-  zoomTrigger: { dir: number; n: number };
+  
   panY: number;
   highlight: { i: number; color: "size" | "change" } | null;
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
@@ -991,7 +990,7 @@ function Scene({
           <shadowMaterial opacity={0.3} />
         </mesh>
       </group>
-      <CameraController trigger={zoomTrigger} />
+      
       <OrbitControls
         enabled={!dragging}
         enableRotate={false}
@@ -1009,22 +1008,6 @@ function Scene({
   );
 }
 
-function CameraController({ trigger }: { trigger: { dir: number; n: number } }) {
-  const { camera } = useThree();
-  const last = useRef(trigger.n);
-  const target = useMemo(() => new THREE.Vector3(0, BOARD_CENTER_Y, 0), []);
-  useEffect(() => {
-    if (trigger.n === last.current) return;
-    last.current = trigger.n;
-    const factor = trigger.dir > 0 ? 0.85 : 1.18;
-    const offset = camera.position.clone().sub(target).multiplyScalar(factor);
-    const dist = offset.length();
-    const clamped = Math.min(50, Math.max(8, dist));
-    offset.setLength(clamped);
-    camera.position.copy(target).add(offset);
-  }, [trigger, camera, target]);
-  return null;
-}
 
 type InitialDefaults = {
   formula?: string;
@@ -1080,7 +1063,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [showHelp, setShowHelp] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
-  const [zoomTrigger, setZoomTrigger] = useState({ dir: 0, n: 0 });
+  
   const [panY, setPanY] = useState(0);
   const [uiHidden, setUiHidden] = useState(true);
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
@@ -1139,7 +1122,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const finishRef = useRef<(() => void) | null>(null);
   
 
-  const zoom = (dir: 1 | -1) => setZoomTrigger((z) => ({ dir, n: z.n + 1 }));
+  
 
   type Promotion = {
     newYRaw: number[];
@@ -1919,7 +1902,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           setDragging={setDragging}
           dragging={dragging}
           brightness={brightness}
-          zoomTrigger={zoomTrigger}
+          
           panY={panY}
           highlight={highlight}
           onHover={setHighlight}
@@ -2492,27 +2475,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <span className="text-foreground">10 decimals</span>
             </label>
 
-            <div className="flex items-center justify-between gap-2 border-t border-border/60 pt-2">
-              <span className="text-foreground">Zoom</span>
-              <div className="flex gap-1">
-                <button
-                  type="button"
-                  onClick={() => zoom(-1)}
-                  className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
-                  title="Zoom out"
-                >
-                  −
-                </button>
-                <button
-                  type="button"
-                  onClick={() => zoom(1)}
-                  className="h-6 w-6 rounded bg-muted font-bold text-foreground hover:bg-muted/80"
-                  title="Zoom in"
-                >
-                  +
-                </button>
-              </div>
-            </div>
             <div className="border-t border-border/60 pt-2">
               <button
                 type="button"
