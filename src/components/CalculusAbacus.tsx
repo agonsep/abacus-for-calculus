@@ -1162,7 +1162,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   };
 
   const commitPromotion = (p: Promotion) => {
-    console.log("commitPromotion called with u", p.u, "floor", p.floor, "counts sample", p.counts.slice(0,3));
     levelStack.current.push({
       yRaw: yRaw.slice(),
       size: size.slice(),
