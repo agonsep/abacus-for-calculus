@@ -1594,10 +1594,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       // so scale over the union of main and companion values.
       const scaleYs = dual ? [...ys, ...ycs] : ys;
       const scaleDef = dual ? [...def, ...def] : def;
-      const lay = lb ? computeLeibnizLayout(scaleYs, scaleDef, dyVals, fractional, ms) : null;
+      // Dual mode needs fractional stones to keep small pair gaps visible.
+      const useFrac = dual ? true : fractional;
+      const lay = lb ? computeLeibnizLayout(scaleYs, scaleDef, dyVals, useFrac, ms) : null;
       const res: { u: number; floor: number; counts: number[] } | null = lb
         ? lay
-        : computeCounts(scaleYs, scaleDef, fractional, ms);
+        : computeCounts(scaleYs, scaleDef, useFrac, ms);
       if (!res) {
         throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
       }
