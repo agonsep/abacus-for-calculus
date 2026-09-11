@@ -1242,7 +1242,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
     let idx = 0;
     const finish = () => {
-      console.log("finish called");
       if (animTimer.current) clearInterval(animTimer.current);
       animTimer.current = null;
       finishRef.current = null;
