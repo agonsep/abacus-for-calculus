@@ -2320,7 +2320,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 type="checkbox"
                 checked={dualMode}
                 disabled={level > 0 || !!anim || wMode}
-                onChange={(e) => setDualMode(e.target.checked)}
+                onChange={(e) => toggleDualMode(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
               <span className={level > 0 || anim || wMode ? "text-muted-foreground" : "text-foreground"}>
