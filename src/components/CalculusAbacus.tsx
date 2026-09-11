@@ -960,6 +960,18 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [level, setLevel] = useState(0);
   const [leibniz, setLeibniz] = useState(false);
   const [dualMode, setDualMode] = useState(false);
+  // Fractional stones are required in dual mode: remember the user's setting
+  // so it can be restored when dual mode is switched off.
+  const prevFractionalRef = useRef(false);
+  const toggleDualMode = (on: boolean) => {
+    if (on) {
+      prevFractionalRef.current = fractional;
+      if (!fractional) setFractional(true);
+    } else if (fractional && !prevFractionalRef.current) {
+      setFractional(false);
+    }
+    setDualMode(on);
+  };
   const [increment2, setIncrement2] = useState("0.5");
   const [yRawCompanion, setYRawCompanion] = useState<number[]>(Array(COLUMNS).fill(0));
   const [companionW, setCompanionW] = useState<number[]>(Array(COLUMNS).fill(0));
