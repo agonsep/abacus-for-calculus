@@ -1148,6 +1148,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         counts.push(change[i]);
       }
     }
+    // In dual increments mode, rescale the board to the range of the slope
+    // curve so small second increments (including w) produce visible stones.
+    if (dualActive && h2) {
+      const scaled = computeCounts(newYRaw, newDefined, fractional, appliedInputs.maxStones);
+      if (scaled) {
+        return { newYRaw, newDefined, counts: scaled.counts, u: scaled.u, floor: scaled.floor };
+      }
+    }
     // Keep the same stack heights and divide only the value of one stone.
     const u = unit / incValue;
     return { newYRaw, newDefined, counts, u, floor: 0 };
