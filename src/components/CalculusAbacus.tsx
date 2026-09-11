@@ -2080,11 +2080,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               style={{ gridTemplateColumns: gridCols }}
             >
               <div className="text-center">x</div>
-              <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
               {showYColumn && <div className="text-center" style={{ color: palette.size }}>{yHeader}</div>}
               {showYColumn && dualActive && (
                 <div className="text-center" style={{ color: palette.size }}>f(x+h₂)</div>
               )}
+              <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
               {showChangeColumns && (
                 <>
                   <div className="text-center" style={{ color: level === 0 ? palette.change : undefined }}>{changeHeader}</div>
