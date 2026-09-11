@@ -1945,7 +1945,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         : "2rem 10rem 10rem 5rem"
       : showYColumn
         ? dualActive
-          ? "2rem 3.5rem 3.5rem 3.5rem 4.5rem 2rem"
+          ? "2rem 4rem 4rem 3.5rem 4.5rem 2rem"
           : "2rem 4rem 4rem 5.5rem 2rem"
         : "2rem 4rem 5.5rem 2rem"
     : slopeHighPrecision
@@ -2080,11 +2080,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               style={{ gridTemplateColumns: gridCols }}
             >
               <div className="text-center">x</div>
-              <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
               {showYColumn && <div className="text-center" style={{ color: palette.size }}>{yHeader}</div>}
               {showYColumn && dualActive && (
                 <div className="text-center" style={{ color: palette.size }}>f(x+h₂)</div>
               )}
+              <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
               {showChangeColumns && (
                 <>
                   <div className="text-center" style={{ color: level === 0 ? palette.change : undefined }}>{changeHeader}</div>
@@ -2108,9 +2108,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   style={{ gridTemplateColumns: gridCols }}
                 >
                   <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>{formatDual(xv, xW[i] ?? 0, formatNum)}</div>
-                  <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
-                    {isDef ? fmtCount(size[i]) : "undefined"}
-                  </div>
                   {showYColumn && (
                     <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                       {isDef
@@ -2129,6 +2126,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                         : "undefined"}
                     </div>
                   )}
+                  <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                    {isDef ? fmtCount(size[i]) : "undefined"}
+                  </div>
                   {showChangeColumns && (
                     <>
                       <div className={`text-center font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
