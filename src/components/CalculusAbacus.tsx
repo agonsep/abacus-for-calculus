@@ -610,7 +610,7 @@ function ConnectingLine({
       }
       const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
       const off = shift[i] ?? 0;
-      const top = PIECE_HEIGHT * (Math.floor(Math.abs(v)) + off) + 0.05;
+      const top = PIECE_HEIGHT * (Math.abs(v) + off) + 0.05;
       cur.push([x, top + 0.04, PIECE_DEPTH / 2 + 0.02]);
     });
     if (cur.length) segs.push(cur);
@@ -653,7 +653,7 @@ function TangentLine({
     const mid = Math.floor(COLUMNS / 2);
     if (defined[mid] === false) return [];
     const off = shift[mid] ?? 0;
-    const midCount = Math.floor(Math.abs(size[mid])) + off;
+    const midCount = Math.abs(size[mid]) + off;
     return size.map((_, i) => {
       const x = (i - mid) * COL_SPACING;
       const stoneOffset = (tangentSlope * increment) / unit * (i - mid);
@@ -1190,7 +1190,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   });
 
   const startPromotionAnimation = (p: Promotion) => {
-    const base = size.map((v) => Math.floor(Math.abs(v)));
+    const base = size.map((v) => {
+      const a = Math.abs(v);
+      const f = Math.floor(a);
+      return f + (a - f >= MIN_PARTIAL ? 1 : 0);
+    });
     const state: AnimState = {
       size: size.slice(),
       change: change.slice(),
