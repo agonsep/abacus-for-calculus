@@ -2413,24 +2413,24 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
             </label>
             <label
-              className={`flex items-center gap-2 ${level > 0 || anim || dualMode ? "cursor-not-allowed" : "cursor-pointer"}`}
+              className={`flex items-center gap-2 ${level > 0 || anim || appliedDual ? "cursor-not-allowed" : "cursor-pointer"}`}
               title={
                 level > 0 || anim
                   ? "Fractional rounding is fixed once stones have been removed."
-                  : dualMode
-                    ? "Dual increments need fractional stones, so this stays on while dual mode is active."
+                  : appliedDual
+                    ? "Dual increments need fractional stones, so this stays on while the paired board is showing."
                     : undefined
               }
             >
               <input
                 type="checkbox"
                 checked={fractional}
-                disabled={level > 0 || !!anim || dualMode}
+                disabled={level > 0 || !!anim || appliedDual}
                 onChange={(e) => setFractional(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={level > 0 || anim || dualMode ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
-              {dualMode && <span className="text-xs text-muted-foreground">(needed for dual increments)</span>}
+              <span className={level > 0 || anim || appliedDual ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
+              {appliedDual && <span className="text-xs text-muted-foreground">(needed for dual increments)</span>}
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
