@@ -1005,6 +1005,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     unit: number;
     floorValue: number;
     maxStones: string;
+    appliedInputs: BoardInputs;
   } | null>(null);
   const levelStack = useRef<
     {
@@ -1665,6 +1666,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         unit,
         floorValue,
         maxStones,
+        appliedInputs,
       };
       const capped =
         Math.round(Number(appliedInputs.maxStones)) > LEIBNIZ_MAX_STONES
@@ -1694,6 +1696,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       setChangeGap(snap.changeGap);
       setUnit(snap.unit);
       setFloorValue(snap.floorValue);
+      setAppliedInputs(snap.appliedInputs);
       setRunId((r) => r + 1);
     } else {
       setup({ leibniz: false });
