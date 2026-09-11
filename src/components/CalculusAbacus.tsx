@@ -1086,18 +1086,15 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const [level, setLevel] = useState(0);
   const [leibniz, setLeibniz] = useState(false);
+  // Draft flag: only controls the checkbox and the second increment field.
   const [dualMode, setDualMode] = useState(false);
+  // What the board on screen is actually built from.
+  const [appliedDual, setAppliedDual] = useState(false);
   // Fractional stones are required in dual mode: remember the user's setting
   // so it can be restored when dual mode is switched off.
   const prevFractionalRef = useRef(false);
   const toggleDualMode = (on: boolean) => {
-    if (on) {
-      prevFractionalRef.current = fractional;
-      if (!fractional) setFractional(true);
-      setIncrement2(increment);
-    } else if (fractional && !prevFractionalRef.current) {
-      setFractional(false);
-    }
+    if (on) setIncrement2(appliedInputs.increment);
     setDualMode(on);
   };
   const [increment2, setIncrement2] = useState(initialDefaults?.increment ?? "1");
