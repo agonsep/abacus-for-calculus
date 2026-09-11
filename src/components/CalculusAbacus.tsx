@@ -2232,36 +2232,36 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Click <strong>"Find Differences"</strong> to display the differences between neighboring columns.
               </p>
               <p>
-                Drag orange stones up into the empty area to form a new curve.
+                Drag change-size stones up into the empty area to form a new curve.
               </p>
-              <h3 className="font-serif text-lg text-foreground pt-2">How the Red (Size) Stones Work</h3>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Size Stones Work</h3>
               <p>
                 Each of the 11 columns represents a <span className="font-mono text-foreground">y</span>-value for each <span className="font-mono text-foreground">x</span>. The columns are centered on the chosen midpoint and spaced according to the selected increment.
               </p>
               <p>
-                The abacus automatically determines how many red stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-foreground">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
+                The abacus automatically determines how many size stones belong in each column. To do this, it finds the minimum and maximum of the 11 <span className="font-mono text-foreground">y</span>-values and scales the display so that no column exceeds the maximum number of stones.
               </p>
               <p>
-                For every column the app evaluates <span className="font-mono text-foreground">f(x)</span> to get 11 <span className="font-mono text-foreground">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-foreground">y</span>-values and pick a unit so that one red stone is worth <span className="font-mono">(max − min) / 50</span>. The number of red stones in each column represents <span className="font-mono">f(x) − min</span>.
+                For every column the app evaluates <span className="font-mono text-foreground">f(x)</span> to get 11 <span className="font-mono text-foreground">y</span>-values. Suppose we choose to limit the number of stones in any one column to 50. We find the min and max of the 11 <span className="font-mono text-foreground">y</span>-values and pick a unit so that one size stone is worth <span className="font-mono">(max − min) / 50</span>. The number of size stones in each column represents <span className="font-mono">f(x) − min</span>.
               </p>
               <p>
                 Only the differences between columns matter, so using the minimum value as a baseline makes efficient use of the available stones.
               </p>
               <p>Negative size values are represented by black stones.</p>
-              <h3 className="font-serif text-lg text-foreground pt-2">How the Orange (Change-Size) Stones Work</h3>
+              <h3 className="font-serif text-lg text-foreground pt-2">How the Change-Size Stones Work</h3>
               <p>
-                When you click <strong>"Find Differences,"</strong> the app places orange stones next to each column.
+                When you click <strong>"Find Differences,"</strong> the app places change-size stones next to each column.
               </p>
-              <p>The number of orange stones represents:</p>
+              <p>The number of change-size stones represents:</p>
               <p className="font-mono text-center">f(x + Δx) − f(x)</p>
               <p>
-                where Δx equals the chosen increment. The orange stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
+                where Δx equals the chosen increment. The change-size stones show how much the function changes as you move one increment to the right. Negative change-size values are represented by dark grey stones.
               </p>
               <p>
-                You can move the orange stones to form a second curve above the red curve. This orange curve represents differences in the <span className="font-mono text-foreground">y</span>-values for points along the curve rather than the <span className="font-mono text-foreground">y</span>-values themselves.
+                You can move the change-size stones to form a second curve above the size curve. This change-size curve represents differences in the <span className="font-mono text-foreground">y</span>-values for points along the curve rather than the <span className="font-mono text-foreground">y</span>-values themselves.
               </p>
               <h3 className="font-serif text-lg text-foreground pt-2">Estimating the Slope of a Tangent</h3>
-              <p>The orange stones can be used to estimate the slope of a tangent line.</p>
+              <p>The change-size stones can be used to estimate the slope of a tangent line.</p>
               <p>For a particular column:</p>
               <ol className="list-decimal space-y-1 pl-6">
                 <li>Count the orange stones.</li>
