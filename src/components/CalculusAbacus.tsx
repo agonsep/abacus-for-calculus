@@ -73,6 +73,7 @@ function Piece({
   delay,
   color,
   heightScale = 1,
+  widthScale = 1,
   dim = false,
   highlighted = false,
   instant = false,
@@ -83,6 +84,7 @@ function Piece({
   delay: number;
   color: string;
   heightScale?: number;
+  widthScale?: number;
   dim?: boolean;
   highlighted?: boolean;
   instant?: boolean;
@@ -95,7 +97,7 @@ function Piece({
     if (!ref.current) return;
     if (instantRef.current) {
       ref.current.position.set(x, targetY, 0);
-      ref.current.scale.set(1, heightScale, 1);
+      ref.current.scale.set(widthScale, heightScale, 1);
       return;
     }
     const t = performance.now() / 1000 - start.current;
@@ -114,7 +116,7 @@ function Piece({
         : 0;
     ref.current.position.set(x, y + bounce, 0);
     const s = Math.min(1, t / 0.18);
-    ref.current.scale.set(s, s * heightScale, s);
+    ref.current.scale.set(s * widthScale, s * heightScale, s);
   });
 
   const isOrange = color === ORANGE;
@@ -406,6 +408,7 @@ function Stacks({
   anim = null,
   instant = false,
   leibniz = false,
+  companion = null,
 }: {
   size: number[];
   change: number[];
@@ -417,6 +420,7 @@ function Stacks({
   anim?: AnimState | null;
   instant?: boolean;
   leibniz?: boolean;
+  companion?: number[] | null;
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   const sizeArr = anim ? anim.size : size;
@@ -425,7 +429,10 @@ function Stacks({
     <>
       {sizeArr.map((yVal, i) => {
         if (defined[i] === false) return null;
-        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        const cx = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        const dual = companion !== null && !anim;
+        const x = dual ? cx - COL_SPACING / 4 : cx;
+        const wScale = dual ? 0.5 : 1;
 
         const off = anim ? 0 : (shift[i] ?? 0);
         const gap = anim ? 0 : (changeGap[i] ?? 0);
@@ -448,6 +455,7 @@ function Stacks({
               targetY={slotY(k + off)}
               delay={anim ? 0 : i * 0.04 + k * 0.02}
               color={stoneColor}
+              widthScale={wScale}
               dim={oDim}
               highlighted={oH}
               instant={instant}
@@ -479,11 +487,34 @@ function Stacks({
               targetY={slotY(changeBase + k + changeOff)}
               delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
               color={changeStoneColor}
+              widthScale={wScale}
               dim={rDim}
               highlighted={rH}
               instant={instant}
             />,
           );
+        }
+
+        if (dual && companion) {
+          const cVal = companion[i] ?? 0;
+          const cNeg = cVal < 0;
+          const cFull = Math.floor(Math.abs(cVal));
+          const cColor = cNeg ? BLACK : RED;
+          for (let k = 0; k < cFull; k++) {
+            pieces.push(
+              <Piece
+                key={`c-${runId}-${i}-${k}`}
+                x={cx + COL_SPACING / 4}
+                fromY={skyY}
+                targetY={slotY(k)}
+                delay={i * 0.04 + k * 0.02}
+                color={cColor}
+                widthScale={0.5}
+                dim={oDim}
+                instant={instant}
+              />,
+            );
+          }
         }
 
         return <group key={i}>{pieces}</group>;
@@ -579,6 +610,7 @@ function DragHandles({
   onHover,
   defined,
   leibniz = false,
+  dual = false,
 }: {
   size: number[];
   change: number[];
@@ -589,6 +621,7 @@ function DragHandles({
   onHover: (h: { i: number; color: "size" | "change" } | null) => void;
   defined: boolean[];
   leibniz?: boolean;
+  dual?: boolean;
 }) {
   const { camera, gl } = useThree();
   const dragRef = useRef<{
@@ -663,7 +696,7 @@ function DragHandles({
   });
 
   // Wider hit area + min handle height so 2-3 piece stacks are easy to grab
-  const HIT_W = PIECE_WIDTH * 1.35;
+  const HIT_W = PIECE_WIDTH * (dual ? 0.7 : 1.35);
   const HIT_D = PIECE_DEPTH * 1.6;
   const MIN_H = PIECE_HEIGHT * 6;
 
@@ -671,7 +704,7 @@ function DragHandles({
     <>
       {Array.from({ length: COLUMNS }).map((_, i) => {
         if (defined[i] === false) return null;
-        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING - (dual ? COL_SPACING / 4 : 0);
         const oVal = size[i] ?? 0;
         const rVal = change[i] ?? 0;
         const oAbs = Math.abs(oVal);
@@ -751,6 +784,7 @@ function Scene({
   anim,
   instant,
   leibniz,
+  companion,
 }: {
   size: number[];
   change: number[];
@@ -775,6 +809,7 @@ function Scene({
   anim: AnimState | null;
   instant: boolean;
   leibniz: boolean;
+  companion: number[] | null;
 }) {
   return (
     <>
@@ -810,6 +845,7 @@ function Scene({
           anim={anim}
           instant={instant}
           leibniz={leibniz}
+          companion={companion}
         />
         {showLine && !anim && (
           <>
@@ -835,6 +871,7 @@ function Scene({
             onHover={onHover}
             defined={defined}
             leibniz={leibniz}
+            dual={companion !== null}
           />
         )}
 
@@ -922,6 +959,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const [level, setLevel] = useState(0);
   const [leibniz, setLeibniz] = useState(false);
+  const [dualMode, setDualMode] = useState(false);
+  const [increment2, setIncrement2] = useState("0.5");
+  const [yRawCompanion, setYRawCompanion] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [companionW, setCompanionW] = useState<number[]>(Array(COLUMNS).fill(0));
+  const [companion, setCompanion] = useState<number[] | null>(null);
+  const [h2, setH2] = useState<{ value: number; infinitesimal: boolean } | null>(null);
   const [dyValues, setDyValues] = useState<number[]>(Array(COLUMNS).fill(0));
   const [dyDefined, setDyDefined] = useState<boolean[]>(Array(COLUMNS).fill(false));
   const [deltaValues, setDeltaValues] = useState<number[]>(Array(COLUMNS).fill(0));
@@ -969,15 +1012,33 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     floor: number;
   };
 
+  const dualActive = dualMode && level === 0 && companion !== null && h2 !== null;
+
   const computePromotion = (): Promotion | string => {
     if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
     if (shift.some((v) => v !== 0) || changeGap.some((v) => v !== 0))
       return "Restore the stones to their original positions before removing stones.";
     if (showLine) return "Uncheck Midpoint Tangent before removing stones.";
+    // Dual increments: divide each pair difference by the second increment.
+    const incParsedLocal = parseIncrement(increment);
+    const incValue = dualActive && h2 ? h2.value : (incParsedLocal ? incParsedLocal.value : 1);
     const newYRaw: number[] = [];
     const newDefined: boolean[] = [];
     const counts: number[] = [];
     for (let i = 0; i < COLUMNS; i++) {
+      if (dualActive && h2) {
+        if (!defined[i]) {
+          newYRaw.push(0);
+          newDefined.push(false);
+          counts.push(0);
+          continue;
+        }
+        const d = h2.infinitesimal ? companionW[i] : yRawCompanion[i] - yRaw[i];
+        newYRaw.push(d / incValue);
+        newDefined.push(true);
+        counts.push(change[i]);
+        continue;
+      }
       const j = leftCompare ? i - 1 : i + 1;
       if (j < 0 || j >= COLUMNS || !defined[i] || !defined[j]) {
         newYRaw.push(0);
@@ -1310,13 +1371,54 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           def.push(ok);
         }
       }
+      // Dual increments: each column gets a companion at x + h2.
+      const inc2 = dualMode ? parseIncrement(increment2) : null;
+      const dual = !!inc2 && !isW;
+      const isW2 = !!inc2?.infinitesimal;
+      const h2 = inc2 ? inc2.value : 0;
+      const ycs: number[] = [];
+      const ycB: number[] = []; // w-coefficient of the companion value when h2 is infinitesimal
+      if (dual) {
+        for (let i = 0; i < COLUMNS; i++) {
+          if (!def[i]) {
+            ycs.push(0);
+            ycB.push(0);
+            continue;
+          }
+          if (isW2) {
+            try {
+              const r = evalDual(cleaned, { a: xs[i], b: h2 });
+              ycs.push(r.a);
+              ycB.push(r.b);
+            } catch {
+              def[i] = false;
+              ycs.push(0);
+              ycB.push(0);
+            }
+          } else {
+            let y2: unknown;
+            try {
+              y2 = evaluate(cleaned, { x: xs[i] + h2 });
+            } catch {
+              y2 = null;
+            }
+            const ok = typeof y2 === "number" && isFinite(y2);
+            if (!ok) def[i] = false;
+            ycs.push(ok ? (y2 as number) : 0);
+            ycB.push(0);
+          }
+        }
+      }
       // Leibniz Mode: orange stones are dy = f'(x)·dx, in the same unit as red.
+      // In dual mode the orange stones instead measure the pair difference.
       const dyVals: (number | null)[] = lb
-        ? xs.map((xv, i) => {
-            if (!def[i]) return null;
-            const d = derivAt(cleaned, isW ? m : xv);
-            return d === null ? null : d * h;
-          })
+        ? dual
+          ? xs.map((_, i) => (!def[i] ? null : isW2 ? ycB[i] : ycs[i] - ys[i]))
+          : xs.map((xv, i) => {
+              if (!def[i]) return null;
+              const d = derivAt(cleaned, isW ? m : xv);
+              return d === null ? null : d * h;
+            })
         : [];
       // delta-y = f(x + dx) − f(x), the true forward difference.
       const deltaVals: (number | null)[] = lb
@@ -1332,10 +1434,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             }
           })
         : [];
-      const lay = lb ? computeLeibnizLayout(ys, def, dyVals, fractional, ms) : null;
+      // In dual mode one unit and floor must cover both stacks of every pair,
+      // so scale over the union of main and companion values.
+      const scaleYs = dual ? [...ys, ...ycs] : ys;
+      const scaleDef = dual ? [...def, ...def] : def;
+      const lay = lb ? computeLeibnizLayout(scaleYs, scaleDef, dyVals, fractional, ms) : null;
       const res: { u: number; floor: number; counts: number[] } | null = lb
         ? lay
-        : computeCounts(ys, def, fractional, ms);
+        : computeCounts(scaleYs, scaleDef, fractional, ms);
       if (!res) {
         throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
       }
@@ -1346,8 +1452,19 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       setXW(xws);
       setDefined(def);
       setUnit(res.u);
-      setSize(res.counts);
+      setSize(res.counts.slice(0, COLUMNS));
       setYRaw(ys);
+      if (dual) {
+        setCompanion(res.counts.slice(COLUMNS));
+        setYRawCompanion(ycs);
+        setCompanionW(ycB);
+        setH2({ value: h2, infinitesimal: isW2 });
+      } else {
+        setCompanion(null);
+        setYRawCompanion(Array(COLUMNS).fill(0));
+        setCompanionW(Array(COLUMNS).fill(0));
+        setH2(null);
+      }
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
@@ -1395,6 +1512,20 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
 
   const calcDiff = () => {
+    if (dualActive && h2) {
+      // Measure only the gap inside each pair: companion minus main.
+      const r = yRaw.map((y, i) => {
+        if (!defined[i]) return 0;
+        // With an infinitesimal second increment the pair difference is
+        // companionW[i]·w; one orange stone is then worth unit·w.
+        const d = h2.infinitesimal ? companionW[i] : yRawCompanion[i] - y;
+        const raw = unit === 0 ? 0 : d / unit;
+        const v = fractional ? raw : Math.round(raw);
+        return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
+      });
+      setChange(r);
+      return;
+    }
     const r = yRaw.map((y, i) => {
       const j = leftCompare ? i - 1 : i + 1;
       if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
@@ -1428,6 +1559,18 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxStones]);
+
+  // Refill when Dual increments is toggled or the second increment changes:
+  // the companion stacks are part of the board's base layout.
+  const prevDualRef = useRef({ dualMode, increment2 });
+  useEffect(() => {
+    const prev = prevDualRef.current;
+    prevDualRef.current = { dualMode, increment2 };
+    if (prev.dualMode === dualMode && prev.increment2 === increment2) return;
+    if (level > 0 || anim) return;
+    setup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dualMode, increment2]);
 
   // Re-round existing size/change in place when the fractional toggle flips,
   // without wiping user drags/shifts or recomputing unit.
@@ -1587,10 +1730,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? showYColumn
-        ? "2rem 10rem 10rem 10rem 5rem"
+        ? dualActive
+          ? "2rem 8rem 8rem 8rem 8rem 5rem"
+          : "2rem 10rem 10rem 10rem 5rem"
         : "2rem 10rem 10rem 5rem"
       : showYColumn
-        ? "2rem 4rem 4rem 5.5rem 2rem"
+        ? dualActive
+          ? "2rem 3.5rem 3.5rem 3.5rem 4.5rem 2rem"
+          : "2rem 4rem 4rem 5.5rem 2rem"
         : "2rem 4rem 5.5rem 2rem"
     : slopeHighPrecision
       ? "2rem 10rem 10rem"
@@ -1626,6 +1773,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           anim={anim}
           instant={instant}
           leibniz={leibniz}
+          companion={dualMode && level === 0 ? companion : null}
         />
       </Canvas>
 
@@ -1722,6 +1870,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <div className="text-center">x</div>
               <div className={`text-center ${level === 0 ? "text-[#e8352c]" : ""}`}>{sizeHeader}</div>
               {showYColumn && <div className="text-center text-[#e8352c]">y</div>}
+              {showYColumn && dualActive && (
+                <div className="text-center text-[#e8352c]">y(x+h₂)</div>
+              )}
               {showChangeColumns && (
                 <>
                   <div className={`text-center ${level === 0 ? "text-[#ff932a]" : ""}`}>{changeHeader}</div>
@@ -1731,11 +1882,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               {showPromotedSlope && <div className="text-right">Slope estimate</div>}
             </div>
             {xValues.map((xv, i) => {
-              const slopeValue = (change[i] ?? 0) * unit / (incValue || 1);
+              const slopeDiv = dualActive && h2 ? h2.value : incValue;
+              const slopeValue = (change[i] ?? 0) * unit / (slopeDiv || 1);
               const isDef = defined[i] !== false;
               const nb = leftCompare ? i - 1 : i + 1;
-              const diffDef =
-                isDef && nb >= 0 && nb < xValues.length && defined[nb] !== false;
+              const diffDef = dualActive
+                ? isDef
+                : isDef && nb >= 0 && nb < xValues.length && defined[nb] !== false;
               return (
                 <div
                   key={i}
@@ -1752,6 +1905,15 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                         ? wValues
                           ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
                           : fmtVal(yRaw[i] ?? 0)
+                        : "undefined"}
+                    </div>
+                  )}
+                  {showYColumn && dualActive && (
+                    <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isDef
+                        ? h2?.infinitesimal
+                          ? formatDual(yRawCompanion[i] ?? 0, companionW[i] ?? 0, fmtVal)
+                          : fmtVal(yRawCompanion[i] ?? 0)
                         : "undefined"}
                     </div>
                   )}
@@ -1915,6 +2077,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the red stacks and adds a straight line tangent to that curve at the midpoint column.
               </p>
               <p>
+                Checking <strong>"Dual increments"</strong> gives every column a narrower companion stack on its right, evaluated at <span className="font-mono text-foreground">x</span> plus the second increment. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — companion minus main — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative.
+              </p>
+              <p>
                 You can also drag the red or orange portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
               </p>
               
@@ -1975,21 +2140,41 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           </label>
           <label className="flex items-center justify-between gap-2">
             <span className="font-mono text-sm text-muted-foreground">Increment</span>
-            <input
-              type="text"
-              inputMode="text"
-              value={increment}
-              onChange={(e) => setIncrement(e.target.value)}
-              onBlur={() => {
-                const p = parseIncrement(increment);
-                if (!p) {
-                  setIncrement("0.001");
-                } else if (!p.infinitesimal && Math.abs(p.value) < 0.001) {
-                  setIncrement("0.001");
-                }
-              }}
-              className="w-20 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
-            />
+            <span className="flex gap-1">
+              <input
+                type="text"
+                inputMode="text"
+                value={increment}
+                onChange={(e) => setIncrement(e.target.value)}
+                onBlur={() => {
+                  const p = parseIncrement(increment);
+                  if (!p) {
+                    setIncrement("0.001");
+                  } else if (!p.infinitesimal && Math.abs(p.value) < 0.001) {
+                    setIncrement("0.001");
+                  }
+                }}
+                className={`${dualMode ? "w-14" : "w-20"} rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none`}
+              />
+              {dualMode && (
+                <input
+                  type="text"
+                  inputMode="text"
+                  value={increment2}
+                  onChange={(e) => setIncrement2(e.target.value)}
+                  onBlur={() => {
+                    const p = parseIncrement(increment2);
+                    if (!p) {
+                      setIncrement2("0.001");
+                    } else if (!p.infinitesimal && Math.abs(p.value) < 0.001) {
+                      setIncrement2("0.001");
+                    }
+                  }}
+                  title="Second increment: each column's companion is evaluated at x plus this value."
+                  className="w-14 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
+                />
+              )}
+            </span>
 
           </label>
           <label className="flex items-center justify-between gap-2">
@@ -2097,18 +2282,39 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               className="flex cursor-pointer items-center gap-2"
               title={
                 level > 0 || anim
+                  ? "Dual increments are fixed once stones have been removed."
+                  : "Give every column a companion stack at x plus the second increment."
+              }
+            >
+              <input
+                type="checkbox"
+                checked={dualMode}
+                disabled={level > 0 || !!anim || wMode}
+                onChange={(e) => setDualMode(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className={level > 0 || anim || wMode ? "text-muted-foreground" : "text-foreground"}>
+                Dual increments
+              </span>
+            </label>
+            <label
+              className="flex cursor-pointer items-center gap-2"
+              title={
+                level > 0 || anim
                   ? "The comparison direction is fixed once stones have been removed."
-                  : undefined
+                  : dualMode
+                    ? "Dual increments always compare each column with its companion."
+                    : undefined
               }
             >
               <input
                 type="checkbox"
                 checked={leftCompare}
-                disabled={level > 0 || !!anim || leibniz}
+                disabled={level > 0 || !!anim || leibniz || dualMode}
                 onChange={(e) => setLeftCompare(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={level > 0 || anim || leibniz ? "text-muted-foreground" : "text-foreground"}>
+              <span className={level > 0 || anim || leibniz || dualMode ? "text-muted-foreground" : "text-foreground"}>
                 Lefthand comparison
               </span>
             </label>
