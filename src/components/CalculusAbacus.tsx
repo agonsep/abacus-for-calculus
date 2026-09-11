@@ -2279,21 +2279,24 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
             </label>
             <label
-              className={`flex items-center gap-2 ${level > 0 || anim ? "cursor-not-allowed" : "cursor-pointer"}`}
+              className={`flex items-center gap-2 ${level > 0 || anim || dualMode ? "cursor-not-allowed" : "cursor-pointer"}`}
               title={
                 level > 0 || anim
                   ? "Fractional rounding is fixed once stones have been removed."
-                  : undefined
+                  : dualMode
+                    ? "Dual increments need fractional stones, so this stays on while dual mode is active."
+                    : undefined
               }
             >
               <input
                 type="checkbox"
                 checked={fractional}
-                disabled={level > 0 || !!anim}
+                disabled={level > 0 || !!anim || dualMode}
                 onChange={(e) => setFractional(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={level > 0 || anim ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
+              <span className={level > 0 || anim || dualMode ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
+              {dualMode && <span className="text-xs text-muted-foreground">(needed for dual increments)</span>}
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
