@@ -1051,12 +1051,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (on) {
       prevFractionalRef.current = fractional;
       if (!fractional) setFractional(true);
+      setIncrement2(increment);
     } else if (fractional && !prevFractionalRef.current) {
       setFractional(false);
     }
     setDualMode(on);
   };
-  const [increment2, setIncrement2] = useState("0.5");
+  const [increment2, setIncrement2] = useState(initialDefaults?.increment ?? "1");
   const [yRawCompanion, setYRawCompanion] = useState<number[]>(Array(COLUMNS).fill(0));
   const [companionW, setCompanionW] = useState<number[]>(Array(COLUMNS).fill(0));
   const [companion, setCompanion] = useState<number[] | null>(null);
