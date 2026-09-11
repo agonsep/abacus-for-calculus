@@ -1149,7 +1149,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     floor: number;
   };
 
-  const dualActive = dualMode && level === 0 && companion !== null && h2 !== null;
+  const dualActive = appliedDual && level === 0 && companion !== null && h2 !== null;
 
   const computePromotion = (): Promotion | string => {
     if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
