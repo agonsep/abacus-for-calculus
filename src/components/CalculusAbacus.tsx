@@ -47,6 +47,14 @@ function slotY(slot: number) {
   return PIECE_HEIGHT / 2 + slot * PIECE_HEIGHT + 0.05;
 }
 
+/** Remainders below this fraction of a stone are not drawn. */
+const MIN_PARTIAL = 0.03;
+
+/** Center height of a partial stone of height `frac` whose base sits at `slot`. */
+function partialY(slot: number, frac: number) {
+  return slotY(slot) - PIECE_HEIGHT / 2 + (frac * PIECE_HEIGHT) / 2;
+}
+
 /** Leibniz Mode: the orange dy stones rest on a shelf at this slot. */
 const LEIBNIZ_SHELF_SLOT = 52;
 const SHELF_THICKNESS = 0.12;
