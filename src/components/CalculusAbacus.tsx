@@ -2023,7 +2023,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
                   <div className="text-center">x</div>
                   <div className="text-center" style={{ color: palette.size }}># size-stones</div>
-                  <div className="text-center" style={{ color: palette.size }}>y</div>
+                  <div className="text-center" style={{ color: palette.size }}>f(x)</div>
                   <div className="text-center" style={{ color: palette.change }}># change-size-<br />stones</div>
                   <div className="text-center" style={{ color: palette.change }}>delta-y</div>
                   <div className="text-center" style={{ color: palette.change }}>dy</div>
@@ -2080,7 +2080,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             >
               <div className="text-center">x</div>
               <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
-              {showYColumn && <div className="text-center" style={{ color: palette.size }}>y</div>}
+              {showYColumn && <div className="text-center" style={{ color: palette.size }}>f(x)</div>}
               {showYColumn && dualActive && (
                 <div className="text-center" style={{ color: palette.size }}>f(x+h₂)</div>
               )}
