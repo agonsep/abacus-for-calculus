@@ -6,7 +6,7 @@ Let the user pick the stone colors from three preset pairs. The first color of e
 
 1. Red / Orange (current look, the default)
 2. Blue / Cyan
-3. Purple / Green
+3. Forest / Mint
 
 ## How it works
 
