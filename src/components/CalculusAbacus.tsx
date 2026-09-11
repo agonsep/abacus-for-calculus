@@ -14,33 +14,61 @@ const MAX_PIECES = 100;
 const SEPARATOR_HEIGHT = MAX_PIECES * PIECE_HEIGHT + 0.2;
 const BOARD_CENTER_Y = SEPARATOR_HEIGHT / 2 + 0.05;
 
-const ORANGE = "#ff932a";
-const ORANGE_LIGHT = "#ffb56a";
-const ORANGE_DARK = "#dc5800";
 const BLACK = "#1a1a1a";
 const DARK_GREY = "#4a4a4a";
-const RED = "#e8352c";
-const BLUE = "#2563eb";
-const LIGHT_BLUE = "#60a5fa";
 const LINE_COLOR = "#7dd3fc";
 const TANGENT_COLOR = "#facc15";
 
-let _orangeGradTex: THREE.CanvasTexture | null = null;
-function getOrangeGradTex(): THREE.CanvasTexture {
-  if (!_orangeGradTex) {
+type Palette = {
+  id: string;
+  size: string;
+  change: string;
+  changeLight: string;
+  changeDark: string;
+};
+
+const PALETTES: Palette[] = [
+  {
+    id: "red-orange",
+    size: "#e8352c",
+    change: "#ff932a",
+    changeLight: "#ffb56a",
+    changeDark: "#dc5800",
+  },
+  {
+    id: "blue-cyan",
+    size: "#2563eb",
+    change: "#22d3ee",
+    changeLight: "#67e8f9",
+    changeDark: "#0891b2",
+  },
+  {
+    id: "forest-mint",
+    size: "#15803d",
+    change: "#6ee7b7",
+    changeLight: "#a7f3d0",
+    changeDark: "#059669",
+  },
+];
+
+const DEFAULT_PALETTE_ID = "red-orange";
+
+const gradTexCache: Record<string, THREE.CanvasTexture> = {};
+function getGradTex(palette: Palette): THREE.CanvasTexture {
+  if (!gradTexCache[palette.id]) {
     const canvas = document.createElement("canvas");
     canvas.width = 1;
     canvas.height = 64;
     const ctx = canvas.getContext("2d")!;
     const grad = ctx.createLinearGradient(0, 0, 0, 64);
-    grad.addColorStop(0, ORANGE_LIGHT);
-    grad.addColorStop(0.5, ORANGE);
-    grad.addColorStop(1, ORANGE_DARK);
+    grad.addColorStop(0, palette.changeLight);
+    grad.addColorStop(0.5, palette.change);
+    grad.addColorStop(1, palette.changeDark);
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 1, 64);
-    _orangeGradTex = new THREE.CanvasTexture(canvas);
+    gradTexCache[palette.id] = new THREE.CanvasTexture(canvas);
   }
-  return _orangeGradTex;
+  return gradTexCache[palette.id];
 }
 
 function slotY(slot: number) {
@@ -80,6 +108,8 @@ function Piece({
   targetY,
   delay,
   color,
+  palette,
+  useGradient,
   heightScale = 1,
   widthScale = 1,
   dim = false,
@@ -91,6 +121,8 @@ function Piece({
   targetY: number;
   delay: number;
   color: string;
+  palette: Palette;
+  useGradient?: boolean;
   heightScale?: number;
   widthScale?: number;
   dim?: boolean;
@@ -127,10 +159,10 @@ function Piece({
     ref.current.scale.set(s * widthScale, s * heightScale, s);
   });
 
-  const isOrange = color === ORANGE;
+  const useGradientFinal = useGradient ?? false;
   const c = useMemo(
-    () => (isOrange ? new THREE.Color(1, 1, 1) : new THREE.Color(color)),
-    [color, isOrange],
+    () => (useGradientFinal ? new THREE.Color(1, 1, 1) : new THREE.Color(color)),
+    [color, useGradientFinal],
   );
   const emissive = useMemo(() => new THREE.Color(color), [color]);
 
@@ -144,14 +176,14 @@ function Piece({
         receiveShadow
       >
         <meshPhysicalMaterial
-          map={isOrange ? getOrangeGradTex() : undefined}
+          map={useGradientFinal ? getGradTex(palette) : undefined}
           color={c}
           roughness={0.45}
           metalness={0}
           clearcoat={0.2}
           clearcoatRoughness={0.4}
           emissive={emissive}
-          emissiveIntensity={highlighted ? 0.55 : isOrange ? 0.4 : 0.25}
+          emissiveIntensity={highlighted ? 0.55 : useGradientFinal ? 0.4 : 0.25}
           transparent
           opacity={dim ? 0.25 : 1}
           fog={!highlighted}
@@ -456,6 +488,7 @@ function Stacks({
   instant = false,
   leibniz = false,
   companion = null,
+  palette,
 }: {
   size: number[];
   change: number[];
@@ -468,6 +501,7 @@ function Stacks({
   instant?: boolean;
   leibniz?: boolean;
   companion?: number[] | null;
+  palette: Palette;
 }) {
   const skyY = MAX_PIECES * PIECE_HEIGHT + 4;
   const sizeArr = anim ? anim.size : size;
@@ -491,7 +525,7 @@ function Stacks({
 
         const neg = yVal < 0;
         const absVal = Math.abs(yVal);
-        const stoneColor = neg ? BLACK : RED;
+        const stoneColor = neg ? BLACK : palette.size;
         const yFull = Math.floor(absVal);
         for (let k = 0; k < yFull; k++) {
           pieces.push(
@@ -502,6 +536,7 @@ function Stacks({
               targetY={slotY(k + off)}
               delay={anim ? 0 : i * 0.04 + k * 0.02}
               color={stoneColor}
+              palette={palette}
               widthScale={wScale}
               dim={oDim}
               highlighted={oH}
@@ -519,6 +554,7 @@ function Stacks({
               targetY={partialY(yFull + off, yFrac)}
               delay={anim ? 0 : i * 0.04 + yFull * 0.02}
               color={stoneColor}
+              palette={palette}
               widthScale={wScale}
               heightScale={yFrac}
               dim={oDim}
@@ -535,10 +571,11 @@ function Stacks({
         const changeStoneColor = asSize
           ? rNeg
             ? BLACK
-            : RED
+            : palette.size
           : rNeg
             ? DARK_GREY
-            : ORANGE;
+            : palette.change;
+        const useChangeGradient = !asSize && !rNeg;
         const rFull = Math.floor(rAbs);
         const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? 1 : 0);
         const changeBase = leibniz
@@ -557,6 +594,8 @@ function Stacks({
               targetY={slotY(changeBase + k + changeOff)}
               delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
               color={changeStoneColor}
+              palette={palette}
+              useGradient={useChangeGradient}
               widthScale={wScale}
               dim={rDim}
               highlighted={rH}
@@ -574,6 +613,8 @@ function Stacks({
               targetY={partialY(changeBase + rFull + changeOff, rFrac)}
               delay={anim ? 0 : i * 0.04 + (changeBase + rFull) * 0.02}
               color={changeStoneColor}
+              palette={palette}
+              useGradient={useChangeGradient}
               widthScale={wScale}
               heightScale={rFrac}
               dim={rDim}
@@ -587,7 +628,7 @@ function Stacks({
           const cVal = companion[i] ?? 0;
           const cAbs = Math.abs(cVal);
           const cFull = Math.floor(cAbs);
-          const cColor = cVal < 0 ? BLACK : RED;
+          const cColor = cVal < 0 ? BLACK : palette.size;
           const cx2 = cx + COL_SPACING / 4;
           for (let k = 0; k < cFull; k++) {
             pieces.push(
@@ -598,6 +639,7 @@ function Stacks({
                 targetY={slotY(k)}
                 delay={i * 0.04 + k * 0.02}
                 color={cColor}
+                palette={palette}
                 widthScale={0.5}
                 dim={oDim}
                 instant={instant}
@@ -614,6 +656,7 @@ function Stacks({
                 targetY={partialY(cFull, cFrac)}
                 delay={i * 0.04 + cFull * 0.02}
                 color={cColor}
+                palette={palette}
                 widthScale={0.5}
                 heightScale={cFrac}
                 dim={oDim}
@@ -893,6 +936,7 @@ function Scene({
   companion,
   dualActive,
   h2,
+  palette,
 }: {
   size: number[];
   change: number[];
@@ -920,6 +964,7 @@ function Scene({
   companion: number[] | null;
   dualActive: boolean;
   h2: { value: number; infinitesimal: boolean } | null;
+  palette: Palette;
 }) {
   return (
     <>
@@ -956,6 +1001,7 @@ function Scene({
           instant={instant}
           leibniz={leibniz}
           companion={companion}
+          palette={palette}
         />
         {showLine && !anim && (
           <>
@@ -1067,6 +1113,28 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [panY, setPanY] = useState(0);
   const [uiHidden, setUiHidden] = useState(true);
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
+  const [paletteId, setPaletteId] = useState(DEFAULT_PALETTE_ID);
+  const palette = useMemo(
+    () => PALETTES.find((p) => p.id === paletteId) ?? PALETTES[0],
+    [paletteId],
+  );
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("calculus-abacus-palette");
+      if (saved && PALETTES.some((p) => p.id === saved)) {
+        setPaletteId(saved);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem("calculus-abacus-palette", paletteId);
+    } catch {
+      // ignore
+    }
+  }, [paletteId]);
   const [level, setLevel] = useState(0);
   const [leibniz, setLeibniz] = useState(false);
   // Draft flag: only controls the checkbox and the second increment field.
@@ -1916,6 +1984,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           companion={appliedDual && level === 0 ? companion : null}
           dualActive={dualActive}
           h2={h2}
+          palette={palette}
         />
       </Canvas>
 
@@ -1953,11 +2022,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 >
 
                   <div className="text-center">x</div>
-                  <div className="text-center text-[#e8352c]"># size-stones</div>
-                  <div className="text-center text-[#e8352c]">y</div>
-                  <div className="text-center text-[#ff932a]"># change-size-<br />stones</div>
-                  <div className="text-center text-[#ff932a]">delta-y</div>
-                  <div className="text-center text-[#ff932a]">dy</div>
+                  <div className="text-center" style={{ color: palette.size }}># size-stones</div>
+                  <div className="text-center" style={{ color: palette.size }}>y</div>
+                  <div className="text-center" style={{ color: palette.change }}># change-size-<br />stones</div>
+                  <div className="text-center" style={{ color: palette.change }}>delta-y</div>
+                  <div className="text-center" style={{ color: palette.change }}>dy</div>
                 </div>
                 {xValues.map((xv, i) => {
                   const isDef = defined[i] !== false;
@@ -2010,14 +2079,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               style={{ gridTemplateColumns: gridCols }}
             >
               <div className="text-center">x</div>
-              <div className={`text-center ${level === 0 ? "text-[#e8352c]" : ""}`}>{sizeHeader}</div>
-              {showYColumn && <div className="text-center text-[#e8352c]">y</div>}
+              <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
+              {showYColumn && <div className="text-center" style={{ color: palette.size }}>y</div>}
               {showYColumn && dualActive && (
-                <div className="text-center text-[#e8352c]">y(x+h₂)</div>
+                <div className="text-center" style={{ color: palette.size }}>y(x+h₂)</div>
               )}
               {showChangeColumns && (
                 <>
-                  <div className={`text-center ${level === 0 ? "text-[#ff932a]" : ""}`}>{changeHeader}</div>
+                  <div className="text-center" style={{ color: level === 0 ? palette.change : undefined }}>{changeHeader}</div>
                   <div className="text-right">{slopeHeader}</div>
                 </>
               )}
@@ -2139,7 +2208,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 The Calculus Abacus lets you explore curves, rates of change, and areas using stacks of stones.
               </p>
               <p>
-                The <span className="text-[#e8352c]">red stones</span> (or size-stones) represent amounts. Columns of red stones represent values of <span className="font-mono text-foreground">y</span> along a given curve. The <span className="text-[#ff932a]">orange stones</span> (or change-size-stones) represent the differences between neighboring columns of red stones. Experiment with succesively smaller increments. Do the orange stones approach a limit as the increment approaches zero? What would happen if the increment were infinitely small?
+                The <span style={{ color: palette.size }}>red stones</span> (or size-stones) represent amounts. Columns of red stones represent values of <span className="font-mono text-foreground">y</span> along a given curve. The <span style={{ color: palette.change }}>orange stones</span> (or change-size-stones) represent the differences between neighboring columns of red stones. Experiment with succesively smaller increments. Do the orange stones approach a limit as the increment approaches zero? What would happen if the increment were infinitely small?
               </p>
               <p>The abacus can be used to:</p>
               <ul className="list-disc space-y-1 pl-6">
@@ -2340,7 +2409,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           <button
             type="submit"
             disabled={!!anim}
-            className="rounded-xl border border-[#e8352c] bg-[#e8352c]/90 px-4 py-2 font-medium text-white transition hover:bg-[#e8352c] disabled:opacity-50"
+            className="rounded-xl border px-4 py-2 font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+            style={{ borderColor: palette.size, backgroundColor: `${palette.size}e6` }}
           >
             Fill Board
           </button>
@@ -2355,7 +2425,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   ? "The difference curve of an infinitesimal step is constant."
                   : undefined
             }
-            className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a] disabled:opacity-50"
+            className="rounded-xl border px-4 py-2 font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+            style={{ borderColor: palette.change, backgroundColor: `${palette.change}e6` }}
           >
             Find Differences
           </button>
@@ -2379,7 +2450,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   ? "The difference curve of an infinitesimal step is constant."
                   : undefined
             }
-            className="rounded-xl border border-[#ff932a] bg-[#ff932a]/90 px-4 py-2 font-medium text-white transition hover:bg-[#ff932a] disabled:opacity-50"
+            className="rounded-xl border px-4 py-2 font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+            style={{ borderColor: palette.change, backgroundColor: `${palette.change}e6` }}
           >
             Divide By Increment
           </button>
@@ -2474,6 +2546,36 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               />
               <span className="text-foreground">10 decimals</span>
             </label>
+
+            <div className="flex items-center justify-between gap-2 pt-1">
+              <span className="text-sm text-foreground">Stone colors</span>
+              <div className="flex items-center gap-2">
+                {PALETTES.map((p) => {
+                  const selected = p.id === paletteId;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPaletteId(p.id)}
+                      title={
+                        p.id === "red-orange"
+                          ? "Red / Orange"
+                          : p.id === "blue-cyan"
+                            ? "Blue / Cyan"
+                            : "Forest / Mint"
+                      }
+                      className={`relative h-5 w-10 overflow-hidden rounded-full border-2 transition ${selected ? "border-white shadow" : "border-transparent"}`}
+                      style={{ backgroundColor: p.size }}
+                    >
+                      <span
+                        className="absolute right-0 top-0 h-full w-1/2"
+                        style={{ backgroundColor: p.change }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <div className="border-t border-border/60 pt-2">
               <button
