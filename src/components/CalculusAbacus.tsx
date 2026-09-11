@@ -1931,6 +1931,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const showPromotedSlope = level > 0 && !showChangeColumns;
 
   const showYColumn = level === 0;
+  const yHeader = dualActive ? "f(x)" : "y";
 
   const leibnizCols = slopeHighPrecision
     ? "2.5rem 4rem 8rem 5rem 8rem 8rem"
