@@ -1007,7 +1007,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     formula: initialDefaults?.formula ?? "x^2",
     midpoint: initialDefaults?.midpoint ?? "5",
     increment: initialDefaults?.increment ?? "1",
-    increment2: "0.5",
+    increment2: initialDefaults?.increment ?? "1",
     maxStones: initialDefaults?.maxStones ?? "100",
   });
   const [appliedInputs, setAppliedInputs] = useState<BoardInputs>(initialBoardInputs.current);
@@ -1051,12 +1051,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (on) {
       prevFractionalRef.current = fractional;
       if (!fractional) setFractional(true);
+      setIncrement2(increment);
     } else if (fractional && !prevFractionalRef.current) {
       setFractional(false);
     }
     setDualMode(on);
   };
-  const [increment2, setIncrement2] = useState("0.5");
+  const [increment2, setIncrement2] = useState(initialDefaults?.increment ?? "1");
   const [yRawCompanion, setYRawCompanion] = useState<number[]>(Array(COLUMNS).fill(0));
   const [companionW, setCompanionW] = useState<number[]>(Array(COLUMNS).fill(0));
   const [companion, setCompanion] = useState<number[] | null>(null);
