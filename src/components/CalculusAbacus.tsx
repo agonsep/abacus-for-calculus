@@ -1945,7 +1945,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         : "2rem 10rem 10rem 5rem"
       : showYColumn
         ? dualActive
-          ? "2rem 3.5rem 3.5rem 3.5rem 4.5rem 2rem"
+          ? "2rem 4rem 4rem 3.5rem 4.5rem 2rem"
           : "2rem 4rem 4rem 5.5rem 2rem"
         : "2rem 4rem 5.5rem 2rem"
     : slopeHighPrecision
