@@ -1145,7 +1145,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
     let idx = 0;
     const finish = () => {
-      console.log("finish called", { idx });
       if (animTimer.current) clearInterval(animTimer.current);
       animTimer.current = null;
       finishRef.current = null;
@@ -1159,10 +1158,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setNote(null);
     setInstant(false);
     setAnim(snapshot(state));
-    console.log("animation started", { steps: steps.length });
     animTimer.current = setInterval(() => {
       if (idx >= steps.length) {
-        console.log("steps done, finishing");
         finish();
         return;
       }
