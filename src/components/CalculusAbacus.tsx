@@ -1086,18 +1086,15 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [highlight, setHighlight] = useState<{ i: number; color: "size" | "change" } | null>(null);
   const [level, setLevel] = useState(0);
   const [leibniz, setLeibniz] = useState(false);
+  // Draft flag: only controls the checkbox and the second increment field.
   const [dualMode, setDualMode] = useState(false);
+  // What the board on screen is actually built from.
+  const [appliedDual, setAppliedDual] = useState(false);
   // Fractional stones are required in dual mode: remember the user's setting
   // so it can be restored when dual mode is switched off.
   const prevFractionalRef = useRef(false);
   const toggleDualMode = (on: boolean) => {
-    if (on) {
-      prevFractionalRef.current = fractional;
-      if (!fractional) setFractional(true);
-      setIncrement2(increment);
-    } else if (fractional && !prevFractionalRef.current) {
-      setFractional(false);
-    }
+    if (on) setIncrement2(appliedInputs.increment);
     setDualMode(on);
   };
   const [increment2, setIncrement2] = useState(initialDefaults?.increment ?? "1");
@@ -1152,7 +1149,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     floor: number;
   };
 
-  const dualActive = dualMode && level === 0 && companion !== null && h2 !== null;
+  const dualActive = appliedDual && level === 0 && companion !== null && h2 !== null;
 
   const computePromotion = (): Promotion | string => {
     if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
@@ -1597,10 +1594,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       // so scale over the union of main and companion values.
       const scaleYs = dual ? [...ys, ...ycs] : ys;
       const scaleDef = dual ? [...def, ...def] : def;
-      const lay = lb ? computeLeibnizLayout(scaleYs, scaleDef, dyVals, fractional, ms) : null;
+      // Dual mode needs fractional stones to keep small pair gaps visible.
+      const useFrac = dual ? true : fractional;
+      const lay = lb ? computeLeibnizLayout(scaleYs, scaleDef, dyVals, useFrac, ms) : null;
       const res: { u: number; floor: number; counts: number[] } | null = lb
         ? lay
-        : computeCounts(scaleYs, scaleDef, fractional, ms);
+        : computeCounts(scaleYs, scaleDef, useFrac, ms);
       if (!res) {
         throw new Error(parseFailures === COLUMNS ? "bad formula" : "all undefined");
       }
@@ -1614,16 +1613,20 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       setSize(res.counts.slice(0, COLUMNS));
       setYRaw(ys);
       if (dual) {
+        if (!appliedDual) prevFractionalRef.current = fractional;
+        if (!fractional) setFractional(true);
         setCompanion(res.counts.slice(COLUMNS));
         setYRawCompanion(ycs);
         setCompanionW(ycB);
         setH2({ value: h2, infinitesimal: isW2 });
       } else {
+        if (appliedDual && fractional && !prevFractionalRef.current) setFractional(false);
         setCompanion(null);
         setYRawCompanion(Array(COLUMNS).fill(0));
         setCompanionW(Array(COLUMNS).fill(0));
         setH2(null);
       }
+      setAppliedDual(dual);
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
@@ -1704,19 +1707,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Switching Dual increments changes the board immediately. Editing its
-  // second increment afterward remains a draft until Fill Board is clicked.
-  const prevDualRef = useRef(dualMode);
-  useEffect(() => {
-    if (prevDualRef.current === dualMode) return;
-    prevDualRef.current = dualMode;
-    if (level > 0 || anim) return;
-    const inputs = dualMode
-      ? { ...appliedInputs, increment2 }
-      : appliedInputs;
-    setup({ inputs, dual: dualMode });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dualMode]);
+  // Dual increments is a pending setting: checking or unchecking it only
+  // shows/hides the second increment field. The board changes on Fill Board.
 
   // Re-round existing size/change in place when the fractional toggle flips,
   // without wiping user drags/shifts or recomputing unit.
@@ -1938,7 +1930,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           anim={anim}
           instant={instant}
           leibniz={leibniz}
-          companion={dualMode && level === 0 ? companion : null}
+          companion={appliedDual && level === 0 ? companion : null}
           dualActive={dualActive}
           h2={h2}
         />
@@ -2421,24 +2413,24 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
             </label>
             <label
-              className={`flex items-center gap-2 ${level > 0 || anim || dualMode ? "cursor-not-allowed" : "cursor-pointer"}`}
+              className={`flex items-center gap-2 ${level > 0 || anim || appliedDual ? "cursor-not-allowed" : "cursor-pointer"}`}
               title={
                 level > 0 || anim
                   ? "Fractional rounding is fixed once stones have been removed."
-                  : dualMode
-                    ? "Dual increments need fractional stones, so this stays on while dual mode is active."
+                  : appliedDual
+                    ? "Dual increments need fractional stones, so this stays on while the paired board is showing."
                     : undefined
               }
             >
               <input
                 type="checkbox"
                 checked={fractional}
-                disabled={level > 0 || !!anim || dualMode}
+                disabled={level > 0 || !!anim || appliedDual}
                 onChange={(e) => setFractional(e.target.checked)}
                 className="accent-[hsl(199_89%_70%)]"
               />
-              <span className={level > 0 || anim || dualMode ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
-              {dualMode && <span className="text-xs text-muted-foreground">(needed for dual increments)</span>}
+              <span className={level > 0 || anim || appliedDual ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
+              {appliedDual && <span className="text-xs text-muted-foreground">(needed for dual increments)</span>}
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
