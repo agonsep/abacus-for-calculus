@@ -1934,8 +1934,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const yHeader = !leibniz && dualActive ? "f(x)" : "y";
 
   const leibnizCols = slopeHighPrecision
-    ? "2.5rem 4rem 8rem 5rem 8rem 8rem"
-    : "2.5rem 4rem 4.5rem 5rem 4.5rem 4.5rem";
+    ? "2.5rem 8rem 8rem 4rem 5rem 8rem"
+    : "2.5rem 4.5rem 4.5rem 4rem 5rem 4.5rem";
   const gridCols = showChangeColumns
     ? slopeHighPrecision
       ? showYColumn
@@ -2023,10 +2023,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 >
 
                   <div className="text-center">x</div>
-                  <div className="text-center" style={{ color: palette.size }}># size-stones</div>
                   <div className="text-center" style={{ color: palette.size }}>{yHeader}</div>
+                  <div className="text-center" style={{ color: palette.change }}>Δy</div>
+                  <div className="text-center" style={{ color: palette.size }}># size-stones</div>
                   <div className="text-center" style={{ color: palette.change }}># change-size-<br />stones</div>
-                  <div className="text-center" style={{ color: palette.change }}>delta-y</div>
                   <div className="text-center" style={{ color: palette.change }}>dy</div>
                 </div>
                 {xValues.map((xv, i) => {
@@ -2043,17 +2043,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                         {formatDual(xv, xW[i] ?? 0, formatNum)}
                       </div>
                       <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
-                        {isDef ? fmtCount(size[i]) : "undefined"}
-                      </div>
-                      <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {isDef
                           ? wValues
                             ? formatDual(wBase, yRaw[i] ?? 0, fmtVal)
                             : fmtVal(yRaw[i] ?? 0)
                           : "undefined"}
-                      </div>
-                      <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
-                        {dyDef ? fmtCount(change[i]) : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${dDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dDef
@@ -2061,6 +2055,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                             ? formatDual(0, deltaValues[i] ?? 0, fmtVal)
                             : fmtVal(deltaValues[i] ?? 0)
                           : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {isDef ? fmtCount(size[i]) : "undefined"}
+                      </div>
+                      <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
+                        {dyDef ? fmtCount(change[i]) : "undefined"}
                       </div>
                       <div className={`text-center font-mono ${dyDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {dyDef
