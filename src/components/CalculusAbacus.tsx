@@ -1148,12 +1148,23 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         counts.push(change[i]);
       }
     }
+    // In dual increments mode, rescale the board to the range of the slope
+    // curve so small second increments (including w) produce visible stones.
+    console.log("computePromotion dualActive", dualActive, "h2", h2, "fractional", fractional, "maxStones", appliedInputs.maxStones);
+    if (dualActive && h2) {
+      const scaled = computeCounts(newYRaw, newDefined, fractional, appliedInputs.maxStones);
+      console.log("scaled", scaled);
+      if (scaled) {
+        return { newYRaw, newDefined, counts: scaled.counts, u: scaled.u, floor: scaled.floor };
+      }
+    }
     // Keep the same stack heights and divide only the value of one stone.
     const u = unit / incValue;
     return { newYRaw, newDefined, counts, u, floor: 0 };
   };
 
   const commitPromotion = (p: Promotion) => {
+    console.log("commitPromotion called with u", p.u, "floor", p.floor, "counts sample", p.counts.slice(0,3));
     levelStack.current.push({
       yRaw: yRaw.slice(),
       size: size.slice(),
@@ -1233,6 +1244,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
     let idx = 0;
     const finish = () => {
+      console.log("finish called");
       if (animTimer.current) clearInterval(animTimer.current);
       animTimer.current = null;
       finishRef.current = null;
