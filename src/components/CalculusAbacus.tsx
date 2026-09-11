@@ -1707,19 +1707,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Switching Dual increments changes the board immediately. Editing its
-  // second increment afterward remains a draft until Fill Board is clicked.
-  const prevDualRef = useRef(dualMode);
-  useEffect(() => {
-    if (prevDualRef.current === dualMode) return;
-    prevDualRef.current = dualMode;
-    if (level > 0 || anim) return;
-    const inputs = dualMode
-      ? { ...appliedInputs, increment2 }
-      : appliedInputs;
-    setup({ inputs, dual: dualMode });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dualMode]);
+  // Dual increments is a pending setting: checking or unchecking it only
+  // shows/hides the second increment field. The board changes on Fill Board.
 
   // Re-round existing size/change in place when the fractional toggle flips,
   // without wiping user drags/shifts or recomputing unit.
