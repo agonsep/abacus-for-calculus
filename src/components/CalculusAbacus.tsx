@@ -525,22 +525,58 @@ function Stacks({
             />,
           );
         }
+        const rFrac = rAbs - rFull;
+        if (rFrac >= MIN_PARTIAL) {
+          pieces.push(
+            <Piece
+              key={`r-${runId}-${i}-partial-${changeBase}`}
+              x={x}
+              fromY={anim && !leibniz ? slotY(changeFrom + rFull) : skyY + 2}
+              targetY={partialY(changeBase + rFull + changeOff, rFrac)}
+              delay={anim ? 0 : i * 0.04 + (changeBase + rFull) * 0.02}
+              color={changeStoneColor}
+              widthScale={wScale}
+              heightScale={rFrac}
+              dim={rDim}
+              highlighted={rH}
+              instant={instant}
+            />,
+          );
+        }
 
         if (dual && companion) {
           const cVal = companion[i] ?? 0;
-          const cNeg = cVal < 0;
-          const cFull = Math.floor(Math.abs(cVal));
-          const cColor = cNeg ? BLACK : RED;
+          const cAbs = Math.abs(cVal);
+          const cFull = Math.floor(cAbs);
+          const cColor = cVal < 0 ? BLACK : RED;
+          const cx2 = cx + COL_SPACING / 4;
           for (let k = 0; k < cFull; k++) {
             pieces.push(
               <Piece
                 key={`c-${runId}-${i}-${k}`}
-                x={cx + COL_SPACING / 4}
+                x={cx2}
                 fromY={skyY}
                 targetY={slotY(k)}
                 delay={i * 0.04 + k * 0.02}
                 color={cColor}
                 widthScale={0.5}
+                dim={oDim}
+                instant={instant}
+              />,
+            );
+          }
+          const cFrac = cAbs - cFull;
+          if (cFrac >= MIN_PARTIAL) {
+            pieces.push(
+              <Piece
+                key={`c-${runId}-${i}-partial`}
+                x={cx2}
+                fromY={skyY}
+                targetY={partialY(cFull, cFrac)}
+                delay={i * 0.04 + cFull * 0.02}
+                color={cColor}
+                widthScale={0.5}
+                heightScale={cFrac}
                 dim={oDim}
                 instant={instant}
               />,
