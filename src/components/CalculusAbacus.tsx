@@ -2023,10 +2023,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 >
 
                   <div className="text-center">x</div>
-                  <div className="text-center" style={{ color: palette.size }}># size-stones</div>
                   <div className="text-center" style={{ color: palette.size }}>{yHeader}</div>
+                  <div className="text-center" style={{ color: palette.change }}>Δy</div>
+                  <div className="text-center" style={{ color: palette.size }}># size-stones</div>
                   <div className="text-center" style={{ color: palette.change }}># change-size-<br />stones</div>
-                  <div className="text-center" style={{ color: palette.change }}>delta-y</div>
                   <div className="text-center" style={{ color: palette.change }}>dy</div>
                 </div>
                 {xValues.map((xv, i) => {
