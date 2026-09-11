@@ -166,11 +166,15 @@ function Board({
   xW,
   defined,
   leibniz = false,
+  dualActive = false,
+  h2 = null,
 }: {
   xValues: number[];
   xW: number[];
   defined: boolean[];
   leibniz?: boolean;
+  dualActive?: boolean;
+  h2?: { value: number; infinitesimal: boolean } | null;
 }) {
   const width = COLUMNS * COL_SPACING + 0.6;
   const depth = 1.6;
@@ -255,21 +259,56 @@ function Board({
       })}
       {xValues.map((xv, i) => {
         const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
-        const label = formatDual(xv, xW[i] ?? 0, formatNum);
+        const baseColor = defined[i] === false ? "#9a9a9a" : "#f5e8c8";
+        if (!dualActive || !h2) {
+          const label = formatDual(xv, xW[i] ?? 0, formatNum);
+          return (
+            <Text
+              key={`lbl-${i}`}
+              position={[x, -0.3, depth / 2 - 0.25]}
+              rotation={[0, 0, 0]}
+              fontSize={0.32}
+              renderOrder={2}
+              color={baseColor}
+              anchorX="center"
+              anchorY="middle"
+              material-depthTest={false}
+            >
+              {label}
+            </Text>
+          );
+        }
+        const mainLabel = formatDual(xv, xW[i] ?? 0, formatNum);
+        const companionReal = xv + (h2.infinitesimal ? 0 : h2.value);
+        const companionWPart = (xW[i] ?? 0) + (h2.infinitesimal ? h2.value : 0);
+        const companionLabel = formatDual(companionReal, companionWPart, formatNum);
         return (
-          <Text
-            key={`lbl-${i}`}
-            position={[x, -0.3, depth / 2 - 0.25]}
-            rotation={[0, 0, 0]}
-            fontSize={0.32}
-            renderOrder={2}
-            color={defined[i] === false ? "#9a9a9a" : "#f5e8c8"}
-            anchorX="center"
-            anchorY="middle"
-            material-depthTest={false}
-          >
-            {label}
-          </Text>
+          <group key={`lbl-${i}`}>
+            <Text
+              position={[x - COL_SPACING / 4, -0.3, depth / 2 - 0.25]}
+              rotation={[0, 0, 0]}
+              fontSize={0.28}
+              renderOrder={2}
+              color={baseColor}
+              anchorX="center"
+              anchorY="middle"
+              material-depthTest={false}
+            >
+              {mainLabel}
+            </Text>
+            <Text
+              position={[x + COL_SPACING / 4, -0.3, depth / 2 - 0.25]}
+              rotation={[0, 0, 0]}
+              fontSize={0.28}
+              renderOrder={2}
+              color={baseColor}
+              anchorX="center"
+              anchorY="middle"
+              material-depthTest={false}
+            >
+              {companionLabel}
+            </Text>
+          </group>
         );
       })}
 
@@ -853,6 +892,8 @@ function Scene({
   instant,
   leibniz,
   companion,
+  dualActive,
+  h2,
 }: {
   size: number[];
   change: number[];
@@ -878,6 +919,8 @@ function Scene({
   instant: boolean;
   leibniz: boolean;
   companion: number[] | null;
+  dualActive: boolean;
+  h2: { value: number; infinitesimal: boolean } | null;
 }) {
   return (
     <>
@@ -901,7 +944,7 @@ function Scene({
       />
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
-        <Board xValues={xValues} xW={xW} defined={defined} leibniz={leibniz} />
+        <Board xValues={xValues} xW={xW} defined={defined} leibniz={leibniz} dualActive={dualActive} h2={h2} />
         <Stacks
           size={size}
           change={change}
@@ -1896,6 +1939,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           instant={instant}
           leibniz={leibniz}
           companion={dualMode && level === 0 ? companion : null}
+          dualActive={dualActive}
+          h2={h2}
         />
       </Canvas>
 
