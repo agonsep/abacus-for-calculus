@@ -2402,16 +2402,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
-            <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
-              <input
-                type="checkbox"
-                checked={leibniz}
-                disabled={!!anim || level > 0}
-                onChange={(e) => toggleLeibniz(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
-            </label>
             <label
               className={`flex items-center gap-2 ${level > 0 || anim || appliedDual ? "cursor-not-allowed" : "cursor-pointer"}`}
               title={
@@ -2460,6 +2450,16 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <span className={level > 0 || anim || wMode ? "text-muted-foreground" : "text-foreground"}>
                 Dual increments
               </span>
+            </label>
+            <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
+              <input
+                type="checkbox"
+                checked={leibniz}
+                disabled={!!anim || level > 0}
+                onChange={(e) => toggleLeibniz(e.target.checked)}
+                className="accent-[hsl(199_89%_70%)]"
+              />
+              <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
             </label>
             <label
               className="flex cursor-pointer items-center gap-2"
