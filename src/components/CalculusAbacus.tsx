@@ -1204,7 +1204,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const promoteLevel = () => {
     const p = computePromotion();
-    console.log("computePromotion result", typeof p === "string" ? p : { newYRaw: p.newYRaw.slice(), newDefined: p.newDefined.slice(), counts: p.counts.slice(), u: p.u, floor: p.floor });
     if (typeof p === "string") {
       setError(p);
       setNote(null);
