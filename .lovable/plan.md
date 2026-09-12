@@ -16,7 +16,7 @@ In **Dual increments** mode, the companion stack currently holds `f(x + h₂)` a
 - Companion values update to `f(x − h₂)`.
 
 **Find Differences / slope**
-- The change at each column becomes `f(x) − f(x − h₂)` (main minus left companion), so orange change-size stones still measure the gap within the pair.
+- The change at each column becomes `f(x) − f(x − h₂)` (main minus left companion), so change-size stones still measure the gap within the pair.
 - Divide By Increment still divides by the second increment `h₂`; with `h₂ = w` the slope column remains the exact derivative (forward and backward differences coincide for the infinitesimal).
 - Stone sizes, floor value, and board scale are unchanged — the same union of values is measured, so no rescaling differences.
 
