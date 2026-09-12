@@ -8,15 +8,14 @@ When **Dual increments** is active, the top of the left panel currently reads:
 One stone = <unit>.
 ```
 
-Update it to show two separate unit labels:
+Update it to show two unit labels on the same line:
 
 ```text
-One size stone = <unit>.
-One change-size stone = <second-increment>.
+One size stone = <unit>. One change-size stone = <second-increment>.
 ```
 
 - The first label replaces the generic "One stone" wording only while Dual increments is applied (`appliedDual` / `dualActive`).
-- The second label appears only while Dual increments is applied, and shows the second increment value. If the second increment is the infinitesimal `w`, render it symbolically (e.g. `w`, `2w`) using the existing dual formatting helpers; otherwise render it as a plain number.
+- The second label appears on the same line, after the first, only while Dual increments is applied, and shows the second increment value. If the second increment is the infinitesimal `w`, render it symbolically (e.g. `w`, `2w`) using the existing dual formatting helpers; otherwise render it as a plain number.
 - Both labels stay in the existing neutral white/muted text color; do not tint them with the active stone palette.
 - When Dual increments is not active, keep the current "One stone = ..." readout unchanged.
 
