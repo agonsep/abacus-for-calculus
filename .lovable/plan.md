@@ -27,9 +27,7 @@ Only `src/components/CalculusAbacus.tsx`, in the left-panel unit readout around 
 
 1. Load `y = x²`, midpoint `5`, increment `1`, max stones `100`.
 2. Check **Dual increments**, set the second increment to `w`, click **Fill Board**, then **Find Differences**.
-3. Confirm the left panel top reads:
-   - `One size stone = 1.`
-   - `One change-size stone = w.`
-4. Repeat with second increment `0.5` and confirm `One change-size stone = 0.5.`
+3. Confirm the left panel top reads: `One size stone = 1. One change-size stone = w.`
+4. Repeat with second increment `0.5` and confirm the line reads `One size stone = 1. One change-size stone = 0.5.`
 5. Uncheck Dual increments and confirm the readout returns to `One stone = ...`.
 6. Run typecheck and production build; confirm no errors.
