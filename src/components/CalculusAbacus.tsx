@@ -2013,9 +2013,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   .{" "}
                   One change-size stone ={" "}
                   <span className="rounded px-1 font-mono text-foreground">
-                    {h2?.infinitesimal
-                      ? formatDual(0, h2.value, fmtVal)
-                      : fmtVal(h2?.value ?? 0)}
+                    {h2?.infinitesimal || wValues
+                      ? formatDual(0, unit, fmtVal)
+                      : fmtVal(unit)}
                   </span>
                   .
                 </>
