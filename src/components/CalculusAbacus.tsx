@@ -785,6 +785,7 @@ function DragHandles({
   defined: boolean[];
   leibniz?: boolean;
   dual?: boolean;
+  companion?: number[] | null;
 }) {
   const { camera, gl } = useThree();
   const dragRef = useRef<{
