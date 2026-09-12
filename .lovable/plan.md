@@ -22,7 +22,9 @@ In **Dual increments** mode, the companion stack currently holds `f(x + h₂)` a
 
 **Behavior notes**
 - The Lefthand comparison checkbox is already disabled in dual mode; that stays.
-- Help panel text that describes the companion as `x + h₂` is updated to `x − h₂`.
+- Help panel wording is updated:
+  - Replace "stack on its right, evaluated at x plus the second increment" with "stack on its left, evaluated at x minus the second increment".
+  - Replace "companion minus main" with "main minus companion".
 
 ## Technical notes
 
