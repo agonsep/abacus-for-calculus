@@ -578,18 +578,27 @@ function Stacks({
         const useChangeGradient = !asSize && !rNeg;
         const rFull = Math.floor(rAbs);
         const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? 1 : 0);
+        // In dual mode the change stones sit on the companion (left) stack,
+        // filling the gap between f(x-h2) and f(x).
+        let compTopSlot = sizeTopSlot;
+        if (dual && companion) {
+          const cAbs2 = Math.abs(companion[i] ?? 0);
+          compTopSlot =
+            Math.floor(cAbs2) + (cAbs2 - Math.floor(cAbs2) >= MIN_PARTIAL ? 1 : 0);
+        }
         const changeBase = leibniz
           ? LEIBNIZ_SHELF_SLOT
           : anim
             ? anim.changeBase[i]
-            : sizeTopSlot + gap;
+            : (dual ? compTopSlot : sizeTopSlot) + gap;
         const changeFrom = anim && !leibniz ? anim.changeFrom[i] : changeBase;
         const changeOff = leibniz ? 0 : off;
+        const changeX = dual ? cx - COL_SPACING / 4 : x;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
               key={`r-${runId}-${i}-${k}-${changeBase}`}
-              x={x}
+              x={changeX}
               fromY={anim && !leibniz ? slotY(changeFrom + k) : skyY + 2}
               targetY={slotY(changeBase + k + changeOff)}
               delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
@@ -608,7 +617,7 @@ function Stacks({
           pieces.push(
             <Piece
               key={`r-${runId}-${i}-partial-${changeBase}`}
-              x={x}
+              x={changeX}
               fromY={anim && !leibniz ? slotY(changeFrom + rFull) : skyY + 2}
               targetY={partialY(changeBase + rFull + changeOff, rFrac)}
               delay={anim ? 0 : i * 0.04 + (changeBase + rFull) * 0.02}
@@ -764,6 +773,7 @@ function DragHandles({
   defined,
   leibniz = false,
   dual = false,
+  companion = null,
 }: {
   size: number[];
   change: number[];
@@ -775,6 +785,7 @@ function DragHandles({
   defined: boolean[];
   leibniz?: boolean;
   dual?: boolean;
+  companion?: number[] | null;
 }) {
   const { camera, gl } = useThree();
   const dragRef = useRef<{
@@ -883,9 +894,21 @@ function DragHandles({
         const oHeight = Math.max(0.1, oTop - oBottom);
         const oCenter = (oTop + oBottom) / 2;
 
-        // Change handle covers from top of size stack upward
-        const rBottom = oCount > 0 ? sizeTopY : minY;
-        const changeTopY = slotY(oTopSlot + gap + rCount + off) - PIECE_HEIGHT / 2;
+        // Change handle covers from the top of its base stack upward.
+        // In dual mode the change stones sit on the companion (left) stack.
+        let rBaseX = x;
+        let rBaseTopSlot = oTopSlot;
+        let rBaseTopY = oCount > 0 ? sizeTopY : minY;
+        if (dual && companion) {
+          const cAbs = Math.abs(companion[i] ?? 0);
+          const cTopSlot =
+            Math.floor(cAbs) + (cAbs - Math.floor(cAbs) >= MIN_PARTIAL ? 1 : 0);
+          rBaseX = x - COL_SPACING / 2;
+          rBaseTopSlot = cTopSlot;
+          rBaseTopY = cAbs > 0 ? slotY(cAbs) - PIECE_HEIGHT / 2 : minY;
+        }
+        const rBottom = rBaseTopY;
+        const changeTopY = slotY(rBaseTopSlot + gap + rCount + off) - PIECE_HEIGHT / 2;
         let rTop = rCount > 0 ? changeTopY : oCount > 0 ? maxY : maxY;
         if (rCount > 0 && rTop - rBottom < MIN_H) {
           rTop = Math.min(rBottom + MIN_H, maxY);
@@ -902,7 +925,7 @@ function DragHandles({
               </mesh>
             )}
             {rCount > 0 && !leibniz && (
-              <mesh position={[x, rCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "change")}>
+              <mesh position={[rBaseX, rCenter, PIECE_DEPTH / 2 + 0.05]} {...makeHandlers(i, "change")}>
                 <boxGeometry args={[HIT_W, rHeight, HIT_D]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
@@ -1033,6 +1056,7 @@ function Scene({
             defined={defined}
             leibniz={leibniz}
             dual={companion !== null}
+            companion={companion}
           />
         )}
 
