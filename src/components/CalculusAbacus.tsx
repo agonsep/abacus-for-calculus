@@ -311,8 +311,8 @@ function Board({
           );
         }
         const mainLabel = formatDual(xv, xW[i] ?? 0, formatNum);
-        const companionReal = xv + (h2.infinitesimal ? 0 : h2.value);
-        const companionWPart = (xW[i] ?? 0) + (h2.infinitesimal ? h2.value : 0);
+        const companionReal = xv - (h2.infinitesimal ? 0 : h2.value);
+        const companionWPart = (xW[i] ?? 0) - (h2.infinitesimal ? h2.value : 0);
         const companionLabel = formatDual(companionReal, companionWPart, formatNum);
         return (
           <group key={`lbl-${i}`}>
@@ -326,7 +326,7 @@ function Board({
               anchorY="middle"
               material-depthTest={false}
             >
-              {mainLabel}
+              {companionLabel}
             </Text>
             <Text
               position={[x + COL_SPACING / 4, -0.3, depth / 2 - 0.25]}
@@ -338,7 +338,7 @@ function Board({
               anchorY="middle"
               material-depthTest={false}
             >
-              {companionLabel}
+              {mainLabel}
             </Text>
           </group>
         );
@@ -512,7 +512,7 @@ function Stacks({
         if (defined[i] === false) return null;
         const cx = (i - (COLUMNS - 1) / 2) * COL_SPACING;
         const dual = companion !== null && !anim;
-        const x = dual ? cx - COL_SPACING / 4 : cx;
+        const x = dual ? cx + COL_SPACING / 4 : cx;
         const wScale = dual ? 0.5 : 1;
 
         const off = anim ? 0 : (shift[i] ?? 0);
@@ -629,7 +629,7 @@ function Stacks({
           const cAbs = Math.abs(cVal);
           const cFull = Math.floor(cAbs);
           const cColor = cVal < 0 ? BLACK : palette.size;
-          const cx2 = cx + COL_SPACING / 4;
+          const cx2 = cx - COL_SPACING / 4;
           for (let k = 0; k < cFull; k++) {
             pieces.push(
               <Piece
@@ -676,10 +676,12 @@ function ConnectingLine({
   size,
   shift,
   defined,
+  dualActive = false,
 }: {
   size: number[];
   shift: number[];
   defined: boolean[];
+  dualActive?: boolean;
 }) {
   const segments = useMemo<[number, number, number][][]>(() => {
     const segs: [number, number, number][][] = [];
@@ -690,14 +692,14 @@ function ConnectingLine({
         cur = [];
         return;
       }
-      const x = (i - (COLUMNS - 1) / 2) * COL_SPACING;
+      const x = (i - (COLUMNS - 1) / 2) * COL_SPACING + (dualActive ? COL_SPACING / 4 : 0);
       const off = shift[i] ?? 0;
       const top = PIECE_HEIGHT * (Math.abs(v) + off) + 0.05;
       cur.push([x, top + 0.04, PIECE_DEPTH / 2 + 0.02]);
     });
     if (cur.length) segs.push(cur);
     return segs;
-  }, [size, shift, defined]);
+  }, [size, shift, defined, dualActive]);
   const dots = segments.flat();
   if (!dots.length) return null;
   return (
@@ -722,6 +724,7 @@ function TangentLine({
   unit,
   tangentSlope,
   defined,
+  dualActive = false,
 }: {
   size: number[];
   shift: number[];
@@ -729,6 +732,7 @@ function TangentLine({
   unit: number;
   tangentSlope: number;
   defined: boolean[];
+  dualActive?: boolean;
 }) {
   const points = useMemo<[number, number, number][]>(() => {
     if (unit === 0 || increment === 0 || !isFinite(tangentSlope)) return [];
@@ -737,13 +741,13 @@ function TangentLine({
     const off = shift[mid] ?? 0;
     const midCount = Math.abs(size[mid]) + off;
     return size.map((_, i) => {
-      const x = (i - mid) * COL_SPACING;
+      const x = (i - mid) * COL_SPACING + (dualActive ? COL_SPACING / 4 : 0);
       const stoneOffset = (tangentSlope * increment) / unit * (i - mid);
       const count = midCount + stoneOffset;
       const y = PIECE_HEIGHT * count + 0.05;
       return [x, y + 0.04, PIECE_DEPTH / 2 + 0.02];
     });
-  }, [size, shift, increment, unit, tangentSlope, defined]);
+  }, [size, shift, increment, unit, tangentSlope, defined, dualActive]);
   if (points.length < 2) return null;
   return <Line points={points} color={TANGENT_COLOR} lineWidth={3} />;
 }
@@ -853,7 +857,7 @@ function DragHandles({
     <>
       {Array.from({ length: COLUMNS }).map((_, i) => {
         if (defined[i] === false) return null;
-        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING - (dual ? COL_SPACING / 4 : 0);
+        const x = (i - (COLUMNS - 1) / 2) * COL_SPACING + (dual ? COL_SPACING / 4 : 0);
         const oVal = size[i] ?? 0;
         const rVal = change[i] ?? 0;
         const oAbs = Math.abs(oVal);
@@ -1005,7 +1009,7 @@ function Scene({
         />
         {showLine && !anim && (
           <>
-            <ConnectingLine size={size} shift={shift} defined={defined} />
+            <ConnectingLine size={size} shift={shift} defined={defined} dualActive={dualActive} />
             <TangentLine
               size={size}
               shift={shift}
@@ -1013,6 +1017,7 @@ function Scene({
               unit={unit}
               tangentSlope={tangentSlope}
               defined={defined}
+              dualActive={dualActive}
             />
           </>
         )}
@@ -1221,7 +1226,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           counts.push(0);
           continue;
         }
-        const d = h2.infinitesimal ? companionW[i] : yRawCompanion[i] - yRaw[i];
+        const d = h2.infinitesimal ? -companionW[i] : yRaw[i] - yRawCompanion[i];
         newYRaw.push(d / incValue);
         newDefined.push(true);
         counts.push(change[i]);
@@ -1578,7 +1583,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           def.push(ok);
         }
       }
-      // Dual increments: each column gets a companion at x + h2.
+      // Dual increments: each column gets a companion at x - h2.
       const inc2 = useDual ? parseIncrement(inputs.increment2) : null;
       const dual = !!inc2 && !isW;
       const isW2 = !!inc2?.infinitesimal;
@@ -1594,7 +1599,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           }
           if (isW2) {
             try {
-              const r = evalDual(cleaned, { a: xs[i], b: h2 });
+              const r = evalDual(cleaned, { a: xs[i], b: -h2 });
               ycs.push(r.a);
               ycB.push(r.b);
             } catch {
@@ -1605,7 +1610,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           } else {
             let y2: unknown;
             try {
-              y2 = evaluate(cleaned, { x: xs[i] + h2 });
+              y2 = evaluate(cleaned, { x: xs[i] - h2 });
             } catch {
               y2 = null;
             }
@@ -1620,7 +1625,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       // In dual mode the orange stones instead measure the pair difference.
       const dyVals: (number | null)[] = lb
         ? dual
-          ? xs.map((_, i) => (!def[i] ? null : isW2 ? ycB[i] : ycs[i] - ys[i]))
+          ? xs.map((_, i) => (!def[i] ? null : isW2 ? -ycB[i] : ys[i] - ycs[i]))
           : xs.map((xv, i) => {
               if (!def[i]) return null;
               const d = derivAt(cleaned, isW ? m : xv);
@@ -1727,12 +1732,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const calcDiff = () => {
     if (dualActive && h2) {
-      // Measure only the gap inside each pair: companion minus main.
+      // Measure only the gap inside each pair: main minus companion.
       const r = yRaw.map((y, i) => {
         if (!defined[i]) return 0;
         // With an infinitesimal second increment the pair difference is
-        // companionW[i]·w; one orange stone is then worth unit·w.
-        const d = h2.infinitesimal ? companionW[i] : yRawCompanion[i] - y;
+        // -companionW[i]·w; one orange stone is then worth unit·w.
+        const d = h2.infinitesimal ? -companionW[i] : y - yRawCompanion[i];
         const raw = unit === 0 ? 0 : d / unit;
         const v = fractional ? raw : Math.round(raw);
         return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
@@ -1803,9 +1808,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     } else if (change.some((v) => v !== 0)) {
       const newChange = yRaw.map((y, i) => {
         if (dualActive && h2) {
-          // Pair difference: companion minus main.
+          // Pair difference: main minus companion.
           if (!defined[i]) return 0;
-          const d = h2.infinitesimal ? companionW[i] : yRawCompanion[i] - y;
+          const d = h2.infinitesimal ? -companionW[i] : y - yRawCompanion[i];
           const raw = d / unit;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
@@ -2106,7 +2111,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <div className="text-center">x</div>
               {showYColumn && <div className="text-center" style={{ color: palette.size }}>{yHeader}</div>}
               {showYColumn && dualActive && (
-                <div className="text-center" style={{ color: palette.size }}>f(x+h₂)</div>
+                <div className="text-center" style={{ color: palette.size }}>f(x-h₂)</div>
               )}
               <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
               {showChangeColumns && (
@@ -2313,7 +2318,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the size stacks and adds a straight line tangent to that curve at the midpoint column.
               </p>
               <p>
-                Checking <strong>"Dual increments"</strong> gives every column a narrower companion stack on its right, evaluated at <span className="font-mono text-foreground">x</span> plus the second increment. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — companion minus main — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative. Dual increments need fractional stones to keep small pair differences visible, so <strong>"Fractional stones"</strong> turns on automatically and stays on while the box is checked.
+                Checking <strong>"Dual increments"</strong> gives every column a narrower companion stack on its left, evaluated at <span className="font-mono text-foreground">x</span> minus the second increment. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — main minus companion — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative. Dual increments need fractional stones to keep small pair differences visible, so <strong>"Fractional stones"</strong> turns on automatically and stays on while the box is checked.
               </p>
               <p>
                 You can also drag the size or change-size portion of any column. The two colors move independently, but if one stack is pushed into the other, both stacks move together.
@@ -2408,7 +2413,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                       setIncrement2("0.001");
                     }
                   }}
-                  title="Second increment: each column's companion is evaluated at x plus this value."
+                  title="Second increment: each column's companion is evaluated at x minus this value."
                   className="w-14 rounded-md bg-background/50 px-2 py-1 text-center font-mono text-base text-foreground outline-none"
                 />
               )}
@@ -2517,7 +2522,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               title={
                 level > 0 || anim
                   ? "Dual increments are fixed once stones have been removed."
-                  : "Give every column a companion stack at x plus the second increment."
+                  : "Give every column a companion stack at x minus the second increment."
               }
             >
               <input
