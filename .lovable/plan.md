@@ -7,9 +7,9 @@ With `y = x^2`, midpoint 5, increment 0.5, max stones 100, second increment `w`:
 - `f(x+h₂)` at x=5 shows `25 + 10w` — correct, since the exact pair difference is `10w`.
 - The change-size stack shows `20` stones — also correct, but only because one change-size stone is not worth `w` here.
 
-The board scales everything by one stone value. Over this range the y values run from 6.25 to 56.25, so with 100 stones the app sets **one stone = 0.5**. The change-size stones are drawn on that same scale, so each one is worth `0.5w`, and `20 × 0.5w = 10w`. The count is right; the slope estimate (`10`) is right.
+Two different quantities are in play. The step taken inside each column is indeed `1w` — that is the second increment, and it is what the slope divides by. Separately, the board picks a single stone value for drawing: over this range the y values run from 6.25 to 56.25, so with 100 stones the app sets **one stone = 0.5**. The change-size stones are drawn on that same scale, so each one is worth `0.5w`, and `20 × 0.5w = 10w` — the exact difference. The count is right; the slope estimate (`10`) is right.
 
-The wrong number is the label at the top of the left panel. It reads **"One change-size stone = w"**, when it should read **0.5w**. In your earlier example the increment was 1 and the stone value happened to be exactly 1, so the label looked correct by coincidence.
+The wrong number is the label at the top of the left panel. It reads **"One change-size stone = w"** — it reports the second increment instead of what one stone is worth. It should read **0.5w**. In your earlier example the increment was 1 and the stone value happened to be exactly 1, so the label looked correct by coincidence.
 
 ## The change
 
