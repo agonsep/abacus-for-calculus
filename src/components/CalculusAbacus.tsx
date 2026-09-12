@@ -773,6 +773,7 @@ function DragHandles({
   defined,
   leibniz = false,
   dual = false,
+  companion = null,
 }: {
   size: number[];
   change: number[];
