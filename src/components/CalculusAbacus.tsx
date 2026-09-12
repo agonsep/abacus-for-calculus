@@ -2006,18 +2006,25 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             <p className="px-2 text-sm text-muted-foreground">
               {appliedDual ? (
                 <>
-                  One size stone ={" "}
-                  <span className="rounded px-1 font-mono text-foreground">
-                    {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
+                  <span className="block">
+                    One size stone ={" "}
+                    <span className="rounded px-1 font-mono text-foreground">
+                      {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
+                    </span>
+                    .{" "}
+                    {(floorValue !== 0 || (wValues && wBase !== 0)) && (
+                      <>Size-Stone Floor: <span className="font-mono text-foreground">{wValues ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
+                    )}
                   </span>
-                  .{" "}
-                  One change-size stone ={" "}
-                  <span className="rounded px-1 font-mono text-foreground">
-                    {h2?.infinitesimal || wValues
-                      ? formatDual(0, unit, fmtVal)
-                      : fmtVal(unit)}
+                  <span className="block">
+                    One change-size stone ={" "}
+                    <span className="rounded px-1 font-mono text-foreground">
+                      {h2?.infinitesimal || wValues
+                        ? formatDual(0, unit, fmtVal)
+                        : fmtVal(unit)}
+                    </span>
+                    .
                   </span>
-                  .
                 </>
               ) : (
                 <>
@@ -2025,11 +2032,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   <span className="rounded px-1 font-mono text-foreground">
                     {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
                   </span>
-                  .
+                  .{" "}
+                  {(floorValue !== 0 || (wValues && wBase !== 0)) && (
+                    <>Size-Stone Floor: <span className="font-mono text-foreground">{wValues ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
+                  )}
                 </>
-              )}
-              {(floorValue !== 0 || (wValues && wBase !== 0)) && (
-                <> &nbsp;Size-Stone Floor: <span className="font-mono text-foreground">{wValues ? formatDual(wBase, floorValue, fmtVal) : fmtVal(floorValue)}</span></>
               )}
             </p>
             {leibniz ? (
