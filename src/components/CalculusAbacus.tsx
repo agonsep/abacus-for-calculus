@@ -578,18 +578,27 @@ function Stacks({
         const useChangeGradient = !asSize && !rNeg;
         const rFull = Math.floor(rAbs);
         const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? 1 : 0);
+        // In dual mode the change stones sit on the companion (left) stack,
+        // filling the gap between f(x-h2) and f(x).
+        let compTopSlot = sizeTopSlot;
+        if (dual && companion) {
+          const cAbs2 = Math.abs(companion[i] ?? 0);
+          compTopSlot =
+            Math.floor(cAbs2) + (cAbs2 - Math.floor(cAbs2) >= MIN_PARTIAL ? 1 : 0);
+        }
         const changeBase = leibniz
           ? LEIBNIZ_SHELF_SLOT
           : anim
             ? anim.changeBase[i]
-            : sizeTopSlot + gap;
+            : (dual ? compTopSlot : sizeTopSlot) + gap;
         const changeFrom = anim && !leibniz ? anim.changeFrom[i] : changeBase;
         const changeOff = leibniz ? 0 : off;
+        const changeX = dual ? cx - COL_SPACING / 4 : x;
         for (let k = 0; k < rFull; k++) {
           pieces.push(
             <Piece
               key={`r-${runId}-${i}-${k}-${changeBase}`}
-              x={x}
+              x={changeX}
               fromY={anim && !leibniz ? slotY(changeFrom + k) : skyY + 2}
               targetY={slotY(changeBase + k + changeOff)}
               delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
@@ -608,7 +617,7 @@ function Stacks({
           pieces.push(
             <Piece
               key={`r-${runId}-${i}-partial-${changeBase}`}
-              x={x}
+              x={changeX}
               fromY={anim && !leibniz ? slotY(changeFrom + rFull) : skyY + 2}
               targetY={partialY(changeBase + rFull + changeOff, rFrac)}
               delay={anim ? 0 : i * 0.04 + (changeBase + rFull) * 0.02}
