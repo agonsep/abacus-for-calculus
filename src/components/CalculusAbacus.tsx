@@ -1327,7 +1327,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const base = size.map((v) => {
       const a = Math.abs(v);
       const f = Math.floor(a);
-      return f + (a - f >= MIN_PARTIAL ? 1 : 0);
+      const frac = a - f;
+      return f + (frac >= MIN_PARTIAL ? frac : 0);
     });
     const state: AnimState = {
       size: size.slice(),
