@@ -577,14 +577,17 @@ function Stacks({
             : palette.change;
         const useChangeGradient = !asSize && !rNeg;
         const rFull = Math.floor(rAbs);
-        const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? 1 : 0);
+        // The change stack sits on the actual visual top of the size stack,
+        // including any partial stone, so it does not float above it.
+        const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? yFrac : 0);
         // In dual mode the change stones sit on the companion (left) stack,
         // filling the gap between f(x-h2) and f(x).
         let compTopSlot = sizeTopSlot;
         if (dual && companion) {
           const cAbs2 = Math.abs(companion[i] ?? 0);
-          compTopSlot =
-            Math.floor(cAbs2) + (cAbs2 - Math.floor(cAbs2) >= MIN_PARTIAL ? 1 : 0);
+          const cFull2 = Math.floor(cAbs2);
+          const cFrac2 = cAbs2 - cFull2;
+          compTopSlot = cFull2 + (cFrac2 >= MIN_PARTIAL ? cFrac2 : 0);
         }
         const changeBase = leibniz
           ? LEIBNIZ_SHELF_SLOT
