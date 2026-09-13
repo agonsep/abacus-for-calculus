@@ -577,14 +577,17 @@ function Stacks({
             : palette.change;
         const useChangeGradient = !asSize && !rNeg;
         const rFull = Math.floor(rAbs);
-        const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? 1 : 0);
+        // The change stack sits on the actual visual top of the size stack,
+        // including any partial stone, so it does not float above it.
+        const sizeTopSlot = yFull + (yFrac >= MIN_PARTIAL ? yFrac : 0);
         // In dual mode the change stones sit on the companion (left) stack,
         // filling the gap between f(x-h2) and f(x).
         let compTopSlot = sizeTopSlot;
         if (dual && companion) {
           const cAbs2 = Math.abs(companion[i] ?? 0);
-          compTopSlot =
-            Math.floor(cAbs2) + (cAbs2 - Math.floor(cAbs2) >= MIN_PARTIAL ? 1 : 0);
+          const cFull2 = Math.floor(cAbs2);
+          const cFrac2 = cAbs2 - cFull2;
+          compTopSlot = cFull2 + (cFrac2 >= MIN_PARTIAL ? cFrac2 : 0);
         }
         const changeBase = leibniz
           ? LEIBNIZ_SHELF_SLOT
@@ -875,7 +878,7 @@ function DragHandles({
         const rAbs = Math.abs(rVal);
         const oCount = oAbs;
         const rCount = rAbs;
-        const oTopSlot = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) >= MIN_PARTIAL ? 1 : 0);
+        const oTopSlot = oAbs;
         const off = shift[i] ?? 0;
         const gap = changeGap[i] ?? 0;
 
@@ -901,11 +904,12 @@ function DragHandles({
         let rBaseTopY = oCount > 0 ? sizeTopY : minY;
         if (dual && companion) {
           const cAbs = Math.abs(companion[i] ?? 0);
-          const cTopSlot =
-            Math.floor(cAbs) + (cAbs - Math.floor(cAbs) >= MIN_PARTIAL ? 1 : 0);
+          const cFull = Math.floor(cAbs);
+          const cFrac = cAbs - cFull;
+          const cTopSlot = cFull + (cFrac >= MIN_PARTIAL ? cFrac : 0);
           rBaseX = x - COL_SPACING / 2;
           rBaseTopSlot = cTopSlot;
-          rBaseTopY = cAbs > 0 ? slotY(cAbs) - PIECE_HEIGHT / 2 : minY;
+          rBaseTopY = cAbs > 0 ? slotY(cTopSlot) - PIECE_HEIGHT / 2 : minY;
         }
         const rBottom = rBaseTopY;
         const changeTopY = slotY(rBaseTopSlot + gap + rCount + off) - PIECE_HEIGHT / 2;
@@ -1323,7 +1327,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const base = size.map((v) => {
       const a = Math.abs(v);
       const f = Math.floor(a);
-      return f + (a - f >= MIN_PARTIAL ? 1 : 0);
+      const frac = a - f;
+      return f + (frac >= MIN_PARTIAL ? frac : 0);
     });
     const state: AnimState = {
       size: size.slice(),
