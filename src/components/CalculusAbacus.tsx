@@ -904,11 +904,12 @@ function DragHandles({
         let rBaseTopY = oCount > 0 ? sizeTopY : minY;
         if (dual && companion) {
           const cAbs = Math.abs(companion[i] ?? 0);
-          const cTopSlot =
-            Math.floor(cAbs) + (cAbs - Math.floor(cAbs) >= MIN_PARTIAL ? 1 : 0);
+          const cFull = Math.floor(cAbs);
+          const cFrac = cAbs - cFull;
+          const cTopSlot = cFull + (cFrac >= MIN_PARTIAL ? cFrac : 0);
           rBaseX = x - COL_SPACING / 2;
           rBaseTopSlot = cTopSlot;
-          rBaseTopY = cAbs > 0 ? slotY(cAbs) - PIECE_HEIGHT / 2 : minY;
+          rBaseTopY = cAbs > 0 ? slotY(cTopSlot) - PIECE_HEIGHT / 2 : minY;
         }
         const rBottom = rBaseTopY;
         const changeTopY = slotY(rBaseTopSlot + gap + rCount + off) - PIECE_HEIGHT / 2;
