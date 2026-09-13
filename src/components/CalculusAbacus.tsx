@@ -878,7 +878,7 @@ function DragHandles({
         const rAbs = Math.abs(rVal);
         const oCount = oAbs;
         const rCount = rAbs;
-        const oTopSlot = Math.floor(oAbs) + (oAbs - Math.floor(oAbs) >= MIN_PARTIAL ? 1 : 0);
+        const oTopSlot = oAbs;
         const off = shift[i] ?? 0;
         const gap = changeGap[i] ?? 0;
 
