@@ -8,8 +8,6 @@ order: 1
 acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
-*Exercise for "The Abacus Meets the Textbook"*
-
 ## Short Introduction
 
 This activity asks students to investigate a familiar question in a way that makes the central idea of calculus visible. A ball is falling from a tower, and students want to know how fast it is moving when it reaches the ground. They cannot measure the distance traveled during an instant, because an instant has no duration. Instead, they begin with average speed over a measurable interval and then make the interval smaller and smaller.
