@@ -8,8 +8,6 @@ order: 3
 acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
-*A discovery hunt in which the class corners a famous number without being told it exists.*
-
 ## Learning Objective
 
 Students will discover, by measurement and bisection, that there is a base between 2 and 3 whose curve has a slope at x = 0 that can be made arbitrarily close to 1. They will meet that number as something they found rather than something they were told.
