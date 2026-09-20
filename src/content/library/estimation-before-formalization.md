@@ -7,7 +7,6 @@ order: 4
 acknowledgement: "Written for the Calculus Abacus Project by Hamza Amin, with AI assistance, 2026."
 ---
 
-*A Tool for Seeing Mathematical Action*
 
 The Calculus Abacus is a physical and web-based educational tool for constructing ideas that conventional notation often compresses. It makes mathematical actions visible: calculating finite differences, investigating rates of change, estimating areas under curves, refining provisional values, and observing whether an estimate stabilizes. In addition to supporting concepts fundamental to calculus, the abacus can serve as a springboard for discussing the subject's early history.
 
