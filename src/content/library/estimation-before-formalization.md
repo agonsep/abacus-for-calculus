@@ -23,13 +23,13 @@ Teachers may use the historical material in either of two ways. They may explain
 
 ## Estimation as Systematic Determination
 
-Estimation here means more than a rough guess. It is the systematic determination of a value that is not initially available in finished form. A student may construct a slope estimate from neighboring values, an area estimate from finite columns, or a root estimate from a tangent-style correction. Each result can then be checked by examining how it was produced, how it changes with a smaller interval, and whether successive values settle. This use of *determination* is also consistent with a narrow point in early modern discussions of measuring and assessing magnitudes.<sup>1</sup>
+Estimation here means more than a rough guess. It is the systematic determination of a value that is not initially available in finished form. A student may construct a slope estimate from neighboring values, an area estimate from finite columns, or a root estimate from a tangent-style correction. Each result can then be checked by examining how it was produced, how it changes with a smaller interval, and whether successive values settle. This use of *determination* is also consistent with a narrow point in early modern discussions of measuring and assessing magnitudes.¹
 
 Representation is a separate matter. A displayed stack is a scaled value, not an unmodified function value. The web application sets a *floor* at the minimum displayed value and assigns each size stone a stated value. The increment fixes the horizontal spacing. Consequently, a height must be interpreted through the floor and stone value, and a finite difference must be divided by the increment before it becomes a difference quotient. A change-curve is not a derivative curve unless the rate conversion and an appropriate refinement have been explained. Detailed setup belongs in the companion article, *How the Abacus Works: Setup and Mechanics*; the historical discussion needs only this caution.
 
 ## Wallis: Patterns, Finite Sums, and Area
 
-17th century mathematicians were interested in quadrature—the problem of finding the area enclosed by a curve within specified boundaries. In *Arithmetica Infinitorum* (1656), John Wallis pursued quadrature through arithmetic patterns, interpolation, and infinite processes.<sup>2</sup> For a modern classroom comparison, consider y = x². What is the area under the curve when 0 ≤ x ≤ 1? One can divide the area into any number of equal parts and estimate the area by adding up the area of each part. The parts are rectangles, so their area is the height times the width. Let Rₙ equal the area when divided into n parts. If we divide the area into four parts we have:
+17th century mathematicians were interested in quadrature—the problem of finding the area enclosed by a curve within specified boundaries. In *Arithmetica Infinitorum* (1656), John Wallis pursued quadrature through arithmetic patterns, interpolation, and infinite processes.² For a modern classroom comparison, consider y = x². What is the area under the curve when 0 ≤ x ≤ 1? One can divide the area into any number of equal parts and estimate the area by adding up the area of each part. The parts are rectangles, so their area is the height times the width. Let Rₙ equal the area when divided into n parts. If we divide the area into four parts we have:
 
 *R₄ = (1/4) [ (1/4)² + (2/4)² + (3/4)² + 1² ] = 0.46875.*
 
@@ -70,9 +70,9 @@ The Abacus activity here is closely related to the activity used below to discus
 
 ## Leibniz: Differences and Tangent Reasoning
 
-Leibniz's *Nova Methodus* publicly presented a calculus of differences in 1684. Leibniz began with an arbitrarily chosen dx, related named changes to it, gave rules for sums, products, quotients, powers, and roots, and connected relations among differences with tangents, maxima, and minima. The Abacus does not perform a separate "Fermat calculation" and "Leibniz calculation"; the classroom action overlaps. Leibniz supplies the inspiration for this investigation because his calculus placed differences and their relations at the center of a systematic treatment of tangents, maxima, and minima. The product rule and the other rules may be discussed as history here, but they belong to later formal calculation rather than the initial abacus activity.<sup>3</sup>
+Leibniz's *Nova Methodus* publicly presented a calculus of differences in 1684. Leibniz began with an arbitrarily chosen dx, related named changes to it, gave rules for sums, products, quotients, powers, and roots, and connected relations among differences with tangents, maxima, and minima. The Abacus does not perform a separate "Fermat calculation" and "Leibniz calculation"; the classroom action overlaps. Leibniz supplies the inspiration for this investigation because his calculus placed differences and their relations at the center of a systematic treatment of tangents, maxima, and minima. The product rule and the other rules may be discussed as history here, but they belong to later formal calculation rather than the initial abacus activity.³
 
-Leibniz's differences could be treated as finite or, in tangent reasoning, as infinitely small. His writings do not amount to modern epsilon-delta analysis, and his calculus should not be identified without qualification with twentieth-century nonstandard analysis. The relation between secants and tangents, the treatment of higher-order terms, and claims about controllable error all have long and disputed histories.<sup>4</sup>
+Leibniz's differences could be treated as finite or, in tangent reasoning, as infinitely small. His writings do not amount to modern epsilon-delta analysis, and his calculus should not be identified without qualification with twentieth-century nonstandard analysis. The relation between secants and tangents, the treatment of higher-order terms, and claims about controllable error all have long and disputed histories.⁴
 
 For Leibniz, the useful extension is not a second numerical example but a change in emphasis. The same neighboring values can be read as changes in x and y, and their relationship can be expressed by dividing one change by the other. The Abacus makes that relationship visible through its size-curve and change-curve: one records scaled values, while the other records finite differences. When the increment changes, the visible change-size generally changes as well, even when the local rate remains near the same number after division. This gives students a concrete route into Leibniz's concern with relations among differences without presenting the Abacus as a reconstruction of his calculus.
 
@@ -80,7 +80,7 @@ For Leibniz, the useful extension is not a second numerical example but a change
 
 ## Newton: Correcting a Provisional Root
 
-Newton's work on numerical equations adds another kind of systematic determination: use local linear information to correct an estimated root. His 1669 *De Analysi* includes a procedure for solving numerical equations. The so-called Newton-Raphson recurrence is a later compact form of a method developed by Newton, Raphson, and others.<sup>5</sup>
+Newton's work on numerical equations adds another kind of systematic determination: use local linear information to correct an estimated root. His 1669 *De Analysi* includes a procedure for solving numerical equations. The so-called Newton-Raphson recurrence is a later compact form of a method developed by Newton, Raphson, and others.⁵
 
 The immediate aim is to locate more precisely where the positive square root of 2 lies between 1 and 2. Solving x² − 2 = 0 locates that number because its positive solution is √2. Let f(x) = x² − 2.
 
@@ -127,15 +127,15 @@ In the classroom, these connections form a practical sequence: calculate finite 
 
 ## Notes
 
-<sup>1</sup> Jeffrey Elawani, *Leibniz's Science of Estimation: A Measure for the Synthesis of Universal Mathematics, Dynamics, and Metaphysics*, unpublished doctoral thesis draft used with permission (2026), Abstract. The source is cited only for this historical meaning of estimation.
+¹ Jeffrey Elawani, *Leibniz's Science of Estimation: A Measure for the Synthesis of Universal Mathematics, Dynamics, and Metaphysics*, unpublished doctoral thesis draft used with permission (2026), Abstract. The source is cited only for this historical meaning of estimation.
 
-<sup>2</sup> John Wallis, *Arithmetica Infinitorum* (Oxford, 1656), https://doi.org/10.3931/e-rara-38681.
+² John Wallis, *Arithmetica Infinitorum* (Oxford, 1656), https://doi.org/10.3931/e-rara-38681.
 
-<sup>3</sup> Gottfried Wilhelm Leibniz, "A New Method for Maxima and Minima," translated by Dirk J. Struik, in *A Source Book in Mathematics, 1200–1800* (1986), pp. 271–281.
+³ Gottfried Wilhelm Leibniz, "A New Method for Maxima and Minima," translated by Dirk J. Struik, in *A Source Book in Mathematics, 1200–1800* (1986), pp. 271–281.
 
-<sup>4</sup> Arthur and Rabouin distinguish finite and infinitely small readings of the historical terminology. Section 5.2 (pp. 111–118) examines quantity and magnitude; Section 6.3 (pp. 149–152) examines justification of the algorithm. Their translated extract of the 1684 paper appears on pp. 201–204. See https://doi.org/10.1007/978-3-031-77259-7.
+⁴ Arthur and Rabouin distinguish finite and infinitely small readings of the historical terminology. Section 5.2 (pp. 111–118) examines quantity and magnitude; Section 6.3 (pp. 149–152) examines justification of the algorithm. Their translated extract of the 1684 paper appears on pp. 201–204. See https://doi.org/10.1007/978-3-031-77259-7.
 
-<sup>5</sup> The Newton Project record NATP00204 dates the manuscript 31 July 1669 and identifies its numerical resolution of affected equations. Ypma traces the later method in *SIAM Review*, 37(4), pp. 531–551, https://doi.org/10.1137/1037125.
+⁵ The Newton Project record NATP00204 dates the manuscript 31 July 1669 and identifies its numerical resolution of affected equations. Ypma traces the later method in *SIAM Review*, 37(4), pp. 531–551, https://doi.org/10.1137/1037125.
 
 ## References
 
