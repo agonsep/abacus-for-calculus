@@ -1,7 +1,7 @@
 ---
 title: "Estimation Before Formalization: The Calculus Abacus and the Origins of Calculus"
 slug: estimation-before-formalization
-summary: "A tool for seeing mathematical action: how the abacus's finite estimates connect with Wallis, Fermat, Leibniz, and Newton—without rewriting their history."
+summary: "A tool for seeing mathematical action: how the abacus's finite estimates connect with Wallis, Fermat, Leibniz, and Newton."
 section: article
 order: 4
 acknowledgement: "Written for the Calculus Abacus Project by Hamza Amin, with AI assistance, 2026."
