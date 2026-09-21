@@ -74,7 +74,7 @@ Look at the columns immediately to the left and right of the missing point.
 
 What values do you see?
 
-On the left side, the values are:
+On the left side, the values (represented by black stones) are:
 
 −1, −1, −1, ...
 
