@@ -402,6 +402,29 @@ function computeCounts(
   return { u, floor: 0, counts };
 }
 
+/**
+ * Strip a leading `y =` and rewrite vertical-bar absolute values into `abs(...)`.
+ * Bars alternate open/close; an odd count is left untouched so the usual
+ * "check your formula" error path fires.
+ */
+function normalizeFormula(raw: string): string {
+  const s = raw.replace(/^\s*y\s*=\s*/i, "");
+  const bars = (s.match(/\|/g) ?? []).length;
+  if (bars === 0) return s;
+  if (bars % 2 !== 0) return s;
+  let out = "";
+  let open = false;
+  for (const ch of s) {
+    if (ch === "|") {
+      out += open ? ")" : "abs(";
+      open = !open;
+    } else {
+      out += ch;
+    }
+  }
+  return out;
+}
+
 /** Exact derivative when the dual evaluator supports the formula, else numeric. */
 function derivAt(cleaned: string, x: number): number | null {
   try {
