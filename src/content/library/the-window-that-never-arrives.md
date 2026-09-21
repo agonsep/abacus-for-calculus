@@ -8,6 +8,8 @@ order: 2
 acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
+An investigation of limits in which the Abacus shows what happens near a point even when the curve is undefined there.
+
 ## Learning Objective
 
 Students will experience a limit as a controlled approach to a point the curve never reaches: first seeing an undefined point, then moving the window away from the point and approaching it from one side, and finally seeing why a two-sided limit requires the values on both sides to approach the same number.
@@ -18,9 +20,9 @@ This activity turns an undefined point into the day's central insight. Students 
 
 The first board is deliberately simple. With y = sin(x)/x, midpoint 0, and increment 0.5, the eleven columns include x = 0, making the undefined point visible. The second board moves the midpoint to 0.06 and reduces the increment to 0.01. The eleven columns now run from 0.01 to 0.11, allowing students to approach zero from the right without landing on it.
 
-The second example, y = (x − 1)/(x² − 1), introduces the importance of approaching from both sides. With midpoint 1.005 and increment 0.01, the board straddles x = 1 without placing a column there. Students can compare the values on the two sides and see that both approach 1/2.
+The third board provides a contrast. With y = |x|/x, midpoint 0.05, and increment 0.10, the eleven columns straddle x = 0 without placing a column there. On the left side, the values are −1; on the right side, they are 1. Students see that approaching from the two sides does not always lead to the same destination. This gives them a concrete reason why a two-sided limit requires agreement between the two one-sided approaches.
 
-The values on these boards are extraordinarily close together, so high-precision display makes the small differences visible. Radians throughout. One class period.
+The values on the first two boards are extraordinarily close together, so high-precision display makes the small differences visible. Board 3 is deliberately different: its two sides have dramatically different values. Radians throughout. One class period.
 
 ## Student Activity
 
@@ -30,7 +32,7 @@ The values on these boards are extraordinarily close together, so high-precision
 
 **Board 2:** y = sin(x)/x, midpoint 0.06, increment 0.01, 50 stones, no fractional stones.
 
-**Board 3:** y = (x − 1)/(x² − 1), midpoint 1.005, increment 0.01, 50 stones, no fractional stones.
+**Board 3:** y = |x|/x, midpoint 0.05, increment 0.10, 50 stones, no fractional stones.
 
 ### SEE THE UNDEFINED POINT
 
@@ -46,13 +48,13 @@ Why is the value of y = sin(x)/x undefined when x = 0?
 
 Build **Board 2** by changing the midpoint to **0.06** and the increment to **0.01**.
 
-The eleven columns now run from x = 0.011 to x = 0.11.
+The eleven columns now run from x = 0.01 to x = 0.11.
 
 Read the y values from right to left, toward zero.
 
 Record the values at:
 
-- x = 0.1: ____________
+- x = 0.10: ____________
 - x = 0.06: ____________
 - x = 0.01: ____________
 
@@ -62,13 +64,31 @@ Complete the sentence:
 
 > As x approaches 0 from the right, the values of sin(x)/x approach ____________.
 
-### STRADDLE THE HOLE
+## APPROACH FROM BOTH SIDES
 
-Now build **Board 3**. Read the column labels: 0.955, 0.965, and onward to 1.055. Which key value of x is missing?
+Now build **Board 3**.
 
-Look at the values on the two sides of the missing point. The value just to the left is 0.50125; the value just to the right is 0.49875. What number are **both sides** approaching?
+The eleven columns run from x = −0.45 to x = 0.55, but there is no column at x = 0.
 
-Unlike the curve y = sin(x)/x, this curve is not symmetric about the y axis, yet the values still approach the same number from both sides, one from above and the other from below.
+Look at the columns immediately to the left and right of the missing point.
+
+What values do you see?
+
+On the left side, the values are:
+
+−1, −1, −1, ...
+
+On the right side, the values are:
+
+1, 1, 1, ...
+
+What happens as x approaches 0 from the left?
+
+What happens as x approaches 0 from the right?
+
+Do the two sides approach the same number?
+
+What does this tell you about the two-sided limit?
 
 ## READ THE ANCHORS
 
@@ -80,7 +100,13 @@ Write one sentence about what the floor and the size-stone were doing on these o
 
 For each curve, complete the sentence:
 
-> As x approaches __________, the values approach __________, although the curve itself is __________ there.
+> As x approaches ____________, the values approach ____________, although the curve itself is ____________ there.
+
+For **Board 3**, complete the sentence again, but this time separately for the left and right sides.
+
+> As x approaches 0 from the left, the values approach ____________.
+
+> As x approaches 0 from the right, the values approach ____________.
 
 That sentence expresses the idea of a limit. The notation can wait for the course.
 
@@ -90,20 +116,22 @@ That sentence expresses the idea of a limit. The notation can wait for the cours
 
 2. Why was it useful to move the window away from x = 0 rather than trying to make the increment zero?
 
-3. Board 3 has a missing value at x = 1, yet the values on both sides approach 1/2. What does this tell you about the relationship between a limit and the value of a curve at a point?
+3. For y = sin(x)/x, what happens when you approach x = 0 from the right? What would you expect if you approached from the left?
 
-4. Why does the second example give you more information by looking at **both sides** of the missing point?
+4. On Board 3, what happens when you approach x = 0 from the left? What happens when you approach from the right?
 
-5. Suppose the values on the two sides of the hole approached different numbers. What would that tell you about the two-sided limit?
+5. Why does Board 3 show that looking at only one side is not enough to establish a two-sided limit?
 
-6. If the increment were made a thousand times smaller, would you learn something fundamentally new, or would you mainly see more digits of the same pattern?
+6. Suppose the values on the two sides of a point approached different numbers. What would that tell you about the two-sided limit?
+
+7. If the increment were made a thousand times smaller, would you learn something fundamentally new, or would you mainly see more digits of the same pattern?
 
 ## Expected Student Discoveries
 
 - A limit describes what values approach near a point; the value at the point itself may be undefined.
 - For y = sin(x)/x, students can see the values approaching 1 from the right without ever having a defined column at x = 0.
-- Board 3 shows why approaching from both sides matters: the values on the two sides approach the same number, 1/2.
-- Students may also notice that extremely small changes in height require the high-precision display to make the pattern visible.
+- Board 3 shows why approaching from both sides matters. The values approach −1 from the left and 1 from the right. Because the two sides do not approach the same number, there is no single two-sided limit at x = 0.
+- Students may also notice that extremely small changes in height require the high-precision display to make the pattern visible on the first two boards.
 
 ## Common Misconceptions
 
@@ -115,14 +143,18 @@ That sentence expresses the idea of a limit. The notation can wait for the cours
 
 **Assuming that a curve is defined at a point simply because the surrounding picture looks continuous.**
 
+**Believing that if the left-hand and right-hand approaches produce different numbers, one of those numbers must be the limit.**
+
 **Believing that the increment must actually become zero in order to determine a limit.**
 
 ## Teacher Notes
 
-**The opening board is intentional.** Students first see the undefined point rather than being asked to avoid it.
+**The opening board is intentional:** students first see the undefined point rather than being asked to avoid it.
 
 **The key move for y = sin(x)/x** is changing the midpoint from **0** to **0.06** and the increment from **0.5** to **0.01**. This turns the question from "What happens at zero?" into "What happens as we get closer to zero?"
 
-There is no need to have students construct a separate mirrored board for sin(x)/x. The right-hand approach establishes the central idea efficiently. The two-sided issue can then be introduced with Board 3, where students compare the values on the two sides of the hole.
+There is no need to have students construct a separate mirrored board for sin(x)/x. The right-hand approach establishes the central idea efficiently.
+
+**Board 3 then introduces an important contrast.** With y = |x|/x, the board can straddle x = 0 without placing a column there. Students can immediately see that the values on the two sides are different: −1 on the left and 1 on the right. This gives a concrete reason for requiring agreement from both sides when determining a two-sided limit.
 
 The sentence frame in **NAME THE TARGET** gives students a way to express the concept before introducing formal limit notation.
