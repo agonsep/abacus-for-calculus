@@ -1574,7 +1574,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const useDual = opts?.dual ?? dualMode;
     const ms = opts?.maxStones ?? inputs.maxStones;
     try {
-      const cleaned = inputs.formula.replace(/^\s*y\s*=\s*/i, "");
+      const cleaned = normalizeFormula(inputs.formula);
       const m = Number(inputs.midpoint);
       const inc = parseIncrement(inputs.increment);
       if (!isFinite(m) || !inc) throw new Error("bad m/h");
