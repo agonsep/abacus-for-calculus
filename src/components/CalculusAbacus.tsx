@@ -402,6 +402,29 @@ function computeCounts(
   return { u, floor: 0, counts };
 }
 
+/**
+ * Strip a leading `y =` and rewrite vertical-bar absolute values into `abs(...)`.
+ * Bars alternate open/close; an odd count is left untouched so the usual
+ * "check your formula" error path fires.
+ */
+function normalizeFormula(raw: string): string {
+  const s = raw.replace(/^\s*y\s*=\s*/i, "");
+  const bars = (s.match(/\|/g) ?? []).length;
+  if (bars === 0) return s;
+  if (bars % 2 !== 0) return s;
+  let out = "";
+  let open = false;
+  for (const ch of s) {
+    if (ch === "|") {
+      out += open ? ")" : "abs(";
+      open = !open;
+    } else {
+      out += ch;
+    }
+  }
+  return out;
+}
+
 /** Exact derivative when the dual evaluator supports the formula, else numeric. */
 function derivAt(cleaned: string, x: number): number | null {
   try {
@@ -1464,7 +1487,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const tangentSlope = useMemo(() => {
     try {
-      const cleaned = appliedInputs.formula.replace(/^\s*y\s*=\s*/i, "");
+      const cleaned = normalizeFormula(appliedInputs.formula);
       const m = Number(appliedInputs.midpoint);
       if (!isFinite(m)) return 0;
       try {
@@ -1551,7 +1574,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const useDual = opts?.dual ?? dualMode;
     const ms = opts?.maxStones ?? inputs.maxStones;
     try {
-      const cleaned = inputs.formula.replace(/^\s*y\s*=\s*/i, "");
+      const cleaned = normalizeFormula(inputs.formula);
       const m = Number(inputs.midpoint);
       const inc = parseIncrement(inputs.increment);
       if (!isFinite(m) || !inc) throw new Error("bad m/h");
