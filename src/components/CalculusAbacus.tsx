@@ -1487,7 +1487,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const tangentSlope = useMemo(() => {
     try {
-      const cleaned = appliedInputs.formula.replace(/^\s*y\s*=\s*/i, "");
+      const cleaned = normalizeFormula(appliedInputs.formula);
       const m = Number(appliedInputs.midpoint);
       if (!isFinite(m)) return 0;
       try {
