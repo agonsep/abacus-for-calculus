@@ -20,7 +20,7 @@ This activity turns an undefined point into the day's central insight. Students 
 
 The first board is deliberately simple. With y = sin(x)/x, midpoint 0, and increment 0.5, the eleven columns include x = 0, making the undefined point visible. The second board moves the midpoint to 0.06 and reduces the increment to 0.01. The eleven columns now run from 0.01 to 0.11, allowing students to approach zero from the right without landing on it.
 
-The third board provides a contrast. With y = |x|/x, midpoint 0.05, and increment 0.10, the eleven columns straddle x = 0 without placing a column there. On the left side, the values are −1; on the right side, they are 1. Students see that approaching from the two sides does not always lead to the same destination. This gives them a concrete reason why a two-sided limit requires agreement between the two one-sided approaches.
+The third board provides a contrast. With y = (x/|x|)(1 + x), midpoint 0.05, and increment 0.10, the eleven columns straddle x = 0 without placing a column of stones there. On the left side, the y-values change as x approaches 0 and approach −1; on the right side, they change as x approaches 0 and approach 1. Students see that approaching from the two sides does not always lead to the same destination. This gives them a concrete reason why a two-sided limit requires agreement between the two one-sided approaches.
 
 The values on the first two boards are extraordinarily close together, so high-precision display makes the small differences visible. Board 3 is deliberately different: its two sides have dramatically different values. Radians throughout. One class period.
 
@@ -32,7 +32,7 @@ The values on the first two boards are extraordinarily close together, so high-p
 
 **Board 2:** y = sin(x)/x, midpoint 0.06, increment 0.01, 50 stones, no fractional stones.
 
-**Board 3:** y = |x|/x, midpoint 0.05, increment 0.10, 50 stones, no fractional stones.
+**Board 3:** y = (x/|x|)(1 + x), midpoint 0.05, increment 0.10, 50 stones, no fractional stones.
 
 ### SEE THE UNDEFINED POINT
 
@@ -68,19 +68,17 @@ Complete the sentence:
 
 Now build **Board 3**.
 
-The eleven columns run from x = −0.45 to x = 0.55, but there is no column at x = 0.
+The eleven columns run from x = −0.45 to x = 0.55, but there is no column of stones at x = 0.
 
-Look at the columns immediately to the left and right of the missing point.
+What values do you see? Notice that the y-values are changing as x approaches 0.
 
-What values do you see?
+On the left side, the values (represented by black stones) increase toward −1 as x approaches 0. For example:
 
-On the left side, the values (represented by black stones) are:
+−0.55, −0.65, −0.75, −0.85, −0.95
 
-−1, −1, −1, ...
+On the right side, the values decrease toward 1 as x approaches 0. For example:
 
-On the right side, the values are:
-
-1, 1, 1, ...
+1.05, 1.15, 1.25, 1.35, 1.45
 
 What happens as x approaches 0 from the left?
 
@@ -130,7 +128,7 @@ That sentence expresses the idea of a limit. The notation can wait for the cours
 
 - A limit describes what values approach near a point; the value at the point itself may be undefined.
 - For y = sin(x)/x, students can see the values approaching 1 from the right without ever having a defined column at x = 0.
-- Board 3 shows why approaching from both sides matters. The values approach −1 from the left and 1 from the right. Because the two sides do not approach the same number, there is no single two-sided limit at x = 0.
+- Board 3 shows why approaching from both sides matters. The y-values change as x approaches 0: they approach −1 from the left and 1 from the right. Because the two sides do not approach the same number, there is no single two-sided limit at x = 0.
 - Students may also notice that extremely small changes in height require the high-precision display to make the pattern visible on the first two boards.
 
 ## Common Misconceptions
@@ -155,6 +153,6 @@ That sentence expresses the idea of a limit. The notation can wait for the cours
 
 There is no need to have students construct a separate mirrored board for sin(x)/x. The right-hand approach establishes the central idea efficiently.
 
-**Board 3 then introduces an important contrast.** With y = |x|/x, the board can straddle x = 0 without placing a column there. Students can immediately see that the values on the two sides are different: −1 on the left and 1 on the right. This gives a concrete reason for requiring agreement from both sides when determining a two-sided limit.
+**Board 3 then introduces an important contrast.** With y = (x/|x|)(1 + x), the board can straddle x = 0 without placing a column of stones there. Students can see the y-values changing as x approaches 0: the values approach −1 from the left and 1 from the right. This gives a concrete reason for requiring agreement from both sides when determining a two-sided limit.
 
 The sentence frame in **NAME THE TARGET** gives students a way to express the concept before introducing formal limit notation.
