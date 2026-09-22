@@ -8,7 +8,6 @@ order: 2
 acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI assistance, 2026."
 ---
 
-An investigation of limits in which the Abacus shows what happens near a point even when the curve is undefined there.
 
 ## Learning Objective
 
