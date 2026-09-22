@@ -49,7 +49,7 @@ Turn on fractional stones.
 
 Press **Fill Board**, then **Add Change-Size Stones**.
 
-The ball falls from a tower that is about 450 meters tall. The distance the ball falls is governed by an equation: y = 4.9 x^2, where y is the distance traveled in meters and x is the time elapsed in seconds. After 9.6 seconds the ball reaches the ground. You are going to investigate how fast the ball is moving when it hits the ground, that is, after 9.6 seconds.
+The ball falls from a tower that is about 450 meters tall. The distance the ball falls is governed by an equation: y = 4.9x², where y is the distance traveled in meters and x is the time elapsed in seconds. After 9.6 seconds the ball reaches the ground. You are going to investigate how fast the ball is moving when it hits the ground, that is, after 9.6 seconds.
 
 Record the following from the Abacus:
 
