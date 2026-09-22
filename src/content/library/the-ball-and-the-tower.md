@@ -10,7 +10,7 @@ acknowledgement: "Written for the Calculus Abacus Project by Shah Nawal, with AI
 
 ## Short Introduction
 
-This activity asks students to investigate a familiar question in a way that makes the central idea of calculus visible. A ball is falling from a tower, and students want to know how fast it is moving when it reaches the ground. They cannot measure the distance traveled during an instant, because an instant has no duration. Instead, they begin with average speed over a measurable interval and then make the interval smaller and smaller.
+This activity asks students to investigate a familiar question in a way that makes the central idea of calculus visible. A ball is falling from a tower that is about 450 meters tall. A ball falls about 4.9 meters per second squared. It will reach the ground after 9.6 seconds. How fast is the ball moving when it hits the ground? (This problem is from James Stewart's Single Variable Calculus, Chapter 2.) Students cannot measure the distance traveled during an instant, because an instant has no duration. Instead, they begin with average speed over a measurable interval and then make the interval smaller and smaller.
 
 The important question is not which calculation produces the answer immediately. It is what happens to the estimates as the increment becomes smaller.
 
@@ -49,7 +49,7 @@ Turn on fractional stones.
 
 Press **Fill Board**, then **Add Change-Size Stones**.
 
-The ball falls for 9.6 seconds and reaches the ground. You are going to investigate how fast the ball is moving at 9.6 seconds.
+The ball falls from a tower that is about 450 meters tall. The distance the ball falls is governed by an equation: y = 4.9x², where y is the distance traveled in meters and x is the time elapsed in seconds. After 9.6 seconds the ball reaches the ground. You are going to investigate how fast the ball is moving when it hits the ground, that is, after 9.6 seconds.
 
 Record the following from the Abacus:
 
