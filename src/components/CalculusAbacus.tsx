@@ -1344,14 +1344,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const newVal = wValues ? formatDual(0, p.u, fmtVal) : fmtVal(p.u);
     if (noticeTimer.current) clearTimeout(noticeTimer.current);
     if (oldVal !== newVal) {
-      console.log("DBG COMMIT set notice");
+      console.log("DBG COMMIT set notice t=", performance.now());
       setUnitNotice(`The value of one stone has changed to ${newVal}.`);
       noticeTimer.current = setTimeout(() => {
-        console.log("DBG NOTICE TIMEOUT");
+        console.log("DBG NOTICE TIMEOUT t=", performance.now());
         setUnitNotice(null);
       }, 3000);
     } else {
-      console.log("DBG COMMIT clear notice");
+      console.log("DBG COMMIT clear notice t=", performance.now());
       setUnitNotice(null);
     }
   };
