@@ -408,7 +408,9 @@ function computeCounts(
  * "check your formula" error path fires.
  */
 function normalizeFormula(raw: string): string {
-  const s = raw.replace(/^\s*y\s*=\s*/i, "");
+  // mathjs's numeric evaluator has no `ln` (its `log` is natural log, matching
+  // the dual evaluator), so rewrite the token `ln` to `log` for both paths.
+  const s = raw.replace(/^\s*y\s*=\s*/i, "").replace(/\bln\b/gi, "log");
   const bars = (s.match(/\|/g) ?? []).length;
   if (bars === 0) return s;
   if (bars % 2 !== 0) return s;
