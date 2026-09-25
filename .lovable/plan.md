@@ -9,6 +9,8 @@ After **Fill Board → Find Differences → Divide By Increment**, make the chan
 - max stones `50`
 - value changing from `1` to `2`
 
+The notice stays in the left panel: it highlights the number in `One stone = 2`, rather than appearing over the board.
+
 ## Plan
 
 1. Reproduce that exact sequence in the running Abacus and inspect the value immediately when the division finishes.
