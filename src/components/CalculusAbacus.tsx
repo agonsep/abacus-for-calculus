@@ -1244,7 +1244,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const [anim, setAnim] = useState<AnimState | null>(null);
   const [instant, setInstant] = useState(false);
-  const [unitFlashTick, setUnitFlashTick] = useState(0);
+  const [unitNotice, setUnitNotice] = useState<string | null>(null);
+  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
   
@@ -1339,7 +1340,15 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setLevel((l) => l + 1);
     setError(null);
     setNote(null);
-    setUnitFlashTick((t) => t + 1);
+    const oldVal = wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit);
+    const newVal = wValues ? formatDual(0, p.u, fmtVal) : fmtVal(p.u);
+    if (noticeTimer.current) clearTimeout(noticeTimer.current);
+    if (oldVal !== newVal) {
+      setUnitNotice(`The value of one stone has changed to ${newVal}.`);
+      noticeTimer.current = setTimeout(() => setUnitNotice(null), 3000);
+    } else {
+      setUnitNotice(null);
+    }
   };
 
   const snapshot = (s: AnimState): AnimState => ({
@@ -1445,6 +1454,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const t = setTimeout(() => setInstant(false), 250);
     return () => clearTimeout(t);
   }, [instant]);
+
+  useEffect(
+    () => () => {
+      if (noticeTimer.current) clearTimeout(noticeTimer.current);
+    },
+    [],
+  );
 
 
   const promoteLevel = () => {
@@ -2050,6 +2066,15 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         />
       </Canvas>
 
+      {/* Stone-value change notice */}
+      {unitNotice && (
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
+          <div className="rounded-xl border border-border bg-card/90 px-5 py-3 text-center text-base text-foreground shadow-2xl backdrop-blur-md">
+            {unitNotice}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="pointer-events-none absolute left-6 top-[10%] z-10 w-[260px]">
         <div className="text-center">
@@ -2069,10 +2094,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 <>
                     <span className="block">
                     One size stone ={" "}
-                    <span
-                      key={unitFlashTick}
-                      className={`rounded px-1 font-mono text-foreground${unitFlashTick > 0 ? " unit-flash" : ""}`}
-                    >
+                    <span className="rounded px-1 font-mono text-foreground">
                       {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
                     </span>
                     .{" "}
@@ -2082,10 +2104,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   </span>
                   <span className="block">
                     One change-size stone ={" "}
-                    <span
-                      key={unitFlashTick}
-                      className={`rounded px-1 font-mono text-foreground${unitFlashTick > 0 ? " unit-flash" : ""}`}
-                    >
+                    <span className="rounded px-1 font-mono text-foreground">
                       {h2?.infinitesimal || wValues
                         ? formatDual(0, unit, fmtVal)
                         : fmtVal(unit)}
@@ -2096,10 +2115,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               ) : (
                 <>
                   One stone ={" "}
-                  <span
-                    key={unitFlashTick}
-                    className={`rounded px-1 font-mono text-foreground${unitFlashTick > 0 ? " unit-flash" : ""}`}
-                  >
+                  <span className="rounded px-1 font-mono text-foreground">
                     {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
                   </span>
                   .{" "}

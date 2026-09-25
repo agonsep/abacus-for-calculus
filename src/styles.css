@@ -149,21 +149,3 @@
   }
 }
 
-/* Brief highlight of the stone-value readout after Divide By Increment commits. */
-@keyframes unit-flash {
-  0%,
-  60% {
-    color: var(--primary);
-    text-shadow: 0 0 12px color-mix(in oklab, var(--primary) 55%, transparent);
-    background-color: color-mix(in oklab, var(--primary) 16%, transparent);
-  }
-  100% {
-    color: var(--color-foreground);
-    text-shadow: none;
-    background-color: transparent;
-  }
-}
-
-.unit-flash {
-  animation: unit-flash 2s ease-out both;
-}
