@@ -167,11 +167,3 @@
 .unit-flash {
   animation: unit-flash 2s ease-out both;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .unit-flash {
-    animation: none;
-    color: var(--primary);
-    background-color: color-mix(in oklab, var(--primary) 16%, transparent);
-  }
-}
