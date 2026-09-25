@@ -2096,7 +2096,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               ) : (
                 <>
                   One stone ={" "}
-                  <span className={`rounded px-1 font-mono text-foreground${unitFlash ? " unit-flash" : ""}`}>
+                  <span
+                    key={unitFlashTick}
+                    className={`rounded px-1 font-mono text-foreground${unitFlashTick > 0 ? " unit-flash" : ""}`}
+                  >
                     {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
                   </span>
                   .{" "}
