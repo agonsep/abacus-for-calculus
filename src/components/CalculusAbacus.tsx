@@ -1244,6 +1244,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const [anim, setAnim] = useState<AnimState | null>(null);
   const [instant, setInstant] = useState(false);
+  const [unitFlashTick, setUnitFlashTick] = useState(0);
   const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
   
@@ -1338,6 +1339,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setLevel((l) => l + 1);
     setError(null);
     setNote(null);
+    setUnitFlashTick((t) => t + 1);
   };
 
   const snapshot = (s: AnimState): AnimState => ({
@@ -2065,9 +2067,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             <p className="px-2 text-sm text-muted-foreground">
               {appliedDual ? (
                 <>
-                  <span className="block">
+                    <span className="block">
                     One size stone ={" "}
-                    <span className="rounded px-1 font-mono text-foreground">
+                    <span
+                      key={unitFlashTick}
+                      className={`rounded px-1 font-mono text-foreground${unitFlashTick > 0 ? " unit-flash" : ""}`}
+                    >
                       {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
                     </span>
                     .{" "}
@@ -2077,7 +2082,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   </span>
                   <span className="block">
                     One change-size stone ={" "}
-                    <span className="rounded px-1 font-mono text-foreground">
+                    <span
+                      key={unitFlashTick}
+                      className={`rounded px-1 font-mono text-foreground${unitFlashTick > 0 ? " unit-flash" : ""}`}
+                    >
                       {h2?.infinitesimal || wValues
                         ? formatDual(0, unit, fmtVal)
                         : fmtVal(unit)}
@@ -2088,7 +2096,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               ) : (
                 <>
                   One stone ={" "}
-                  <span className="rounded px-1 font-mono text-foreground">
+                  <span
+                    key={unitFlashTick}
+                    className={`rounded px-1 font-mono text-foreground${unitFlashTick > 0 ? " unit-flash" : ""}`}
+                  >
                     {wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit)}
                   </span>
                   .{" "}
