@@ -2424,13 +2424,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         </div>
       )}
 
-      {!uiHidden && (error || note) && (
-        <div
-          className={`pointer-events-none absolute inset-x-0 bottom-4 text-center text-sm ${
-            error ? "text-destructive" : "text-muted-foreground"
-          }`}
-        >
-          {error ?? note}
+      {!uiHidden && note && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-sm text-muted-foreground">
+          {note}
         </div>
       )}
 
