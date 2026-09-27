@@ -1795,7 +1795,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       if (msg.startsWith("w-mid:")) {
         const mm = formatNum(Number(msg.slice(6)));
         setError(
-          `f(x) has no value at the midpoint x = ${mm}, and the increment w needs one: with an infinitesimal step every column shares the value f(${mm}). Try a small numeric increment instead, or a different midpoint.`,
+          `f(x) is not defined at the midpoint x = ${mm}. The Calculus Abacus needs a defined midpoint when the increment is w. Try a small numeric increment instead, or a different midpoint.`,
         );
       } else if (msg.startsWith("w-slope:")) {
         const mm = formatNum(Number(msg.slice(8)));
