@@ -1618,20 +1618,19 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         } catch {
           const eps = Math.max(1e-7, Math.abs(m) * 1e-7);
           const y0 = evaluate(cleaned, { x: m });
+          if (typeof y0 !== "number" || !isFinite(y0)) {
+            throw new Error(`w-mid:${m}`);
+          }
           const yp = evaluate(cleaned, { x: m + eps });
           const ym = evaluate(cleaned, { x: m - eps });
-          if (
-            typeof y0 !== "number" ||
-            typeof yp !== "number" ||
-            typeof ym !== "number"
-          ) {
-            throw new Error("all undefined");
+          if (typeof yp !== "number" || typeof ym !== "number") {
+            throw new Error(`w-slope:${m}`);
           }
           base = y0;
           deriv = (yp - ym) / (2 * eps);
           approx = true;
         }
-        if (!isFinite(base) || !isFinite(deriv)) throw new Error("all undefined");
+        if (!isFinite(base) || !isFinite(deriv)) throw new Error(`w-slope:${m}`);
         for (let i = 0; i < COLUMNS; i++) {
           xs.push(m);
           xws.push((i - 5) * h);
@@ -1793,7 +1792,17 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       setNote(null);
-      if (msg === "all undefined") {
+      if (msg.startsWith("w-mid:")) {
+        const mm = formatNum(Number(msg.slice(6)));
+        setError(
+          `f(x) has no value at the midpoint x = ${mm}, and the increment w needs one: with an infinitesimal step every column shares the value f(${mm}). Try a small numeric increment instead, or a different midpoint.`,
+        );
+      } else if (msg.startsWith("w-slope:")) {
+        const mm = formatNum(Number(msg.slice(8)));
+        setError(
+          `f(x) is defined at the midpoint x = ${mm}, but its slope does not settle to a single value there — and the increment w needs an exact slope. Try a small numeric increment instead.`,
+        );
+      } else if (msg === "all undefined") {
         setError("f(x) is undefined at every x in this range — try a different midpoint or increment.");
       } else {
         setError("Check your formula, midpoint, and increment.");
