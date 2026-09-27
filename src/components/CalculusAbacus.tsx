@@ -1618,20 +1618,19 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         } catch {
           const eps = Math.max(1e-7, Math.abs(m) * 1e-7);
           const y0 = evaluate(cleaned, { x: m });
+          if (typeof y0 !== "number" || !isFinite(y0)) {
+            throw new Error(`w-mid:${m}`);
+          }
           const yp = evaluate(cleaned, { x: m + eps });
           const ym = evaluate(cleaned, { x: m - eps });
-          if (
-            typeof y0 !== "number" ||
-            typeof yp !== "number" ||
-            typeof ym !== "number"
-          ) {
-            throw new Error("all undefined");
+          if (typeof yp !== "number" || typeof ym !== "number") {
+            throw new Error(`w-slope:${m}`);
           }
           base = y0;
           deriv = (yp - ym) / (2 * eps);
           approx = true;
         }
-        if (!isFinite(base) || !isFinite(deriv)) throw new Error("all undefined");
+        if (!isFinite(base) || !isFinite(deriv)) throw new Error(`w-slope:${m}`);
         for (let i = 0; i < COLUMNS; i++) {
           xs.push(m);
           xws.push((i - 5) * h);
