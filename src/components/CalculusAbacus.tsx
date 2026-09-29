@@ -114,6 +114,7 @@ function Piece({
   heightScale = 1,
   widthScale = 1,
   fromWidthScale = widthScale,
+  startAtFullScale = false,
   dim = false,
   highlighted = false,
   instant = false,
@@ -129,6 +130,7 @@ function Piece({
   heightScale?: number;
   widthScale?: number;
   fromWidthScale?: number;
+  startAtFullScale?: boolean;
   dim?: boolean;
   highlighted?: boolean;
   instant?: boolean;
@@ -159,7 +161,7 @@ function Piece({
         ? Math.sin(Math.min((t - duration) * 12, Math.PI)) * 0.05 * Math.exp(-(t - duration) * 4)
         : 0;
     ref.current.position.set(fromX + (x - fromX) * ease, y + bounce, 0);
-    const s = Math.min(1, t / 0.18);
+    const s = startAtFullScale ? 1 : Math.min(1, t / 0.18);
     ref.current.scale.set(s * (fromWidthScale + (widthScale - fromWidthScale) * ease), s * heightScale, s);
   });
 
@@ -498,6 +500,7 @@ export type AnimState = {
   companionVisible: boolean[];
   /** Widen and center the change stones before dropping them. */
   expanded: boolean[];
+  falling: boolean[];
   /** size-stone counts shown on the board while animating */
   size: number[];
   /** change-stone counts shown on the board while animating */
@@ -631,6 +634,7 @@ function Stacks({
         const changeFrom = anim && !leibniz ? anim.changeFrom[i] : changeBase;
         const changeOff = leibniz ? 0 : off;
         const expanded = anim?.dual && anim.expanded[i];
+        const expanding = expanded && !anim?.falling[i];
         const changeX = expanded ? cx : dual ? cx - COL_SPACING / 4 : x;
         const changeWidth = expanded || !dual ? 1 : 0.5;
         for (let k = 0; k < rFull; k++) {
@@ -638,7 +642,7 @@ function Stacks({
             <Piece
               key={`r-${runId}-${i}-${k}-${changeBase}-${expanded ? 'wide' : 'narrow'}`}
               x={changeX}
-              fromX={expanded ? cx - COL_SPACING / 4 : changeX}
+              fromX={expanding ? cx - COL_SPACING / 4 : changeX}
               fromY={anim && !leibniz ? slotY(changeFrom + k) : skyY + 2}
               targetY={slotY(changeBase + k + changeOff)}
               delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
@@ -646,7 +650,8 @@ function Stacks({
               palette={palette}
               useGradient={useChangeGradient}
               widthScale={changeWidth}
-              fromWidthScale={expanded ? 0.5 : changeWidth}
+              fromWidthScale={expanding ? 0.5 : changeWidth}
+              startAtFullScale={!!anim}
               dim={rDim}
               highlighted={rH}
               instant={instant}
@@ -659,7 +664,7 @@ function Stacks({
             <Piece
               key={`r-${runId}-${i}-partial-${changeBase}-${expanded ? 'wide' : 'narrow'}`}
               x={changeX}
-              fromX={expanded ? cx - COL_SPACING / 4 : changeX}
+              fromX={expanding ? cx - COL_SPACING / 4 : changeX}
               fromY={anim && !leibniz ? slotY(changeFrom + rFull) : skyY + 2}
               targetY={partialY(changeBase + rFull + changeOff, rFrac)}
               delay={anim ? 0 : i * 0.04 + (changeBase + rFull) * 0.02}
@@ -667,7 +672,8 @@ function Stacks({
               palette={palette}
               useGradient={useChangeGradient}
               widthScale={changeWidth}
-              fromWidthScale={expanded ? 0.5 : changeWidth}
+              fromWidthScale={expanding ? 0.5 : changeWidth}
+              startAtFullScale={!!anim}
               heightScale={rFrac}
               dim={rDim}
               highlighted={rH}
@@ -1266,7 +1272,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   // Mid-board hint shown while dual mode is pending Fill Board.
   const [dualHint, setDualHint] = useState<string | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const animTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
   
 
@@ -1375,6 +1381,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     dual: s.dual,
     companionVisible: s.companionVisible.slice(),
     expanded: s.expanded.slice(),
+    falling: s.falling.slice(),
     size: s.size.slice(),
     change: s.change.slice(),
     changeBase: s.changeBase.slice(),
@@ -1395,59 +1402,61 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       dual,
       companionVisible: Array(COLUMNS).fill(dual),
       expanded: Array(COLUMNS).fill(false),
+      falling: Array(COLUMNS).fill(false),
       size: size.slice(),
       change: change.slice(),
       changeBase: base.slice(),
       changeFrom: base.slice(),
       asSize: Array(COLUMNS).fill(false),
     };
-    const steps: (() => void)[] = [];
+    const steps: { run: () => void; duration: number }[] = [];
     if (dual) {
       // Each pair clears together, then its difference widens before falling.
       for (let i = 0; i < COLUMNS; i++) {
-        steps.push(() => {
-          state.size[i] = 0;
-          state.companionVisible[i] = false;
-        });
-        steps.push(() => {
-          state.expanded[i] = true;
-        });
-        steps.push(() => {
-          state.changeFrom[i] = state.changeBase[i];
-          state.changeBase[i] = 0;
-        });
+        steps.push({ run: () => {
+            state.size[i] = 0;
+            state.companionVisible[i] = false;
+          }, duration: 130 });
+        steps.push({ run: () => {
+            state.expanded[i] = true;
+          }, duration: 450 });
+        steps.push({ run: () => {
+            state.falling[i] = true;
+            state.changeFrom[i] = state.changeBase[i];
+            state.changeBase[i] = 0;
+          }, duration: 450 });
       }
     } else {
       // The ordinary board keeps its existing clear pass, then drop pass.
       for (let i = 0; i < COLUMNS; i++) {
-        steps.push(() => {
+        steps.push({ run: () => {
           state.size[i] = 0;
-        });
+        }, duration: 130 });
       }
       for (let i = 0; i < COLUMNS; i++) {
-        steps.push(() => {
+        steps.push({ run: () => {
           state.changeFrom[i] = state.changeBase[i];
           state.changeBase[i] = 0;
-        });
+        }, duration: 130 });
       }
     }
     // Step 2b — resize every column, left to right
     for (let i = 0; i < COLUMNS; i++) {
-      steps.push(() => {
+      steps.push({ run: () => {
         state.change[i] = p.newDefined[i] ? p.counts[i] : 0;
-      });
+      }, duration: 130 });
     }
     // Step 2c — recolor every column, left to right
     for (let i = 0; i < COLUMNS; i++) {
-      steps.push(() => {
+      steps.push({ run: () => {
         state.asSize[i] = true;
-      });
+      }, duration: 130 });
     }
 
 
     let idx = 0;
     const finish = () => {
-      if (animTimer.current) clearInterval(animTimer.current);
+      if (animTimer.current) clearTimeout(animTimer.current);
       animTimer.current = null;
       finishRef.current = null;
       setInstant(true);
@@ -1460,14 +1469,17 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setNote(null);
     setInstant(false);
     setAnim(snapshot(state));
-    animTimer.current = setInterval(() => {
+    const advance = () => {
       if (idx >= steps.length) {
         finish();
         return;
       }
-      steps[idx++]();
+      const step = steps[idx++];
+      step.run();
       setAnim(snapshot(state));
-    }, 130);
+      animTimer.current = setTimeout(advance, step.duration);
+    };
+    animTimer.current = setTimeout(advance, 130);
   };
 
   // Skip the transition on a click or Esc; always clean the timer up.
@@ -1487,7 +1499,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   useEffect(
     () => () => {
-      if (animTimer.current) clearInterval(animTimer.current);
+      if (animTimer.current) clearTimeout(animTimer.current);
     },
     [],
   );
