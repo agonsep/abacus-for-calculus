@@ -1,2 +1,2 @@
 Dual Increments promotion animates pair removal, change-stack widening, and falling separately for each column before count and palette passes; this prevents the paired stacks from overlapping the promoted curve.
-Promotion queues a conditional two-second stone-value notice after the last fall and before count adjustment; this explains rescaling before visible counts change without delaying unchanged values.
+Promotion queues a conditional three-second "value will change" notice after the last fall and before count adjustment, then a three-second "value has changed" notice that appears together with the panel update after the count and palette passes; unchanged values show neither and add no pause.
