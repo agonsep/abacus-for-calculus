@@ -1339,7 +1339,26 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     return { newYRaw, newDefined, counts, u, floor: 0 };
   };
 
-  const commitPromotion = (p: Promotion) => {
+  const promotionNotice = (p: Promotion) => {
+    const oldVal = wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit);
+    const newVal = wValues ? formatDual(0, p.u, fmtVal) : fmtVal(p.u);
+    if (oldVal === newVal) return null;
+    return `The value of one ${dualActive ? "change-size stone" : "stone"} has changed to ${newVal}.`;
+  };
+
+  const showPromotionNotice = (notice: string | null) => {
+    if (noticeTimer.current) clearTimeout(noticeTimer.current);
+    noticeTimer.current = null;
+    setUnitNotice(notice);
+    if (notice) {
+      noticeTimer.current = setTimeout(() => {
+        setUnitNotice(null);
+        noticeTimer.current = null;
+      }, 2000);
+    }
+  };
+
+  const commitPromotion = (p: Promotion, showNotice = true) => {
     levelStack.current.push({
       yRaw: yRaw.slice(),
       size: size.slice(),
@@ -1366,15 +1385,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setLevel((l) => l + 1);
     setError(null);
     setNote(null);
-    const oldVal = wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit);
-    const newVal = wValues ? formatDual(0, p.u, fmtVal) : fmtVal(p.u);
-    if (noticeTimer.current) clearTimeout(noticeTimer.current);
-    if (oldVal !== newVal) {
-      setUnitNotice(`The value of one stone has changed to ${newVal}.`);
-      noticeTimer.current = setTimeout(() => setUnitNotice(null), 3000);
-    } else {
-      setUnitNotice(null);
-    }
+    if (showNotice) showPromotionNotice(promotionNotice(p));
   };
 
   const snapshot = (s: AnimState): AnimState => ({
@@ -1390,6 +1401,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   });
 
   const startPromotionAnimation = (p: Promotion) => {
+    const notice = promotionNotice(p);
+    showPromotionNotice(null);
     const dual = dualActive && companion !== null;
     const base = size.map((v, i) => {
       const baseValue = dual && companion ? companion[i] : v;
@@ -1440,6 +1453,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         }, duration: 130 });
       }
     }
+    // Hold the fallen stacks in place while the new stone value is announced.
+    if (notice) steps.push({ run: () => showPromotionNotice(notice), duration: 2000 });
     // Step 2b — resize every column, left to right
     for (let i = 0; i < COLUMNS; i++) {
       steps.push({ run: () => {
@@ -1455,15 +1470,19 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
 
     let idx = 0;
-    const finish = () => {
+    const finish = (skipped = false) => {
       if (animTimer.current) clearTimeout(animTimer.current);
       animTimer.current = null;
       finishRef.current = null;
+      // A skipped pause ends immediately; do not replay a notice already shown.
+      if (skipped && idx > steps.length - (COLUMNS * 2) && notice) {
+        showPromotionNotice(null);
+      }
       setInstant(true);
       setAnim(null);
-      commitPromotion(p);
+      commitPromotion(p, skipped && !(notice && idx > steps.length - (COLUMNS * 2)));
     };
-    finishRef.current = finish;
+    finishRef.current = () => finish(true);
 
     setError(null);
     setNote(null);
