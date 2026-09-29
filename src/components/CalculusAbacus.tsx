@@ -1888,9 +1888,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       const lo = signed || isConstant ? -MAX_PIECES : 0;
       return Math.max(lo, Math.min(MAX_PIECES, v));
     };
-    setSize(yRaw.map((y, i) => reroll(y, defined[i] !== false)));
-    if (companion !== null) {
-      setCompanion(yRawCompanion.map((y, i) => reroll(y, defined[i] !== false)));
+    const newSize = yRaw.map((y, i) => reroll(y, defined[i] !== false));
+    const newComp = companion !== null ? yRawCompanion.map((y, i) => reroll(y, defined[i] !== false)) : null;
+    setSize(newSize);
+    if (newComp) {
+      setCompanion(newComp);
     }
     if (leibniz) {
       setChange(
@@ -1906,6 +1908,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         if (dualActive && h2) {
           // Pair difference: main minus companion.
           if (!defined[i]) return 0;
+          if (!fractional && !h2.infinitesimal && newComp) {
+            return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, newSize[i] - newComp[i]));
+          }
           const d = h2.infinitesimal ? -companionW[i] : y - yRawCompanion[i];
           const raw = d / unit;
           const v = fractional ? raw : Math.round(raw);
@@ -1913,6 +1918,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         }
         const j = leftCompare ? i - 1 : i + 1;
         if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
+        if (!fractional) {
+          const dc = leftCompare ? newSize[i] - newSize[j] : newSize[j] - newSize[i];
+          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, dc));
+        }
         const d = leftCompare ? y - yRaw[j] : yRaw[j] - y;
         const raw = d / unit;
         const v = fractional ? raw : Math.round(raw);
