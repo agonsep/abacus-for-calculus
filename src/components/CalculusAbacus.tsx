@@ -2574,9 +2574,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             Divide By Increment
           </button>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
-          <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-3 text-xs">
+          <div className="mt-2 flex flex-col gap-3 border-t border-border/60 pt-3 text-base">
             <label
-              className={`flex items-center gap-2 ${level > 0 || anim || appliedDual ? "cursor-not-allowed" : "cursor-pointer"}`}
+              className={`flex items-center gap-3 ${level > 0 || anim || appliedDual ? "cursor-not-allowed" : "cursor-pointer"}`}
               title={
                 level > 0 || anim
                   ? "Fractional rounding is fixed once stones have been removed."
@@ -2590,23 +2590,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 checked={fractional}
                 disabled={level > 0 || !!anim || appliedDual}
                 onChange={(e) => setFractional(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
+                className="h-5 w-5 accent-[hsl(199_89%_70%)]"
               />
               <span className={level > 0 || anim || appliedDual ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
               {appliedDual && <span className="text-xs text-muted-foreground">(needed for dual increments)</span>}
             </label>
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={showLine}
-                disabled={level > 0 || wMode || !!anim}
-                onChange={(e) => setShowLine(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Midpoint Tangent</span>
-            </label>
             <label
-              className="flex cursor-pointer items-center gap-2"
+              className="flex cursor-pointer items-center gap-3"
               title={
                 level > 0 || anim
                   ? "Dual increments are fixed once stones have been removed."
@@ -2618,82 +2608,103 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 checked={dualMode}
                 disabled={level > 0 || !!anim || wMode}
                 onChange={(e) => toggleDualMode(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
+                className="h-5 w-5 accent-[hsl(199_89%_70%)]"
               />
               <span className={level > 0 || anim || wMode ? "text-muted-foreground" : "text-foreground"}>
                 Dual increments
               </span>
             </label>
-            <label className={`flex items-center gap-2 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
-              <input
-                type="checkbox"
-                checked={leibniz}
-                disabled={!!anim || level > 0}
-                onChange={(e) => toggleLeibniz(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
-            </label>
-            <label
-              className="flex cursor-pointer items-center gap-2"
-              title={
-                level > 0 || anim
-                  ? "The comparison direction is fixed once stones have been removed."
-                  : dualMode
-                    ? "Dual increments always compare each column with its companion."
-                    : undefined
-              }
+            <button
+              type="button"
+              onClick={() => setShowMore((s) => !s)}
+              className="w-full rounded bg-muted px-2 py-1.5 text-foreground hover:bg-muted/80"
             >
-              <input
-                type="checkbox"
-                checked={leftCompare}
-                disabled={level > 0 || !!anim || leibniz || dualMode}
-                onChange={(e) => setLeftCompare(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className={level > 0 || anim || leibniz || dualMode ? "text-muted-foreground" : "text-foreground"}>
-                Lefthand comparison
-              </span>
-            </label>
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={slopeHighPrecision}
-                onChange={(e) => setSlopeHighPrecision(e.target.checked)}
-                className="accent-[hsl(199_89%_70%)]"
-              />
-              <span className="text-foreground">10 decimals</span>
-            </label>
+              {showMore ? "Less" : "More"}
+            </button>
+            {showMore && (
+              <>
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={showLine}
+                    disabled={level > 0 || wMode || !!anim}
+                    onChange={(e) => setShowLine(e.target.checked)}
+                    className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                  />
+                  <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Midpoint Tangent</span>
+                </label>
+                <label className={`flex items-center gap-3 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
+                  <input
+                    type="checkbox"
+                    checked={leibniz}
+                    disabled={!!anim || level > 0}
+                    onChange={(e) => toggleLeibniz(e.target.checked)}
+                    className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                  />
+                  <span className={anim || level > 0 ? "text-muted-foreground" : "text-foreground"}>Leibniz Mode</span>
+                </label>
+                <label
+                  className="flex cursor-pointer items-center gap-3"
+                  title={
+                    level > 0 || anim
+                      ? "The comparison direction is fixed once stones have been removed."
+                      : dualMode
+                        ? "Dual increments always compare each column with its companion."
+                        : undefined
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    checked={leftCompare}
+                    disabled={level > 0 || !!anim || leibniz || dualMode}
+                    onChange={(e) => setLeftCompare(e.target.checked)}
+                    className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                  />
+                  <span className={level > 0 || anim || leibniz || dualMode ? "text-muted-foreground" : "text-foreground"}>
+                    Lefthand comparison
+                  </span>
+                </label>
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={slopeHighPrecision}
+                    onChange={(e) => setSlopeHighPrecision(e.target.checked)}
+                    className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                  />
+                  <span className="text-foreground">10 decimals</span>
+                </label>
 
-            <div className="flex items-center justify-between gap-2 pt-1">
-              <span className="text-sm text-foreground">Stone colors</span>
-              <div className="flex items-center gap-2">
-                {PALETTES.map((p) => {
-                  const selected = p.id === paletteId;
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setPaletteId(p.id)}
-                      title={
-                        p.id === "red-orange"
-                          ? "Red / Orange"
-                          : p.id === "blue-cyan"
-                            ? "Blue / Cyan"
-                            : "Forest / Mint"
-                      }
-                      className={`relative h-5 w-10 overflow-hidden rounded-full border-2 transition ${selected ? "border-white shadow" : "border-transparent"}`}
-                      style={{ backgroundColor: p.size }}
-                    >
-                      <span
-                        className="absolute right-0 top-0 h-full w-1/2"
-                        style={{ backgroundColor: p.change }}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="text-base text-foreground">Stone colors</span>
+                  <div className="flex items-center gap-2">
+                    {PALETTES.map((p) => {
+                      const selected = p.id === paletteId;
+                      return (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setPaletteId(p.id)}
+                          title={
+                            p.id === "red-orange"
+                              ? "Red / Orange"
+                              : p.id === "blue-cyan"
+                                ? "Blue / Cyan"
+                                : "Forest / Mint"
+                          }
+                          className={`relative h-6 w-12 overflow-hidden rounded-full border-2 transition ${selected ? "border-white shadow" : "border-transparent"}`}
+                          style={{ backgroundColor: p.size }}
+                        >
+                          <span
+                            className="absolute right-0 top-0 h-full w-1/2"
+                            style={{ backgroundColor: p.change }}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="border-t border-border/60 pt-2">
               <button
