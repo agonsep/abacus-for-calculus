@@ -1207,6 +1207,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const toggleDualMode = (on: boolean) => {
     if (on) setIncrement2(appliedInputs.increment);
     setDualMode(on);
+    setDualHint(on ? "Input second increment, then click on Fill Board" : null);
   };
   const [increment2, setIncrement2] = useState(initialDefaults?.increment ?? "1");
   const [yRawCompanion, setYRawCompanion] = useState<number[]>(Array(COLUMNS).fill(0));
@@ -1247,6 +1248,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [anim, setAnim] = useState<AnimState | null>(null);
   const [instant, setInstant] = useState(false);
   const [unitNotice, setUnitNotice] = useState<string | null>(null);
+  // Mid-board hint shown while dual mode is pending Fill Board.
+  const [dualHint, setDualHint] = useState<string | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const animTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishRef = useRef<(() => void) | null>(null);
@@ -1595,6 +1598,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const inputs = opts?.inputs ?? appliedInputs;
     const useDual = opts?.dual ?? dualMode;
     const ms = opts?.maxStones ?? inputs.maxStones;
+    setDualHint(null);
     try {
       const cleaned = normalizeFormula(inputs.formula);
       const m = Number(inputs.midpoint);
@@ -2077,11 +2081,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         />
       </Canvas>
 
-      {/* Stone-value change notice */}
-      {unitNotice && (
+      {/* Mid-board notice: dual-mode hint, or stone-value change notice */}
+      {(dualHint ?? unitNotice) && (
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
           <div className="rounded-xl border border-border bg-card/90 px-5 py-3 text-center text-base text-foreground shadow-2xl backdrop-blur-md">
-            {unitNotice}
+            {dualHint ?? unitNotice}
           </div>
         </div>
       )}
