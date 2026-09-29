@@ -1,0 +1,1 @@
+Dual Increments promotion animates pair removal, change-stack widening, and falling separately for each column before count and palette passes; this prevents the paired stacks from overlapping the promoted curve.
