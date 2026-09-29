@@ -1454,7 +1454,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       }
     }
     // Hold the fallen stacks in place while the new stone value is announced.
-    const noticeStepIndex = steps.length;
     if (notice) steps.push({ run: () => showPromotionNotice(notice), duration: 2000 });
     // Step 2b — resize every column, left to right
     for (let i = 0; i < COLUMNS; i++) {
@@ -1471,19 +1470,17 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
 
     let idx = 0;
-    const finish = (skipped = false) => {
+    const finish = () => {
       if (animTimer.current) clearTimeout(animTimer.current);
       animTimer.current = null;
       finishRef.current = null;
-      // A skipped pause ends immediately; do not replay a notice already shown.
-      if (skipped && idx > noticeStepIndex && notice) {
-        showPromotionNotice(null);
-      }
+      // A completed or skipped animation must never replay the notice.
+      showPromotionNotice(null);
       setInstant(true);
       setAnim(null);
-      commitPromotion(p, skipped && !(notice && idx > noticeStepIndex));
+      commitPromotion(p, false);
     };
-    finishRef.current = () => finish(true);
+    finishRef.current = finish;
 
     setError(null);
     setNote(null);
