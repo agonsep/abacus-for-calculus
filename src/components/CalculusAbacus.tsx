@@ -1825,6 +1825,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         // With an infinitesimal second increment the pair difference is
         // -companionW[i]·w; one orange stone is then worth unit·w.
         const d = h2.infinitesimal ? -companionW[i] : y - yRawCompanion[i];
+        if (!fractional && !h2.infinitesimal && companion) {
+          // Count the visible stones so the stacks always add up.
+          return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, size[i] - companion[i]));
+        }
         const raw = unit === 0 ? 0 : d / unit;
         const v = fractional ? raw : Math.round(raw);
         return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
@@ -1835,6 +1839,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const r = yRaw.map((y, i) => {
       const j = leftCompare ? i - 1 : i + 1;
       if (j < 0 || j >= yRaw.length || !defined[i] || !defined[j]) return 0;
+      if (!fractional) {
+        // Count the visible stones so the stacks always add up.
+        const dc = leftCompare ? size[i] - size[j] : size[j] - size[i];
+        return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, dc));
+      }
       const d = leftCompare ? y - yRaw[j] : yRaw[j] - y;
       const raw = unit === 0 ? 0 : d / unit;
       const v = fractional ? raw : Math.round(raw);
