@@ -1132,13 +1132,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [formula, setFormula] = useState(initialDefaults?.formula ?? "x^2");
   const [midpoint, setMidpoint] = useState(initialDefaults?.midpoint ?? "5");
   const [increment, setIncrement] = useState(initialDefaults?.increment ?? "1");
-  const [maxStones, setMaxStones] = useState(initialDefaults?.maxStones ?? "100");
+  const [maxStones, setMaxStones] = useState(initialDefaults?.maxStones ?? "50");
   const initialBoardInputs = useRef<BoardInputs>({
     formula: initialDefaults?.formula ?? "x^2",
     midpoint: initialDefaults?.midpoint ?? "5",
     increment: initialDefaults?.increment ?? "1",
     increment2: initialDefaults?.increment ?? "1",
-    maxStones: initialDefaults?.maxStones ?? "100",
+    maxStones: initialDefaults?.maxStones ?? "50",
   });
   const [appliedInputs, setAppliedInputs] = useState<BoardInputs>(initialBoardInputs.current);
 
