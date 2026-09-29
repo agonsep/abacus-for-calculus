@@ -1165,6 +1165,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [leftCompare, setLeftCompare] = useState(false);
   const [slopeHighPrecision, setSlopeHighPrecision] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  // Right panel: extra checkboxes and the color picker stay hidden behind "More".
+  const [showMore, setShowMore] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
   
