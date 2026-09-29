@@ -2598,7 +2598,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-3 border-t border-border/60 pt-3 text-base">
             <label
-              className={`flex items-center gap-3 ${level > 0 || anim || appliedDual ? "cursor-not-allowed" : "cursor-pointer"}`}
+              className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${level > 0 || anim || appliedDual ? "cursor-not-allowed" : "cursor-pointer"}`}
               title={
                 level > 0 || anim
                   ? "Fractional rounding is fixed once stones have been removed."
@@ -2612,10 +2612,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 checked={fractional}
                 disabled={level > 0 || !!anim || appliedDual}
                 onChange={(e) => setFractional(e.target.checked)}
-                className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                className="h-5 w-5 shrink-0 accent-[hsl(199_89%_70%)]"
               />
               <span className={level > 0 || anim || appliedDual ? "text-muted-foreground" : "text-foreground"}>Fractional stones</span>
-              {appliedDual && <span className="text-xs text-muted-foreground">(needed for dual increments)</span>}
+              {appliedDual && <span className="basis-full pl-8 text-xs text-muted-foreground">(needed for dual increments)</span>}
             </label>
             <label
               className="flex cursor-pointer items-center gap-3"
@@ -2630,7 +2630,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 checked={dualMode}
                 disabled={level > 0 || !!anim || wMode}
                 onChange={(e) => toggleDualMode(e.target.checked)}
-                className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                className="h-5 w-5 shrink-0 accent-[hsl(199_89%_70%)]"
               />
               <span className={level > 0 || anim || wMode ? "text-muted-foreground" : "text-foreground"}>
                 Dual increments
