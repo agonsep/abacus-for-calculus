@@ -1339,11 +1339,15 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     return { newYRaw, newDefined, counts, u, floor: 0 };
   };
 
-  const promotionNotice = (p: Promotion) => {
+  const promotionNotices = (p: Promotion) => {
     const oldVal = wValues ? formatDual(0, unit, fmtVal) : fmtVal(unit);
     const newVal = wValues ? formatDual(0, p.u, fmtVal) : fmtVal(p.u);
     if (oldVal === newVal) return null;
-    return `The value of one ${dualActive ? "change-size stone" : "stone"} has changed to ${newVal}.`;
+    const subject = dualActive ? "change-size stone" : "stone";
+    return {
+      will: `The value of one ${subject} will change to ${newVal}.`,
+      done: `The value of one ${subject} has changed to ${newVal}.`,
+    };
   };
 
   const showPromotionNotice = (notice: string | null) => {
@@ -1354,7 +1358,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       noticeTimer.current = setTimeout(() => {
         setUnitNotice(null);
         noticeTimer.current = null;
-      }, 2000);
+      }, 3000);
     }
   };
 
@@ -1385,7 +1389,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setLevel((l) => l + 1);
     setError(null);
     setNote(null);
-    if (showNotice) showPromotionNotice(promotionNotice(p));
+    if (showNotice) showPromotionNotice(promotionNotices(p)?.done ?? null);
   };
 
   const snapshot = (s: AnimState): AnimState => ({
@@ -1401,8 +1405,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   });
 
   const startPromotionAnimation = (p: Promotion) => {
-    const notice = promotionNotice(p);
+    const notice = promotionNotices(p);
     showPromotionNotice(null);
+    let committed = false;
+    const commitOnce = () => {
+      if (committed) return;
+      committed = true;
+      commitPromotion(p, false);
+    };
     const dual = dualActive && companion !== null;
     const base = size.map((v, i) => {
       const baseValue = dual && companion ? companion[i] : v;
@@ -1454,7 +1464,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       }
     }
     // Hold the fallen stacks in place while the new stone value is announced.
-    if (notice) steps.push({ run: () => showPromotionNotice(notice), duration: 2000 });
+    if (notice) steps.push({ run: () => showPromotionNotice(notice.will), duration: 3000 });
     // Step 2b — resize every column, left to right
     for (let i = 0; i < COLUMNS; i++) {
       steps.push({ run: () => {
@@ -1467,6 +1477,16 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         state.asSize[i] = true;
       }, duration: 130 });
     }
+    // With the board final, commit and confirm the finished value with the panel.
+    if (notice) {
+      steps.push({
+        run: () => {
+          commitOnce();
+          showPromotionNotice(notice.done);
+        },
+        duration: 3000,
+      });
+    }
 
 
     let idx = 0;
@@ -1478,7 +1498,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       showPromotionNotice(null);
       setInstant(true);
       setAnim(null);
-      commitPromotion(p, false);
+      commitOnce();
     };
     finishRef.current = finish;
 
