@@ -13,7 +13,7 @@
 All in `src/components/CalculusAbacus.tsx`, in the Help panel JSX only — no behavior changes.
 
 1. **Dual increments paragraph** (the one beginning "Checking "Dual increments" gives every column a narrower companion stack…"):
-   - Reword the opening so the companion stacks appear after you click "Fill Board".
+   - Reword the opening so the companion stacks appear after you click "Fill Board", and state the position explicitly: the companion stack for f(x − second increment) is drawn immediately to the left of the f(x) stack.
    - Add a sentence: checking the box shows the mid-board notice "Input second increment, then click on Fill Board", and the setting takes effect on the next Fill Board.
    - Keep the rest of the paragraph (pair differences, `w`, fractional stones auto-on) unchanged.
 
