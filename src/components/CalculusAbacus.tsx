@@ -1345,7 +1345,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (oldVal === newVal) return null;
     const subject = dualActive ? "change-size stone" : "stone";
     return {
-      will: `The value of one ${subject} will change to ${newVal}.`,
+      will: dualActive
+        ? `We divide by the second increment and rescale for a maximum of ${appliedInputs.maxStones} stones.`
+        : `The value of one ${subject} will change to ${newVal}.`,
       done: `The value of one ${subject} has changed to ${newVal}.`,
     };
   };
