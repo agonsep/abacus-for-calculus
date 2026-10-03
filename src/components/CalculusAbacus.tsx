@@ -2589,6 +2589,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                       {isDef && compDefined[i] ? fmtCount(companion?.[i] ?? 0) : "undefined"}
                     </div>
                   )}
+                  {showChangeColumns && (
                     <>
                       <div className={`text-center font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {diffDef ? fmtCount(change[i]) : "undefined"}
@@ -2614,8 +2615,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               );
             })}
 
-
-
+              </>
+            )}
           </div>
         </div>
       )}
