@@ -28,7 +28,7 @@ Example to verify: x², midpoint 5, increment 1, second increment 0.1, max stone
 
 ## Limits worth stating
 
-- w as the second increment is exact through the second derivative. A third round with w cannot be exact with second-order arithmetic, so it shows the friendly notice (w gives exact first and second derivatives; use a numeric second increment beyond that) instead of silently producing zeros.
+- w as the second increment is exact through the second derivative — the limit the user set. A third round with w cannot be exact with second-order arithmetic, so it shows the friendly notice (w gives exact first and second derivatives; use a numeric second increment beyond that) instead of silently producing zeros.
 - Mixed histories are allowed: a promotion done without dual (dividing by the first increment) followed by a dual round uses the recorded divisors, so the companion always matches how the current curve was actually built.
 
 ## Technical approach
