@@ -2615,9 +2615,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             })}
 
 
-              </>
-            )}
-
 
           </div>
         </div>
