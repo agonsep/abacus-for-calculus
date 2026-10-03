@@ -2,7 +2,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { OrbitControls, Text, RoundedBox, Line } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluate } from "mathjs";
-import { evalDual, formatDual, parseIncrement } from "@/lib/dual";
+import { dual, evalDual, formatDual, jetDivInf, jetDivReal, jetSub, parseIncrement, type Dual } from "@/lib/dual";
 import * as THREE from "three";
 
 const COLUMNS = 11;
@@ -436,7 +436,7 @@ function normalizeFormula(raw: string): string {
 /** Exact derivative when the dual evaluator supports the formula, else numeric. */
 function derivAt(cleaned: string, x: number): number | null {
   try {
-    const r = evalDual(cleaned, { a: x, b: 1 });
+    const r = evalDual(cleaned, dual(x, 1));
     if (isFinite(r.b)) return r.b;
   } catch {
     /* fall through to a numeric derivative */
@@ -1225,15 +1225,47 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   // Fractional stones are required in dual mode: remember the user's setting
   // so it can be restored when dual mode is switched off.
   const prevFractionalRef = useRef(false);
+  // How each promotion divided: real number or w, and which side it compared.
+  type Divisor = { value: number; infinitesimal: boolean; forward: boolean };
+  const DUAL_EQUATION_NOTE =
+    "The equation box still shows the original equation. These stacks are its derived curve; the companion stacks and differences are computed from the original equation.";
   const toggleDualMode = (on: boolean) => {
-    if (on) setIncrement2(appliedInputs.increment);
+    if (on) {
+      if (level > 0) {
+        // No Fill Board: build companions for the current derived curve right away.
+        const err = buildDualCompanions();
+        if (err) {
+          setError(err);
+          setNote(null);
+          return;
+        }
+        setDualMode(true);
+        setError(null);
+        setNote(null);
+        return;
+      }
+      setIncrement2(appliedInputs.increment);
+    }
     setDualMode(on);
     setDualHint(on ? "Input second increment, then click on Fill Board" : null);
+    if (!on && companion !== null) {
+      setCompanion(null);
+      setYRawCompanion(Array(COLUMNS).fill(0));
+      setCompanionW(Array(COLUMNS).fill(0));
+      setCompDefined(Array(COLUMNS).fill(true));
+      setAppliedDual(false);
+      setH2(null);
+      setDualNote(null);
+    }
   };
   const [increment2, setIncrement2] = useState(initialDefaults?.increment ?? "1");
+  const [yRawW, setYRawW] = useState<number[]>(Array(COLUMNS).fill(0));
   const [yRawCompanion, setYRawCompanion] = useState<number[]>(Array(COLUMNS).fill(0));
   const [companionW, setCompanionW] = useState<number[]>(Array(COLUMNS).fill(0));
   const [companion, setCompanion] = useState<number[] | null>(null);
+  const [compDefined, setCompDefined] = useState<boolean[]>(Array(COLUMNS).fill(true));
+  const [divisors, setDivisors] = useState<Divisor[]>([]);
+  const [dualNote, setDualNote] = useState<string | null>(null);
   const [h2, setH2] = useState<{ value: number; infinitesimal: boolean } | null>(null);
   const [dyValues, setDyValues] = useState<number[]>(Array(COLUMNS).fill(0));
   const [dyDefined, setDyDefined] = useState<boolean[]>(Array(COLUMNS).fill(false));
@@ -1252,6 +1284,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const levelStack = useRef<
     {
       yRaw: number[];
+      yRawW: number[];
       size: number[];
       change: number[];
       shift: number[];
@@ -1262,6 +1295,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       wBase: number;
       wMode: boolean;
       showLine: boolean;
+      companion: number[] | null;
+      yRawCompanion: number[];
+      companionW: number[];
+      compDefined: boolean[];
+      h2: { value: number; infinitesimal: boolean } | null;
+      appliedDual: boolean;
+      divisors: Divisor[];
+      dualMode: boolean;
     }[]
   >([]);
 
@@ -1280,13 +1321,99 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   type Promotion = {
     newYRaw: number[];
+    newYRawW: number[];
     newDefined: boolean[];
     counts: number[];
     u: number;
     floor: number;
   };
 
-  const dualActive = appliedDual && level === 0 && companion !== null && h2 !== null;
+  const dualActive = appliedDual && companion !== null && h2 !== null;
+
+  // The promoted curve at level k, evaluated on a second-order jet. Computed
+  // recursively from the original equation and the recorded divisors, so it
+  // works at every level — Fill Board is the only place that rebuilds from
+  // the original equation directly.
+  const evalFormulaJet = (x: number, bw: number, cw: number): Dual | null => {
+    if (bw === 0 && cw === 0) {
+      try {
+        const y = evaluate(normalizeFormula(appliedInputs.formula), { x });
+        return typeof y === "number" && isFinite(y) ? dual(y) : null;
+      } catch {
+        return null;
+      }
+    }
+    try {
+      const r = evalDual(normalizeFormula(appliedInputs.formula), dual(x, bw, cw));
+      return isFinite(r.a) && isFinite(r.b) && isFinite(r.c) ? r : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const curveAt = (k: number, x: Dual): Dual | null => {
+    if (k <= 0) return evalFormulaJet(x.a, x.b, x.c);
+    const dv = divisors[k - 1];
+    if (!dv) return null;
+    const shifted = dv.infinitesimal
+      ? dual(x.a, x.b - dv.value, x.c)
+      : dual(x.a - dv.value, x.b, x.c);
+    const y1 = dv.forward ? curveAt(k - 1, shifted) : curveAt(k - 1, x);
+    const y0 = dv.forward ? curveAt(k - 1, x) : curveAt(k - 1, shifted);
+    if (!y1 || !y0) return null;
+    const diff = jetSub(y1, y0);
+    return dv.infinitesimal ? jetDivInf(diff, dv.value) : jetDivReal(diff, dv.value);
+  };
+
+  // Build companion stacks for the current derived curve (level 1 or higher):
+  // every companion is evaluated from the original equation via the recursion.
+  const buildDualCompanions = (inc2Raw?: string): string | null => {
+    const inc2 = parseIncrement(inc2Raw ?? increment2);
+    if (!inc2) return "Enter a valid second increment (a number, or w).";
+    if (inc2.infinitesimal && divisors.filter((d) => d.infinitesimal).length >= 2) {
+      return "w stays exact through the second derivative. For a third round of differences, use a numeric second increment, like 0.1.";
+    }
+    if (shift.some((v) => v !== 0) || changeGap.some((v) => v !== 0)) {
+      return "Restore the stones to their original positions before enabling dual increments.";
+    }
+    if (showLine) return "Uncheck Midpoint Tangent before enabling dual increments.";
+    const h2v = inc2.value;
+    const mainJ: (Dual | null)[] = [];
+    const compJ: (Dual | null)[] = [];
+    for (let i = 0; i < COLUMNS; i++) {
+      mainJ.push(curveAt(level, dual(xValues[i], 0, 0)));
+      if (!defined[i]) {
+        compJ.push(null);
+        continue;
+      }
+      const arg = inc2.infinitesimal ? dual(xValues[i], -h2v, 0) : dual(xValues[i] - h2v, 0, 0);
+      compJ.push(curveAt(level, arg));
+    }
+    if (inc2.infinitesimal && (mainJ.some((j) => !j) || compJ.some((j) => !j))) {
+      return "w as the second increment needs an exact formula the Abacus can differentiate. Try a numeric second increment, like 0.1.";
+    }
+    const compA = compJ.map((j) => (j ? j.a : 0));
+    const compB = compJ.map((j) => (j ? j.b : 0));
+    const compD = compJ.map((j) => j !== null);
+    const unionYs = [...yRaw, ...compA];
+    const unionDef = [...defined, ...compD];
+    const res = computeCounts(unionYs, unionDef, fractional, appliedInputs.maxStones);
+    if (!res) return "The derived curve is undefined everywhere in this range.";
+    setYRawW(mainJ.map((j) => (j ? j.b : 0)));
+    setYRawCompanion(compA);
+    setCompanionW(compB);
+    setCompDefined(compD);
+    setCompanion(res.counts.slice(COLUMNS));
+    setUnit(res.u);
+    setFloorValue(res.floor);
+    setSize(res.counts.slice(0, COLUMNS));
+    setH2({ value: h2v, infinitesimal: inc2.infinitesimal });
+    setAppliedDual(true);
+    if (!fractional) setFractional(true);
+    setRunId((r) => r + 1);
+    setDualNote(DUAL_EQUATION_NOTE);
+    return null;
+  };
 
   const computePromotion = (): Promotion | string => {
     if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
@@ -1296,19 +1423,47 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     // Dual increments: divide each pair difference by the second increment.
     const incParsedLocal = parseIncrement(appliedInputs.increment);
     const incValue = dualActive && h2 ? h2.value : (incParsedLocal ? incParsedLocal.value : 1);
+    const hasWHistory = divisors.some((d) => d.infinitesimal);
+    const useJets = !!h2?.infinitesimal || hasWHistory;
     const newYRaw: number[] = [];
+    const newYRawW: number[] = [];
     const newDefined: boolean[] = [];
     const counts: number[] = [];
     for (let i = 0; i < COLUMNS; i++) {
       if (dualActive && h2) {
-        if (!defined[i]) {
+        if (!defined[i] || !compDefined[i]) {
           newYRaw.push(0);
+          newYRawW.push(0);
           newDefined.push(false);
           counts.push(0);
           continue;
         }
-        const d = h2.infinitesimal ? -companionW[i] : yRaw[i] - yRawCompanion[i];
+        if (useJets) {
+          const main = curveAt(level, dual(xValues[i], 0, 0));
+          const arg = h2.infinitesimal
+            ? dual(xValues[i], -h2.value, 0)
+            : dual(xValues[i] - h2.value, 0, 0);
+          const comp = curveAt(level, arg);
+          const nv = main && comp ? (h2.infinitesimal
+            ? jetDivInf(jetSub(main, comp), h2.value)
+            : jetDivReal(jetSub(main, comp), h2.value))
+            : null;
+          if (!nv) {
+            newYRaw.push(0);
+            newYRawW.push(0);
+            newDefined.push(false);
+            counts.push(0);
+            continue;
+          }
+          newYRaw.push(nv.a);
+          newYRawW.push(nv.b);
+          newDefined.push(true);
+          counts.push(change[i]);
+          continue;
+        }
+        const d = yRaw[i] - yRawCompanion[i];
         newYRaw.push(d / incValue);
+        newYRawW.push(0);
         newDefined.push(true);
         counts.push(change[i]);
         continue;
@@ -1316,12 +1471,20 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       const j = leftCompare ? i - 1 : i + 1;
       if (j < 0 || j >= COLUMNS || !defined[i] || !defined[j]) {
         newYRaw.push(0);
+        newYRawW.push(0);
         newDefined.push(false);
         counts.push(0);
       } else {
         const d = leftCompare ? yRaw[i] - yRaw[j] : yRaw[j] - yRaw[i];
-        const v = d / incValue;
-        newYRaw.push(v);
+        newYRaw.push(d / incValue);
+        if (hasWHistory) {
+          const a0 = curveAt(level, dual(xValues[i], 0, 0));
+          const a1 = curveAt(level, dual(xValues[j], 0, 0));
+          const bb = a0 && a1 ? (leftCompare ? a0.b - a1.b : a1.b - a0.b) / incValue : 0;
+          newYRawW.push(isFinite(bb) ? bb : 0);
+        } else {
+          newYRawW.push(0);
+        }
         newDefined.push(true);
         counts.push(change[i]);
       }
@@ -1365,8 +1528,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   };
 
   const commitPromotion = (p: Promotion, showNotice = true) => {
+    const wasDual = dualActive && h2 !== null;
     levelStack.current.push({
       yRaw: yRaw.slice(),
+      yRawW: yRawW.slice(),
       size: size.slice(),
       change: change.slice(),
       shift: shift.slice(),
@@ -1377,8 +1542,17 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       wBase,
       wMode,
       showLine,
+      companion: companion ? companion.slice() : null,
+      yRawCompanion: yRawCompanion.slice(),
+      companionW: companionW.slice(),
+      compDefined: compDefined.slice(),
+      h2: h2 ? { ...h2 } : null,
+      appliedDual,
+      divisors: divisors.slice(),
+      dualMode,
     });
     setYRaw(p.newYRaw);
+    setYRawW(p.newYRawW);
     setDefined(p.newDefined);
     setUnit(p.u);
     setFloorValue(p.floor);
@@ -1387,6 +1561,31 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setShift(Array(COLUMNS).fill(0));
     setChangeGap(Array(COLUMNS).fill(0));
     setShowLine(false);
+    // Record how this level was divided so later companion stacks can be
+    // rebuilt from the original equation.
+    if (wasDual && h2) {
+      setDivisors([...divisors, { value: h2.value, infinitesimal: h2.infinitesimal, forward: false }]);
+    } else {
+      const incDiv = parseIncrement(appliedInputs.increment);
+      setDivisors([
+        ...divisors,
+        {
+          value: incDiv ? incDiv.value : 1,
+          infinitesimal: !!incDiv?.infinitesimal,
+          forward: !leftCompare,
+        },
+      ]);
+    }
+    if (wasDual) {
+      setDualMode(false);
+      setAppliedDual(false);
+      setCompanion(null);
+      setYRawCompanion(Array(COLUMNS).fill(0));
+      setCompanionW(Array(COLUMNS).fill(0));
+      setCompDefined(Array(COLUMNS).fill(true));
+      setH2(null);
+      setDualNote(null);
+    }
     if (wMode) setWBase(0);
     setLevel((l) => l + 1);
     setError(null);
@@ -1582,6 +1781,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (levelStack.current.length === 0) return;
     const snap = levelStack.current.pop()!;
     setYRaw(snap.yRaw);
+    setYRawW(snap.yRawW);
     setSize(snap.size);
     setChange(snap.change);
     setShift(snap.shift);
@@ -1592,6 +1792,16 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     setWBase(snap.wBase);
     setWMode(snap.wMode);
     setShowLine(snap.showLine);
+    setCompanion(snap.companion);
+    setYRawCompanion(snap.yRawCompanion);
+    setCompanionW(snap.companionW);
+    setCompDefined(snap.compDefined);
+    setH2(snap.h2);
+    setAppliedDual(snap.appliedDual);
+    setDivisors(snap.divisors);
+    setDualMode(snap.dualMode);
+    if (snap.appliedDual && snap.companion && level - 1 > 0) setDualNote(DUAL_EQUATION_NOTE);
+    else setDualNote(null);
     setLevel((l) => l - 1);
     setRunId((r) => r + 1);
 
@@ -1606,7 +1816,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       const m = Number(appliedInputs.midpoint);
       if (!isFinite(m)) return 0;
       try {
-        return evalDual(cleaned, { a: m, b: 1 }).b;
+        return evalDual(cleaned, dual(m, 1)).b;
       } catch {
         /* fall back to a numeric derivative below */
       }
@@ -1708,7 +1918,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         // differs only in its w-coefficient, which is (i - 5) * h * f'(m).
         let deriv = 0;
         try {
-          const r = evalDual(cleaned, { a: m, b: 1 });
+          const r = evalDual(cleaned, dual(m, 1));
           base = r.a;
           deriv = r.b;
         } catch {
@@ -1766,7 +1976,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           }
           if (isW2) {
             try {
-              const r = evalDual(cleaned, { a: xs[i], b: -h2 });
+              const r = evalDual(cleaned, dual(xs[i], -h2));
               ycs.push(r.a);
               ycB.push(r.b);
             } catch {
@@ -1850,6 +2060,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         setH2(null);
       }
       setAppliedDual(dual);
+      setYRawW(Array(COLUMNS).fill(0));
+      setCompDefined(Array(COLUMNS).fill(true));
+      setDivisors([]);
+      setDualNote(null);
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
@@ -1911,10 +2125,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (dualActive && h2) {
       // Measure only the gap inside each pair: main minus companion.
       const r = yRaw.map((y, i) => {
-        if (!defined[i]) return 0;
+        if (!defined[i] || !compDefined[i]) return 0;
         // With an infinitesimal second increment the pair difference is
-        // -companionW[i]·w; one orange stone is then worth unit·w.
-        const d = h2.infinitesimal ? -companionW[i] : y - yRawCompanion[i];
+        // (main − companion)·w; one orange stone is then worth unit·w.
+        const d = h2.infinitesimal ? yRawW[i] - companionW[i] : y - yRawCompanion[i];
         if (!fractional && !h2.infinitesimal && companion) {
           // Count the visible stones so the stacks always add up.
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, size[i] - companion[i]));
@@ -1994,14 +2208,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         }),
       );
     } else if (change.some((v) => v !== 0)) {
-      const newChange = yRaw.map((y, i) => {
+        const newChange = yRaw.map((y, i) => {
         if (dualActive && h2) {
           // Pair difference: main minus companion.
-          if (!defined[i]) return 0;
+          if (!defined[i] || !compDefined[i]) return 0;
           if (!fractional && !h2.infinitesimal && newComp) {
             return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, newSize[i] - newComp[i]));
           }
-          const d = h2.infinitesimal ? -companionW[i] : y - yRawCompanion[i];
+          const d = h2.infinitesimal ? yRawW[i] - companionW[i] : y - yRawCompanion[i];
           const raw = d / unit;
           const v = fractional ? raw : Math.round(raw);
           return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
@@ -2142,12 +2356,16 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         ? dualActive
           ? "2rem 8rem 8rem 8rem 8rem 5rem"
           : "2rem 10rem 10rem 10rem 5rem"
-        : "2rem 10rem 10rem 5rem"
+        : dualActive
+          ? "2rem 10rem 10rem 10rem 5rem"
+          : "2rem 10rem 10rem 5rem"
       : showYColumn
         ? dualActive
           ? "2rem 4rem 4rem 3.5rem 4.5rem 2rem"
           : "2rem 4rem 4rem 5.5rem 2rem"
-        : "2rem 4rem 5.5rem 2rem"
+        : dualActive
+          ? "2rem 4rem 4rem 4.5rem 2rem"
+          : "2rem 4rem 5.5rem 2rem"
     : slopeHighPrecision
       ? "2rem 10rem 10rem"
       : "2rem 4rem 4.5rem";
@@ -2182,18 +2400,19 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           anim={anim}
           instant={instant}
           leibniz={leibniz}
-          companion={appliedDual && level === 0 ? companion : null}
+          companion={companion}
           dualActive={dualActive}
           h2={h2}
           palette={palette}
         />
       </Canvas>
 
-      {/* Mid-board notice: dual-mode hint, or stone-value change notice */}
-      {(dualHint ?? unitNotice) && (
+      {/* Mid-board notice: stone-value change, dual-mode hint, or the
+          equation-reminder shown while a derived dual board is up */}
+      {(unitNotice ?? dualHint ?? dualNote) && (
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
           <div className="rounded-xl border border-border bg-card/90 px-5 py-3 text-center text-base text-foreground shadow-2xl backdrop-blur-md">
-            {dualHint ?? unitNotice}
+            {unitNotice ?? dualHint ?? dualNote}
           </div>
         </div>
       )}
@@ -2318,6 +2537,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 <div className="text-center" style={{ color: palette.size }}>f(x-h₂)</div>
               )}
               <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
+              {!showYColumn && dualActive && (
+                <div className="text-center" style={{ color: palette.size }}>f(x-h₂)</div>
+              )}
               {showChangeColumns && (
                 <>
                   <div className="text-center" style={{ color: level === 0 ? palette.change : undefined }}>{changeHeader}</div>
@@ -2362,6 +2584,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                     {isDef ? fmtCount(size[i]) : "undefined"}
                   </div>
+                  {!showYColumn && dualActive && (
+                    <div className={`text-center font-mono ${isDef && compDefined[i] ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isDef && compDefined[i] ? fmtCount(companion?.[i] ?? 0) : "undefined"}
+                    </div>
+                  )}
                   {showChangeColumns && (
                     <>
                       <div className={`text-center font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
@@ -2388,11 +2615,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               );
             })}
 
-
               </>
             )}
-
-
           </div>
         </div>
       )}
@@ -2522,7 +2746,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the size stacks and adds a straight line tangent to that curve at the midpoint column.
               </p>
               <p>
-                Checking <strong>"Dual increments"</strong> is a pending setting: a notice in the middle of the board asks you to <strong>"Input second increment, then click on Fill Board"</strong>, and the change takes effect on the next Fill Board. Afterward, every column shows a narrower companion stack for <span className="font-mono text-foreground">f(x − second increment)</span>, drawn immediately to the left of the <span className="font-mono text-foreground">f(x)</span> stack. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — main minus companion — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative. Dual increments need fractional stones to keep small pair differences visible, so <strong>"Fractional stones"</strong> turns on automatically and stays on while the box is checked.
+                Checking <strong>"Dual increments"</strong> is a pending setting: a notice in the middle of the board asks you to <strong>"Input second increment, then click on Fill Board"</strong>, and the change takes effect on the next Fill Board. Afterward, every column shows a narrower companion stack for <span className="font-mono text-foreground">f(x − second increment)</span>, drawn immediately to the left of the <span className="font-mono text-foreground">f(x)</span> stack. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — main minus companion — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative. Dual increments need fractional stones to keep small pair differences visible, so <strong>"Fractional stones"</strong> turns on automatically and stays on while the box is checked. While the board keeps the original curve after Fill Board, the equation box shows the original equation as usual. After a promotion, the board shows the derived curve and the equation box still shows the original equation: every stack, companion, and difference is still computed from it, so the original equation is exactly what you see. Click <strong>"Dual increments"</strong> again to compare the new stacks with their neighbors and keep differentiating; click <strong>"Divide By Increment"</strong> to finish each round.
               </p>
               <p>
                 Clicking <strong>"Divide By Increment"</strong> is animated one column at a time, from left to right. In Dual Increments mode each column's two size stacks disappear, the change-size stones widen to fill the full column, and then fall to the board floor. Afterward, if the value of one stone changes, notices explain the change before and after the stones are adjusted and recolored. The left panel updates last, and clicking or pressing Esc skips the animation.
@@ -2715,7 +2939,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               title={
                 level > 0 || anim
                   ? "Dual increments are fixed once stones have been removed."
-                  : "Give every column a companion stack at x minus the second increment."
+                  : appliedDual
+                    ? `Now comparing with f(x − ${h2?.infinitesimal ? "w" : fmtVal(h2?.value ?? 0)}). Click again to re-compare after each round.`
+                    : "Give every column a companion stack at x minus the second increment."
               }
             >
               <input
