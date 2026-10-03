@@ -1,36 +1,92 @@
 import { parse, type MathNode } from "mathjs";
 
 /**
- * Dual numbers: `a + b·w`, where `w` is a positive infinitesimal smaller than
- * every positive real number, and `w·w` is negligible (exactly zero).
- * Evaluating f at `m + w` therefore yields `f(m) + f'(m)·w` exactly.
+ * Second-order jets: `a + b·w + c·w²`, where `w` is a positive infinitesimal
+ * smaller than every positive real number, and `w³` is negligible (exactly
+ * zero). Evaluating f at `m + b·w + c·w²` yields `f(m) + f'(m)·b·w +
+ * ½f''(m)·b²·w²` exactly. The second order lets a difference quotient divided
+ * by `w` carry its own w-coefficient, so a further round of infinitesimal
+ * differences stays exact.
  */
-export type Dual = { a: number; b: number };
+export type Dual = { a: number; b: number; c: number };
 
-export const dual = (a: number, b = 0): Dual => ({ a, b });
+export const dual = (a: number, b = 0, c = 0): Dual => ({ a, b, c });
 
-const add = (x: Dual, y: Dual): Dual => ({ a: x.a + y.a, b: x.b + y.b });
-const sub = (x: Dual, y: Dual): Dual => ({ a: x.a - y.a, b: x.b - y.b });
-const mul = (x: Dual, y: Dual): Dual => ({ a: x.a * y.a, b: x.a * y.b + x.b * y.a });
-const div = (x: Dual, y: Dual): Dual => ({
-  a: x.a / y.a,
-  b: (x.b * y.a - x.a * y.b) / (y.a * y.a),
+export const jetAdd = (x: Dual, y: Dual): Dual => ({
+  a: x.a + y.a,
+  b: x.b + y.b,
+  c: x.c + y.c,
 });
-const neg = (x: Dual): Dual => ({ a: -x.a, b: -x.b });
+export const jetSub = (x: Dual, y: Dual): Dual => ({
+  a: x.a - y.a,
+  b: x.b - y.b,
+  c: x.c - y.c,
+});
+/** Divide a jet by a plain real number. */
+export const jetDivReal = (x: Dual, k: number): Dual => ({
+  a: x.a / k,
+  b: x.b / k,
+  c: x.c / k,
+});
+/**
+ * Divide a jet by `k·w`. Only valid when the real parts cancel (the two
+ * arguments of the difference share their real part); the quotient is
+ * `b/k + (c/k)·w`.
+ */
+export const jetDivInf = (x: Dual, k: number): Dual | null => {
+  const scale = Math.max(1, Math.abs(x.b) * k);
+  if (Math.abs(x.a) > 1e-12 * scale) return null;
+  return { a: x.b / k, b: x.c / k, c: 0 };
+};
 
-const chain = (x: Dual, f: (v: number) => number, df: (v: number) => number): Dual => ({
+const mul = (x: Dual, y: Dual): Dual => ({
+  a: x.a * y.a,
+  b: x.a * y.b + x.b * y.a,
+  c: x.a * y.c + x.b * y.b + x.c * y.a,
+});
+const div = (x: Dual, y: Dual): Dual => {
+  // 1/y = A + B·w + C·w² with A = 1/ya, B = −yb/ya², C = (yb² − yc·ya)/ya³.
+  const A = 1 / y.a;
+  const B = -y.b * A * A;
+  const C = (y.b * y.b - y.c * y.a) * A * A * A;
+  return {
+    a: x.a * A,
+    b: x.a * B + x.b * A,
+    c: x.a * C + x.b * B + x.c * A,
+  };
+};
+const neg = (x: Dual): Dual => ({ a: -x.a, b: -x.b, c: -x.c });
+
+/** Chain rule through f: b carries f', c carries f'·c + ½f''·b². */
+const chain = (
+  x: Dual,
+  f: (v: number) => number,
+  df: (v: number) => number,
+  d2f: (v: number) => number,
+): Dual => ({
   a: f(x.a),
   b: df(x.a) * x.b,
+  c: df(x.a) * x.c + 0.5 * d2f(x.a) * x.b * x.b,
 });
 
-const dSqrt = (x: Dual) => chain(x, Math.sqrt, (v) => 1 / (2 * Math.sqrt(v)));
-const dExp = (x: Dual) => chain(x, Math.exp, Math.exp);
-const dLog = (x: Dual) => chain(x, Math.log, (v) => 1 / v);
+const dSqrt = (x: Dual) =>
+  chain(x, Math.sqrt, (v) => 1 / (2 * Math.sqrt(v)), (v) => -1 / (4 * Math.pow(v, 1.5)));
+const dExp = (x: Dual) => chain(x, Math.exp, Math.exp, Math.exp);
+const dLog = (x: Dual) => chain(x, Math.log, (v) => 1 / v, (v) => -1 / (v * v));
 
 function dPow(x: Dual, y: Dual): Dual {
-  if (y.b === 0) {
+  if (y.b === 0 && y.c === 0) {
     const n = y.a;
-    return { a: Math.pow(x.a, n), b: n * Math.pow(x.a, n - 1) * x.b };
+    const p = Math.pow(x.a, n);
+    const dp = n * Math.pow(x.a, n - 1);
+    // At x.a = 0 only special exponents keep a finite second-order term.
+    const cTerm =
+      x.a === 0
+        ? n === 2
+          ? 0.5 * n * (n - 1) * x.b * x.b
+          : 0
+        : 0.5 * n * (n - 1) * Math.pow(x.a, n - 2) * x.b * x.b;
+    return { a: p, b: dp * x.b, c: dp * x.c + cTerm };
   }
   // general case: x^y = exp(y * log x)
   return dExp(mul(y, dLog(x)));
@@ -44,22 +100,48 @@ function dAbs(x: Dual): Dual {
 
 const UNARY: Record<string, (x: Dual) => Dual> = {
   sqrt: dSqrt,
-  cbrt: (x) => chain(x, Math.cbrt, (v) => 1 / (3 * Math.pow(Math.cbrt(v), 2))),
+  cbrt: (x) =>
+    chain(
+      x,
+      Math.cbrt,
+      (v) => 1 / (3 * Math.pow(Math.cbrt(v), 2)),
+      (v) => -2 / (9 * Math.pow(Math.cbrt(v), 5)),
+    ),
   exp: dExp,
   log: dLog,
   ln: dLog,
-  log10: (x) => chain(x, Math.log10, (v) => 1 / (v * Math.LN10)),
-  log2: (x) => chain(x, Math.log2, (v) => 1 / (v * Math.LN2)),
+  log10: (x) =>
+    chain(x, Math.log10, (v) => 1 / (v * Math.LN10), (v) => -1 / (v * v * Math.LN10)),
+  log2: (x) => chain(x, Math.log2, (v) => 1 / (v * Math.LN2), (v) => -1 / (v * v * Math.LN2)),
   abs: dAbs,
-  sin: (x) => chain(x, Math.sin, Math.cos),
-  cos: (x) => chain(x, Math.cos, (v) => -Math.sin(v)),
-  tan: (x) => chain(x, Math.tan, (v) => 1 / (Math.cos(v) * Math.cos(v))),
-  asin: (x) => chain(x, Math.asin, (v) => 1 / Math.sqrt(1 - v * v)),
-  acos: (x) => chain(x, Math.acos, (v) => -1 / Math.sqrt(1 - v * v)),
-  atan: (x) => chain(x, Math.atan, (v) => 1 / (1 + v * v)),
-  sinh: (x) => chain(x, Math.sinh, Math.cosh),
-  cosh: (x) => chain(x, Math.cosh, Math.sinh),
-  tanh: (x) => chain(x, Math.tanh, (v) => 1 / (Math.cosh(v) * Math.cosh(v))),
+  sin: (x) => chain(x, Math.sin, Math.cos, (v) => -Math.sin(v)),
+  cos: (x) => chain(x, Math.cos, (v) => -Math.sin(v), (v) => -Math.cos(v)),
+  tan: (x) =>
+    chain(x, Math.tan, (v) => 1 / (Math.cos(v) * Math.cos(v)), (v) => (2 * Math.sin(v)) / Math.pow(Math.cos(v), 3)),
+  asin: (x) =>
+    chain(
+      x,
+      Math.asin,
+      (v) => 1 / Math.sqrt(1 - v * v),
+      (v) => v / Math.pow(1 - v * v, 1.5),
+    ),
+  acos: (x) =>
+    chain(
+      x,
+      Math.acos,
+      (v) => -1 / Math.sqrt(1 - v * v),
+      (v) => -v / Math.pow(1 - v * v, 1.5),
+    ),
+  atan: (x) => chain(x, Math.atan, (v) => 1 / (1 + v * v), (v) => (-2 * v) / Math.pow(1 + v * v, 2)),
+  sinh: (x) => chain(x, Math.sinh, Math.cosh, Math.sinh),
+  cosh: (x) => chain(x, Math.cosh, Math.sinh, Math.cosh),
+  tanh: (x) =>
+    chain(
+      x,
+      Math.tanh,
+      (v) => 1 / (Math.cosh(v) * Math.cosh(v)),
+      (v) => (-2 * Math.tanh(v)) / (Math.cosh(v) * Math.cosh(v)),
+    ),
 };
 
 const CONSTANTS: Record<string, number> = {
@@ -95,9 +177,9 @@ function walk(node: AnyNode, x: Dual): Dual {
       if (args.length !== 2) throw new Error(`unsupported operator ${fn}`);
       switch (fn) {
         case "add":
-          return add(args[0], args[1]);
+          return jetAdd(args[0], args[1]);
         case "subtract":
-          return sub(args[0], args[1]);
+          return jetSub(args[0], args[1]);
         case "multiply":
           return mul(args[0], args[1]);
         case "divide":
@@ -122,11 +204,11 @@ function walk(node: AnyNode, x: Dual): Dual {
   }
 }
 
-/** Evaluate a formula in `x` using dual arithmetic. Throws when unsupported. */
+/** Evaluate a formula in `x` using second-order jet arithmetic. Throws when unsupported. */
 export function evalDual(expr: string, x: Dual): Dual {
   const node = parse(expr) as AnyNode;
   const r = walk(node, x);
-  if (!isFinite(r.a) || !isFinite(r.b)) throw new Error("not finite");
+  if (!isFinite(r.a) || !isFinite(r.b) || !isFinite(r.c)) throw new Error("not finite");
   return r;
 }
 
