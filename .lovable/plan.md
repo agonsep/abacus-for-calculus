@@ -8,6 +8,7 @@ Add one short paragraph to the Help panel explaining how to obtain the second de
 - To go one level further, do **not** click Fill Board (that rebuilds the board from the original equation and discards the slope curve).
 - Instead, click **Find Differences** and then **Divide By Increment** again: the differences of the slope curve are promoted to a new set of size stones — the second-derivative curve.
 - Note that this second round uses ordinary neighbour differencing, since the promoted board is a single curve again (Dual Increments no longer applies).
+- The division in this second round uses the column spacing (the first increment, here 1) — not the old second increment 0.1 — because the promoted stacks sit one first-increment apart; dividing by 0.1 would inflate the result tenfold.
 
 ## Technical notes
 
