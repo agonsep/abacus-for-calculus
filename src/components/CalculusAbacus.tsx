@@ -1413,6 +1413,17 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (!fractional) setFractional(true);
     setRunId((r) => r + 1);
     setDualNote(DUAL_EQUATION_NOTE);
+    // Recompute the change-size stones for the new pair state right away so the
+    // panel shows main minus companion, not a stale neighbor difference.
+    const newChange = yRaw.map((_, i) => {
+      if (!defined[i] || !compD[i] || !mainJ[i]) return 0;
+      const d = inc2.infinitesimal
+        ? mainJ[i].b - compB[i]
+        : mainJ[i].a - compA[i];
+      const raw = res.u === 0 ? 0 : d / res.u;
+      return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, raw));
+    });
+    setChange(newChange);
     return null;
   };
 
