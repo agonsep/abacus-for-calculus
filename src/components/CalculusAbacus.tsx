@@ -2584,7 +2584,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   <div className={`text-center font-mono ${isDef ? "text-foreground" : "text-muted-foreground"}`}>
                     {isDef ? fmtCount(size[i]) : "undefined"}
                   </div>
-                  {showChangeColumns && (
+                  {!showYColumn && dualActive && (
+                    <div className={`text-center font-mono ${isDef && compDefined[i] ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isDef && compDefined[i] ? fmtCount(companion?.[i] ?? 0) : "undefined"}
+                    </div>
+                  )}
                     <>
                       <div className={`text-center font-mono ${diffDef ? "text-foreground" : "text-muted-foreground"}`}>
                         {diffDef ? fmtCount(change[i]) : "undefined"}
