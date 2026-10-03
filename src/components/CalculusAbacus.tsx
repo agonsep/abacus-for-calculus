@@ -2537,6 +2537,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 <div className="text-center" style={{ color: palette.size }}>f(x-h₂)</div>
               )}
               <div className="text-center" style={{ color: level === 0 ? palette.size : undefined }}>{sizeHeader}</div>
+              {!showYColumn && dualActive && (
+                <div className="text-center" style={{ color: palette.size }}>f(x-h₂)</div>
+              )}
               {showChangeColumns && (
                 <>
                   <div className="text-center" style={{ color: level === 0 ? palette.change : undefined }}>{changeHeader}</div>
