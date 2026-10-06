@@ -1,9 +1,7 @@
 # Roadmap
 
-## In progress
-- Add “From Secant to Tangent” as Exercise 2 for Estimation Before Formalization, preserving the PDF content and diagram while matching the existing library formatting.
-
 ## Completed
+- Add “From Secant to Tangent” as Exercise 2 for Estimation Before Formalization, preserving all teaching content, blank worksheet, worked table, and extracted diagram; verified exercise ordering and wide/narrow-screen rendering.
 - Add “From Columns to Area” as Exercise 1 for Estimation Before Formalization, preserving its worksheets and endpoint diagram.
 - Remove zoom buttons from the right panel of the Calculus Abacus; keep wheel/pinch zoom.
 - Add selectable stone-color palettes (Red/Orange, Blue/Cyan, Forest/Mint) with right-panel picker, persisted choice, and matching panel/button/help highlights.
