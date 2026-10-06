@@ -1,19 +1,17 @@
-# Drop the "10 decimals" recommendation from *From Secant to Tangent*
+## Add Exercise 3: "Correct the Guess"
 
-## What changes
+Add the uploaded exercise as the third companion exercise to *Estimation Before Formalization*. It will look and read like "From Secant to Tangent". All the text, tables and the figure stay the same.
 
-- **Setup paragraph:** students enable only **Fractional stones** before **Find Differences**; the **10 decimals** instruction is removed. Increments, refilling, and the Lefthand comparison note stay.
-- **One clarifying sentence:** the board shows fractional values to two decimals, so the exact digits for the small increments come from the paper calculation of f(2 + h) − f(2); the board supplies the sizes and the direction of change.
-- **Three places that quietly assumed the extra digits:**
-  - "What Students Often Notice" — the decimals bullet is reworded around the two-decimal display and the shrinking increment.
-  - Common Misconceptions — "Equating more decimals with more accuracy" is reworded the same way, keeping the point.
-  - Quick Formative Assessment — uses change-size 0.41 with increment 0.1, which is exactly what the board shows, instead of 0.0401 with 0.01.
-- Everything else is untouched: the four increments (0.5, 0.1, 0.01, 0.001), both tables, Figure 1, the expected-values check, timing and adaptation notes, and the attribution line.
+### What gets added
+- A new library entry, **Correct the Guess**, listed after "From Secant to Tangent". It is labeled *Exercise 3 · Estimation Before Formalization Companion Exercises*. The credit line is the same as before: "Written for the Calculus Abacus Project by Hamza Amin, with AI assistance, 2026."
+- The sections keep their original order: Learning Objective, Teacher Overview (with Setup and app sequence), Student Activity (Predict, Construct a Local Line, Check the Direction, Repeat, Compare Representations, Judge Stabilization), Reflection Questions, Teacher Discussion Extension, What Students Often Notice, Expected Student Discoveries, Common Misconceptions, Teacher Notes and Mathematical Check, Connection to the Historical Article, Classroom Timing and Adaptation, Quick Formative Assessment.
+- **Two tables:**
+  - The student table, with blank cells for steps 0–2 (starting values 1.0000, 1.4975 and 1.4168).
+  - The completed check table in the teacher notes.
+- **Figure 1** (the line that meets the axis at the next estimate), cut from page 2 of the PDF, with its original caption.
+- **Formulas:** the slope quotient, the local-line equation, the recurrence \(x_{n+1} = x_n - f(x_n)/m_n\) and √2. These are written in the same plain bold-formula style the earlier exercises use.
 
-## Technical details
-
-- Edits are confined to `src/content/library/from-secant-to-tangent.md`: the setup paragraph, the two bullets, and the assessment line.
-- Display behaviour was confirmed in `src/components/CalculusAbacus.tsx`: fractional values are rounded to two decimals unless the "10 decimals" option is on, so 0.0401 and 0.004001 cannot be read off the board — hence the paper-calculation sentence and the assessment change.
-- No code, schema, or styling changes.
-- Other library files still recommend "10 decimals" (`estimation-before-formalization.md` in its two app-sequence passages, and `from-columns-to-area.md` in its Options row). They are left as they are unless you want the same change applied there.
-- After editing: the exercise still renders in the Library in the right order, contains no "10 decimals" text, and shows no horizontal overflow on a phone-width screen.
+### Technical details
+- New file `src/content/library/correct-the-guess.md`, using the same metadata as the earlier exercises (slug `correct-the-guess`, section exercise, parent `estimation-before-formalization`, order 3).
+- Render page 2 with pdftoppm, crop the figure with PIL, then store it with lovable-assets as `src/assets/library/correct-the-guess-figure-1.png.asset.json` and refer to it by its CDN URL.
+- Mark the item done in roadmap.md. Check in the browser that the exercise appears in the right order, both tables and the figure show, and nothing overflows at 390px.
