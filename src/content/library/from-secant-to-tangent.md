@@ -20,11 +20,11 @@ The exercise draws on two different historical strands. Fermat’s work directs 
 
 Students run four increments. The app’s displayed *change-size* is a neighboring finite change. Dividing it by the increment produces a slope estimate. A change-curve becomes a derivative claim only after that division and an account of what happens as the increment decreases.
 
+## Student Activity
+
 ### Setup and app sequence
 
 For each run choose **Show panels** and set formula x^2, midpoint 2, max stones 80. Enable **Fractional stones** and **10 decimals** before selecting **Find Differences**, which generates the change-size stones. Select **Lefthand comparison** when reading the left neighbor. Use increments 0.5, 0.1, 0.01, 0.001, refilling the board and selecting **Find Differences** after every change. If fractional stones are enabled later, select **Find Differences** again.
-
-## Student Activity
 
 **PREDICT.** At x = 2, will a right-neighbor estimate be larger or smaller than a left-neighbor estimate? Sketch two secant lines and explain your prediction from the curve’s shape.
 
