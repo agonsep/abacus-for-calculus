@@ -39,8 +39,6 @@ Open the web Calculus Abacus and choose **Show panels**. Set:
 
 The expected columns run from 0 to 1; the floor is 0; the maximum value is 1; one size stone is worth 1/80 = 0.0125. If the floor is not zero, stop and recheck the range. Do not use visible height as area until students have identified both the baseline and the horizontal width.
 
-## Student Activity
-
 **PREDICT.** The curve rises from 0 to 1. If each rectangle uses the height at its right edge, will the result be below or above the true area? What about left-edge heights? Explain without calculating.
 
 **INTERPRET THE DISPLAY.** Record the floor, the value of one size stone, and the increment. Explain what a stack at x = 0.7 represents. Then explain why a height of 0.49 is not yet an area.
