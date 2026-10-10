@@ -20,11 +20,11 @@ This exercise follows the article’s discussion of Newton’s Method. It begins
 
 The exercise draws on Newton’s idea of correcting an estimate, although the classroom procedure is modern. Newton’s work included numerical correction of equations, but he did not use this interface or this exact sequence.
 
+## Student Activity
+
 ### Setup and app sequence
 
 Choose **Show panels**. Set formula x^2 - 2, midpoint 1, increment 0.01, and max stones 50. Enable **Fractional stones** and **10 decimals**; then select **Fill Board** and **Find Differences**, which generates the change-size stones. For every new midpoint, refill and select **Find Differences** again. Record the app’s floor and stone value each time because the display rescales when the window changes.
-
-## Student Activity
 
 **PREDICT.** The root of x² − 2 lies between 1 and 2. Starting at x₀ = 1, the function value is negative and the local slope is positive. Should the correction move left or right? Should it travel all the way to 2? Explain from a sketch.
 
