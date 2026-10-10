@@ -3,6 +3,7 @@
 ## Completed
 - Add “From Secant to Tangent” as Exercise 2 for Estimation Before Formalization, preserving all teaching content, blank worksheet, worked table, and extracted diagram; verified exercise ordering and wide/narrow-screen rendering.
 - Add “Correct the Guess” as Exercise 3 for Estimation Before Formalization, preserving content, both tables, and the extracted diagram.
+- Move the “Student Activity” heading above the setup subheading in all three companion exercises (“From Columns to Area”, “From Secant to Tangent”, “Correct the Guess”) so the setup steps read as the first part of the student activity; verified heading order, tables, and diagrams on each page.
 - Add “From Columns to Area” as Exercise 1 for Estimation Before Formalization, preserving its worksheets and endpoint diagram.
 - Remove zoom buttons from the right panel of the Calculus Abacus; keep wheel/pinch zoom.
 - Add selectable stone-color palettes (Red/Orange, Blue/Cyan, Forest/Mint) with right-panel picker, persisted choice, and matching panel/button/help highlights.
