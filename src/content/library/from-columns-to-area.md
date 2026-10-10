@@ -24,6 +24,8 @@ The app displays 11 columns, so one validated board can show x = 0, 0.1, …, 1.
 
 *Figure 1: Five left-end rectangles lie below y = x²; five right-end rectangles lie above it.*
 
+## Student Activity
+
 ### Setup: validate before class
 
 Open the web Calculus Abacus and choose **Show panels**. Set:
