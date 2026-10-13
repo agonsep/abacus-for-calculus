@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Completed
+- Add − and + buttons beside the "Midpoint Tangent" checkbox that shift the tangent line one column left or right, recomputing the slope at the new column; buttons disable at the board edges, when the box is unchecked, and during animations; the offset resets on Fill Board; Help panel updated.
 - Add “From Secant to Tangent” as Exercise 2 for Estimation Before Formalization, preserving all teaching content, blank worksheet, worked table, and extracted diagram; verified exercise ordering and wide/narrow-screen rendering.
 - Add “Correct the Guess” as Exercise 3 for Estimation Before Formalization, preserving content, both tables, and the extracted diagram.
 - Move the “Student Activity” heading above the setup subheading in all three companion exercises (“From Columns to Area”, “From Secant to Tangent”, “Correct the Guess”) so the setup steps read as the first part of the student activity; verified heading order, tables, and diagrams on each page.
