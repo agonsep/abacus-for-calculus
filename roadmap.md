@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Completed
+- Rename the "Midpoint Tangent" checkbox to "Tangent" now that the line can move off the midpoint; the same box still draws the curve over the column tops and the tangent line, with a hover tip naming both, and the Help panel, the blocking messages, and the How the Abacus Works article use the new name.
 - Add − and + buttons beside the "Midpoint Tangent" checkbox that shift the tangent line one column left or right, recomputing the slope at the new column; buttons disable at the board edges, when the box is unchecked, and during animations; the offset resets on Fill Board; Help panel updated.
 - Add “From Secant to Tangent” as Exercise 2 for Estimation Before Formalization, preserving all teaching content, blank worksheet, worked table, and extracted diagram; verified exercise ordering and wide/narrow-screen rendering.
 - Add “Correct the Guess” as Exercise 3 for Estimation Before Formalization, preserving content, both tables, and the extracted diagram.
