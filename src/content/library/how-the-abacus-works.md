@@ -108,7 +108,7 @@ The smallest numeric increment is 0.001. The infinitesimal w offers a different 
 
 Whole stones round. The approximations are small, and fractional stones recover them when precision matters, at the cost of some countability.
 
-Before division, the change-size stones show a difference, not a rate of change. With a positive measuring increment smaller than 1, that difference is smaller in magnitude than its corresponding difference quotient. Its stone count also depends on the current stone value, so height alone is not a measure of steepness. This is fidelity, not error: the abacus begins with differences. Divide By Increment turns those differences into a rate curve, and the gap between a difference and a rate of change is worth teaching. Exercise C turns the remedy into the lesson.
+Before division, the change-size stones show a difference, not a rate of change. With a positive measuring increment smaller than 1, that difference is smaller in magnitude than its corresponding difference quotient. Its stone count also depends on the current stone value, so height alone is not a measure of steepness. This is fidelity, not error: the abacus begins with differences. Divide By Increment turns those differences into a rate curve, and the gap between a difference and a rate of change is worth teaching. "From Differences to Rates" turns the remedy into the lesson.
 
 The abacus shows a change-curve, never an equation for the derivative. It offers behavior a student can see and judge, and leaves the symbols for later; that is why it pairs with symbolic work rather than replacing it.
 

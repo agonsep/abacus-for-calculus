@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Completed
+- Replace the stale "Exercise C" reference in “How the Abacus Works” with the exercise’s actual title, “From Differences to Rates”; no lettered exercise labels remain anywhere in the library.
 - Update “How the Abacus Works” with essential explanations of Dual Increments, w, repeated derivatives, and Leibniz differentials; correct promotion, floor, tangent, controls, colors, precision, and limits while preserving its hands-on approach and triangular-number example.
 - Rename the "Midpoint Tangent" checkbox to "Tangent" now that the line can move off the midpoint; the same box still draws the curve over the column tops and the tangent line, with a hover tip naming both, and the Help panel, the blocking messages, and the How the Abacus Works article use the new name.
 - Add − and + buttons beside the "Midpoint Tangent" checkbox that shift the tangent line one column left or right, recomputing the slope at the new column; buttons disable at the board edges, when the box is unchecked, and during animations; the offset resets on Fill Board; Help panel updated.
