@@ -1385,7 +1385,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (shift.some((v) => v !== 0) || changeGap.some((v) => v !== 0)) {
       return "Restore the stones to their original positions before enabling dual increments.";
     }
-    if (showLine) return "Uncheck Midpoint Tangent before enabling dual increments.";
+    if (showLine) return "Uncheck Tangent before enabling dual increments.";
     const h2v = inc2.value;
     const mainJ: (Dual | null)[] = [];
     const compJ: (Dual | null)[] = [];
@@ -1439,7 +1439,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (!change.some((v) => v !== 0)) return "No change-size stones to promote.";
     if (shift.some((v) => v !== 0) || changeGap.some((v) => v !== 0))
       return "Restore the stones to their original positions before removing stones.";
-    if (showLine) return "Uncheck Midpoint Tangent before removing stones.";
+    if (showLine) return "Uncheck Tangent before removing stones.";
     // Dual increments: divide each pair difference by the second increment.
     const incParsedLocal = parseIncrement(appliedInputs.increment);
     const incValue = dualActive && h2 ? h2.value : (incParsedLocal ? incParsedLocal.value : 1);
@@ -2768,7 +2768,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Checking <strong>"Leibniz Mode"</strong> keeps the size stones and adds a narrow wooden shelf across the middle of the board. Resting on that shelf, with every stack starting at the same height, are the change-size differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the size stones. Max Stones is capped at 50 so the size stacks never reach the shelf.
               </p>
               <p>
-                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the size stacks and adds a straight line tangent to that curve at the midpoint column. The <strong>−</strong> and <strong>+</strong> buttons beside the label move the tangent one column to the left or right, recomputing the slope at the new column.
+                <strong>"Tangent"</strong> traces a curve through the tops of the size stacks and adds a straight line tangent to that curve, starting at the midpoint column. The <strong>−</strong> and <strong>+</strong> buttons beside the label move the tangent one column to the left or right, recomputing the slope at the new column.
               </p>
               <p>
                 Checking <strong>"Dual increments"</strong> is a pending setting: a notice in the middle of the board asks you to <strong>"Input second increment, then click on Fill Board"</strong>, and the change takes effect on the next Fill Board. Afterward, every column shows a narrower companion stack for <span className="font-mono text-foreground">f(x − second increment)</span>, drawn immediately to the left of the <span className="font-mono text-foreground">f(x)</span> stack. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — main minus companion — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative. Dual increments need fractional stones to keep small pair differences visible, so <strong>"Fractional stones"</strong> turns on automatically and stays on while the box is checked. While the board keeps the original curve after Fill Board, the equation box shows the original equation as usual. After a promotion, the board shows the derived curve and the equation box still shows the original equation: every stack, companion, and difference is still computed from it, so the original equation is exactly what you see. Click <strong>"Dual increments"</strong> again to compare the new stacks with their neighbors and keep differentiating; click <strong>"Divide By Increment"</strong> to finish each round.
@@ -2990,7 +2990,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             {showMore && (
               <>
                 <div className="flex items-center gap-3">
-                  <label className="flex cursor-pointer items-center gap-3">
+                  <label
+                    className="flex cursor-pointer items-center gap-3"
+                    title="Traces a curve through the tops of the size stacks and draws a tangent line. Use the − and + buttons to move the line one column at a time."
+                  >
                     <input
                       type="checkbox"
                       checked={showLine}
@@ -2998,7 +3001,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                       onChange={(e) => setShowLine(e.target.checked)}
                       className="h-5 w-5 accent-[hsl(199_89%_70%)]"
                     />
-                    <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Midpoint Tangent</span>
+                    <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Tangent</span>
                   </label>
                   <button
                     type="button"
