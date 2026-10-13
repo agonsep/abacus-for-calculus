@@ -2768,7 +2768,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Checking <strong>"Leibniz Mode"</strong> keeps the size stones and adds a narrow wooden shelf across the middle of the board. Resting on that shelf, with every stack starting at the same height, are the change-size differentials <span className="font-mono text-foreground">dy = f'(x)·dx</span>, drawn in the same unit as the size stones. Max Stones is capped at 50 so the size stacks never reach the shelf.
               </p>
               <p>
-                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the size stacks and adds a straight line tangent to that curve at the midpoint column.
+                <strong>"Midpoint Tangent"</strong> traces a curve through the tops of the size stacks and adds a straight line tangent to that curve at the midpoint column. The <strong>−</strong> and <strong>+</strong> buttons beside the label move the tangent one column to the left or right, recomputing the slope at the new column.
               </p>
               <p>
                 Checking <strong>"Dual increments"</strong> is a pending setting: a notice in the middle of the board asks you to <strong>"Input second increment, then click on Fill Board"</strong>, and the change takes effect on the next Fill Board. Afterward, every column shows a narrower companion stack for <span className="font-mono text-foreground">f(x − second increment)</span>, drawn immediately to the left of the <span className="font-mono text-foreground">f(x)</span> stack. In this mode <strong>"Find Differences"</strong> measures only the gap inside each pair — main minus companion — and <strong>"Divide By Increment"</strong> divides by the second increment. The second increment may be any valid increment, including <span className="font-mono text-foreground">w</span>; with <span className="font-mono text-foreground">w</span> the pair difference is exact, so the slope column shows the true derivative. Dual increments need fractional stones to keep small pair differences visible, so <strong>"Fractional stones"</strong> turns on automatically and stays on while the box is checked. While the board keeps the original curve after Fill Board, the equation box shows the original equation as usual. After a promotion, the board shows the derived curve and the equation box still shows the original equation: every stack, companion, and difference is still computed from it, so the original equation is exactly what you see. Click <strong>"Dual increments"</strong> again to compare the new stacks with their neighbors and keep differentiating; click <strong>"Divide By Increment"</strong> to finish each round.
@@ -2989,16 +2989,46 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             </button>
             {showMore && (
               <>
-                <label className="flex cursor-pointer items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={showLine}
-                    disabled={level > 0 || wMode || !!anim}
-                    onChange={(e) => setShowLine(e.target.checked)}
-                    className="h-5 w-5 accent-[hsl(199_89%_70%)]"
-                  />
-                  <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Midpoint Tangent</span>
-                </label>
+                <div className="flex items-center gap-3">
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={showLine}
+                      disabled={level > 0 || wMode || !!anim}
+                      onChange={(e) => setShowLine(e.target.checked)}
+                      className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                    />
+                    <span className={level > 0 || wMode ? "text-muted-foreground" : "text-foreground"}>Midpoint Tangent</span>
+                  </label>
+                  <button
+                    type="button"
+                    aria-label="Move the tangent one column to the left"
+                    title={
+                      tangentOffset <= -Math.floor(COLUMNS / 2)
+                        ? "Already at the first column."
+                        : "Move the tangent one column to the left."
+                    }
+                    disabled={!showLine || level > 0 || wMode || !!anim || tangentOffset <= -Math.floor(COLUMNS / 2)}
+                    onClick={() => setTangentOffset((o) => Math.max(o - 1, -Math.floor(COLUMNS / 2)))}
+                    className="flex h-6 w-6 items-center justify-center rounded bg-muted text-foreground hover:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Move the tangent one column to the right"
+                    title={
+                      tangentOffset >= COLUMNS - 1 - Math.floor(COLUMNS / 2)
+                        ? "Already at the last column."
+                        : "Move the tangent one column to the right."
+                    }
+                    disabled={!showLine || level > 0 || wMode || !!anim || tangentOffset >= COLUMNS - 1 - Math.floor(COLUMNS / 2)}
+                    onClick={() => setTangentOffset((o) => Math.min(o + 1, COLUMNS - 1 - Math.floor(COLUMNS / 2)))}
+                    className="flex h-6 w-6 items-center justify-center rounded bg-muted text-foreground hover:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    +
+                  </button>
+                </div>
                 <label className={`flex items-center gap-3 ${anim || level > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
                   <input
                     type="checkbox"
