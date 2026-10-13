@@ -783,6 +783,7 @@ function TangentLine({
   tangentSlope,
   defined,
   dualActive = false,
+  columnOffset = 0,
 }: {
   size: number[];
   shift: number[];
@@ -791,21 +792,24 @@ function TangentLine({
   tangentSlope: number;
   defined: boolean[];
   dualActive?: boolean;
+  columnOffset?: number;
 }) {
   const points = useMemo<[number, number, number][]>(() => {
     if (unit === 0 || increment === 0 || !isFinite(tangentSlope)) return [];
     const mid = Math.floor(COLUMNS / 2);
-    if (defined[mid] === false) return [];
-    const off = shift[mid] ?? 0;
-    const midCount = Math.abs(size[mid]) + off;
+    const anchor = mid + columnOffset;
+    if (anchor < 0 || anchor >= COLUMNS) return [];
+    if (defined[anchor] === false) return [];
+    const off = shift[anchor] ?? 0;
+    const midCount = Math.abs(size[anchor]) + off;
     return size.map((_, i) => {
       const x = (i - mid) * COL_SPACING + (dualActive ? COL_SPACING / 4 : 0);
-      const stoneOffset = (tangentSlope * increment) / unit * (i - mid);
+      const stoneOffset = (tangentSlope * increment) / unit * (i - anchor);
       const count = midCount + stoneOffset;
       const y = PIECE_HEIGHT * count + 0.05;
       return [x, y + 0.04, PIECE_DEPTH / 2 + 0.02];
     });
-  }, [size, shift, increment, unit, tangentSlope, defined, dualActive]);
+  }, [size, shift, increment, unit, tangentSlope, defined, dualActive, columnOffset]);
   if (points.length < 2) return null;
   return <Line points={points} color={TANGENT_COLOR} lineWidth={3} />;
 }
@@ -1006,6 +1010,7 @@ function Scene({
   increment,
   unit,
   tangentSlope,
+  columnOffset,
   defined,
   anim,
   instant,
@@ -1034,6 +1039,7 @@ function Scene({
   increment: number;
   unit: number;
   tangentSlope: number;
+  columnOffset: number;
   defined: boolean[];
   anim: AnimState | null;
   instant: boolean;
@@ -1091,6 +1097,7 @@ function Scene({
               tangentSlope={tangentSlope}
               defined={defined}
               dualActive={dualActive}
+              columnOffset={columnOffset}
             />
           </>
         )}
@@ -1182,6 +1189,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [defined, setDefined] = useState<boolean[]>(Array(COLUMNS).fill(true));
 
   const [showLine, setShowLine] = useState(false);
+  const [tangentOffset, setTangentOffset] = useState(0);
   const [fractional, setFractional] = useState(false);
   const [leftCompare, setLeftCompare] = useState(false);
   const [slopeHighPrecision, setSlopeHighPrecision] = useState(false);
@@ -1825,8 +1833,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const tangentSlope = useMemo(() => {
     try {
       const cleaned = normalizeFormula(appliedInputs.formula);
-      const m = Number(appliedInputs.midpoint);
-      if (!isFinite(m)) return 0;
+      const m0 = Number(appliedInputs.midpoint);
+      if (!isFinite(m0)) return 0;
+      const inc = parseIncrement(appliedInputs.increment);
+      const h = inc && !inc.infinitesimal ? inc.value : 0;
+      const m = m0 + tangentOffset * h;
       try {
         return evalDual(cleaned, dual(m, 1)).b;
       } catch {
@@ -1840,7 +1851,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     } catch {
       return 0;
     }
-  }, [appliedInputs.formula, appliedInputs.midpoint]);
+  }, [appliedInputs.formula, appliedInputs.midpoint, appliedInputs.increment, tangentOffset]);
 
   // Drag handler: size and change stacks move independently, but pushing into
   // the other color shoves it in the same direction.
@@ -1911,6 +1922,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     const useDual = opts?.dual ?? dualMode;
     const ms = opts?.maxStones ?? inputs.maxStones;
     setDualHint(null);
+    setTangentOffset(0);
     try {
       const cleaned = normalizeFormula(inputs.formula);
       const m = Number(inputs.midpoint);
@@ -2408,6 +2420,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           increment={incValue}
           unit={unit}
           tangentSlope={tangentSlope}
+          columnOffset={tangentOffset}
           defined={defined}
           anim={anim}
           instant={instant}
