@@ -1,5 +1,8 @@
 # Roadmap
 
+## Open
+- Connect calculus-abacus.com (GoDaddy) to this project: add the DNS records the connect card shows, add www too, then verify once the domain is live.
+
 ## Completed
 - Replace the stale "Exercise C" reference in “How the Abacus Works” with the exercise’s actual title, “From Differences to Rates”; no lettered exercise labels remain anywhere in the library.
 - Update “How the Abacus Works” with essential explanations of Dual Increments, w, repeated derivatives, and Leibniz differentials; correct promotion, floor, tangent, controls, colors, precision, and limits while preserving its hands-on approach and triangular-number example.
