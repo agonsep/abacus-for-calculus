@@ -1,16 +1,16 @@
-# Undo and "Stack in one column": adding up the changes
+# Reverse and "Stack in one column": adding up the changes
 
 ## Goal
-Show both directions of the Fundamental Theorem on the board. **Undo** steps back through Find Differences and Divide By Increment, one step at a time. A new **Stack in one column** checkbox piles the change-size stones from a chosen stretch of columns onto the first column of that stretch. The top of the pile then lines up with the size curve at the end of the stretch: the total change equals the sum of the changes.
+Show both directions of the Fundamental Theorem on the board. **Reverse** steps back through Find Differences and Divide By Increment, one step at a time. A new **Stack in one column** checkbox piles the change-size stones from a chosen stretch of columns onto the first column of that stretch. The top of the pile then lines up with the size curve at the end of the stretch: the total change equals the sum of the changes.
 
 ## What the user sees
 
-### Undo
-- An **Undo** checkbox is listed under More, and it is unchecked by default. Checking it shows an **Undo** button below Divide By Increment. Each press undoes one step. Unchecking it hides the button and leaves the board as it is.
+### Reverse
+- A **Reverse** checkbox is listed under More, and it is unchecked by default. Checking it shows a **Reverse** button below Divide By Increment. Each press reverses one step. Unchecking it hides the button and leaves the board as it is.
 - After Divide By Increment, it restores the previous board exactly: size stones, change-size stones, stone value, floor, companions, and table.
 - After Find Differences, it removes the change-size stones.
 - Repeated presses walk back to the original Fill Board.
-- It is greyed out during animations and when nothing is left to undo. Fill Board starts a fresh history.
+- It is greyed out during animations and when nothing is left to reverse. Fill Board starts a fresh history.
 
 ### Stack in one column (under More)
 - The checkbox has two small **From** and **To** column boxes beside it, using x-values or column numbers 1–11. They default to the whole board.
@@ -24,15 +24,15 @@ Show both directions of the Fundamental Theorem on the board. **Undo** steps bac
 - Animations run instantly when reduced motion is on.
 
 ### Help panel
-One short paragraph each for Undo and for Stack in one column.
+One short paragraph each for Reverse and for Stack in one column.
 
 ## What stays the same
 Forward steps, notices, the left panel, and the existing "Divide By Increment restores the previous level" behavior all stay. Articles and exercises are unchanged.
 
 ## Technical details
-- **Undo:** keep a history list of `"diff" | "promote"` entries, pushed in the Find Differences and promotion-commit paths. Undo of `promote` calls the existing `demoteLevel()` snapshot restore. Undo of `diff` clears `change` and its readouts. The list resets in `setup`.
+- **Reverse:** keep a history list of `"diff" | "promote"` entries, pushed in the Find Differences and promotion-commit paths. Reverse of `promote` calls the existing `demoteLevel()` snapshot restore. Reverse of `diff` clears `change` and its readouts. The list resets in `setup`.
 - **Stacking:** this is display-only state (`stackOne`, `stackFrom`, `stackTo`) and never mutates `change`. The renderer computes each stone's target position as the From column's size top plus the cumulative signed counts of the earlier columns in the span. Stones animate between their home and stacked positions. The From/To boxes are clamped to the defined columns.
 - **Rate stage:** the multiplier is the level's stored divisor (`divisors`), applied to the display only.
-- **Disabled states:** the checkbox and boxes are disabled during `anim`, and stacking is turned off before any forward or undo action runs.
+- **Disabled states:** the checkbox and boxes are disabled during `anim`, and stacking is turned off before any forward or reverse action runs.
 - Update roadmap.md, and add an AGENTS.md rule that stacking is a display-only overlay.
-- **Verify:** for y = (x²+x)/2, midpoint 5, increment 1, max 55, stacking columns 0–10 reaches 55. Partial spans 2–6 reach 21 − 3 = 18. Also check the rate stage, Undo chains, both modes, no page errors, and a clean build.
+- **Verify:** for y = (x²+x)/2, midpoint 5, increment 1, max 55, stacking columns 0–10 reaches 55. Partial spans 2–6 reach 21 − 3 = 18. Also check the rate stage, Reverse chains, both modes, no page errors, and a clean build.
