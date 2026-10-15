@@ -3435,7 +3435,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                     onChange={(e) => setShowReverse(e.target.checked)}
                     className="h-5 w-5 accent-[hsl(199_89%_70%)]"
                   />
-                  <span className={anim ? "text-muted-foreground" : "text-foreground"}>Reverse</span>
+                  <span className={anim ? "text-muted-foreground" : "text-foreground"}>Reverse Button</span>
                 </label>
                 <div className="flex flex-col gap-1">
                   <label
