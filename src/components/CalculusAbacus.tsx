@@ -71,6 +71,8 @@ function getGradTex(palette: Palette): THREE.CanvasTexture {
   return gradTexCache[palette.id];
 }
 
+const ZEROS: number[] = Array(11).fill(0);
+
 function slotY(slot: number) {
   return PIECE_HEIGHT / 2 + slot * PIECE_HEIGHT + 0.05;
 }
@@ -1019,6 +1021,7 @@ function Scene({
   dualActive,
   h2,
   palette,
+  stackMarker = null,
 }: {
   size: number[];
   change: number[];
@@ -1048,6 +1051,7 @@ function Scene({
   dualActive: boolean;
   h2: { value: number; infinitesimal: boolean } | null;
   palette: Palette;
+  stackMarker?: { from: number; to: number; slot: number } | null;
 }) {
   return (
     <>
@@ -1101,7 +1105,19 @@ function Scene({
             />
           </>
         )}
-        {!anim && (
+        {stackMarker && !anim && (
+          <mesh
+            position={[
+              (((stackMarker.from + stackMarker.to) / 2) - (COLUMNS - 1) / 2) * COL_SPACING,
+              slotY(Math.abs(stackMarker.slot)) - PIECE_HEIGHT / 2,
+              0.9,
+            ]}
+          >
+            <boxGeometry args={[(stackMarker.to - stackMarker.from) * COL_SPACING + 1, 0.06, 0.06]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.85} />
+          </mesh>
+        )}
+        {!anim && !stackMarker && (
           <DragHandles
             size={size}
             change={change}
@@ -1198,6 +1214,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [showMore, setShowMore] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
+  // Reverse: history of forward steps since the last Fill Board.
+  const [showReverse, setShowReverse] = useState(false);
+  const history = useRef<("diff" | "promote")[]>([]);
+  const [historyLen, setHistoryLen] = useState(0);
+  // Stack in one column (display-only overlay). Columns are 1-based.
+  const [stackOne, setStackOne] = useState(false);
+  const [stackFrom, setStackFrom] = useState(1);
+  const [stackTo, setStackTo] = useState(COLUMNS);
   
   const [panY, setPanY] = useState(0);
   const [uiHidden, setUiHidden] = useState(true);
@@ -1571,6 +1595,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       divisors: divisors.slice(),
       dualMode,
     });
+    history.current.push("promote");
+    setHistoryLen(history.current.length);
+    setStackOne(false);
     setYRaw(p.newYRaw);
     setYRawW(p.newYRawW);
     setDefined(p.newDefined);
@@ -2091,6 +2118,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
+      history.current = [];
+      setHistoryLen(0);
+      setStackOne(false);
       if (lb && lay) {
         setChange(lay.dyCounts);
         setDyValues(dyVals.map((v) => v ?? 0));
@@ -2162,6 +2192,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
       });
       setChange(r);
+      pushHistory("diff");
       return;
     }
     const r = yRaw.map((y, i) => {
@@ -2178,7 +2209,31 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
     });
     setChange(r);
+    pushHistory("diff");
   };
+
+  const pushHistory = (k: "diff" | "promote") => {
+    history.current.push(k);
+    setHistoryLen(history.current.length);
+    setStackOne(false);
+  };
+
+  const reverseStep = () => {
+    const k = history.current.pop();
+    setHistoryLen(history.current.length);
+    setStackOne(false);
+    if (!k) return;
+    if (k === "promote") {
+      demoteLevel();
+      return;
+    }
+    setChange(Array(COLUMNS).fill(0));
+    setChangeGap(Array(COLUMNS).fill(0));
+    setError(null);
+    setNote(null);
+    setRunId((r) => r + 1);
+  };
+
 
 
   useEffect(() => {
@@ -2397,18 +2452,62 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
 
 
+  // "Stack in one column": display-only overlay; never mutates board state.
+  const sFrom = Math.max(0, Math.min(COLUMNS - 2, Math.round(stackFrom) - 1));
+  const sTo = Math.max(sFrom + 1, Math.min(COLUMNS - 1, Math.round(stackTo) - 1));
+  const hasChange = change.some((v) => v !== 0);
+  const rateSnap = !hasChange && level > 0 ? levelStack.current[levelStack.current.length - 1] : null;
+  const stackAvailable = !anim && !leibniz && (hasChange || (!!rateSnap && rateSnap.change.some((v) => v !== 0)));
+  let stackDisplay: {
+    size: number[];
+    change: number[];
+    defined: boolean[];
+    sum: number;
+    target: number;
+    rate: boolean;
+    dual: boolean;
+    key: number;
+    marker: { from: number; to: number; slot: number };
+  } | null = null;
+  if (stackOne && stackAvailable) {
+    const base = rateSnap ? rateSnap.size : size;
+    const diffs = rateSnap ? rateSnap.change : change;
+    const def = rateSnap ? rateSnap.defined : defined;
+    const isDual = rateSnap ? rateSnap.appliedDual && rateSnap.companion !== null : dualActive;
+    const lo = leftCompare && !isDual ? sFrom + 1 : sFrom;
+    const hi = leftCompare && !isDual ? sTo : sTo - 1;
+    let sum = 0;
+    for (let i = lo; i <= hi; i++) sum += diffs[i] ?? 0;
+    const room = MAX_PIECES - Math.abs(base[sFrom] ?? 0);
+    const pile = Math.max(-room, Math.min(room, sum));
+    const ch = Array(COLUMNS).fill(0);
+    ch[sFrom] = pile;
+    stackDisplay = {
+      size: base,
+      change: ch,
+      defined: def,
+      sum,
+      target: (base[sTo] ?? 0) - (base[sFrom] ?? 0),
+      rate: !!rateSnap,
+      dual: isDual,
+      key: sFrom * 20 + sTo + (rateSnap ? 500 : 0),
+      marker: { from: sFrom, to: sTo, slot: base[sTo] ?? 0 },
+    };
+  }
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
       <Canvas shadows camera={{ position: [0, BOARD_CENTER_Y, 29.2], fov: 45 }} dpr={[1, 2]}>
         <Scene
-          size={size}
-          change={change}
-          shift={shift}
-          changeGap={changeGap}
+          size={stackDisplay ? stackDisplay.size : size}
+          change={stackDisplay ? stackDisplay.change : change}
+          shift={stackDisplay ? ZEROS : shift}
+          changeGap={stackDisplay ? ZEROS : changeGap}
           xValues={xValues}
           xW={xW}
-          runId={runId}
-          showLine={showLine}
+          runId={stackDisplay ? runId + 100000 + stackDisplay.key : runId}
+          stackMarker={stackDisplay ? stackDisplay.marker : null}
+          showLine={showLine && !stackDisplay}
           onDrag={dragColor}
           setDragging={setDragging}
           dragging={dragging}
@@ -2421,11 +2520,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           unit={unit}
           tangentSlope={tangentSlope}
           columnOffset={tangentOffset}
-          defined={defined}
+          defined={stackDisplay ? stackDisplay.defined : defined}
           anim={anim}
           instant={instant}
           leibniz={leibniz}
-          companion={companion}
+          companion={stackDisplay ? null : companion}
           dualActive={dualActive}
           h2={h2}
           palette={palette}
@@ -2762,6 +2861,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Clicking <strong>"Divide By Increment"</strong> removes the size stones and drops the change-size stones to the board floor, turning them into a new size curve. The stack heights stay exactly the same; only the value represented by one stone is divided by the increment. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no change-size stones, the button instead restores the previous level.
               </p>
               <p>
+                Under <strong>"More"</strong>, checking <strong>"Reverse"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Keep pressing to return to the board from Fill Board.
+              </p>
+              <p>
+                <strong>"Stack in one column"</strong> piles the change-size stones from the From column to the To column on top of the From column. The pile reaches the height of the To column: adding up the changes gives the total change. After Divide By Increment, the rates are first multiplied by the increment and stacked on the earlier curve. Black and dark grey stones subtract.
+              </p>
+              <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the change-size stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of size stones. Because that derivative is constant, there is nothing further to difference.
               </p>
               <p>
@@ -2918,6 +3023,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               if (change.some((v) => v !== 0)) {
                 promoteLevel();
               } else if (level > 0) {
+                if (history.current[history.current.length - 1] === "promote") {
+                  history.current.pop();
+                  setHistoryLen(history.current.length);
+                }
                 demoteLevel();
               } else {
                 setError("No change-size stones to promote.");
@@ -2937,6 +3046,17 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           >
             Divide By Increment
           </button>
+          {showReverse && (
+            <button
+              type="button"
+              onClick={reverseStep}
+              disabled={!!anim || historyLen === 0}
+              title={historyLen === 0 ? "Nothing to reverse." : "Step back one move."}
+              className="rounded-xl border border-border bg-muted px-4 py-2 font-medium text-foreground transition hover:opacity-90 disabled:opacity-50"
+            >
+              Reverse
+            </button>
+          )}
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-3 border-t border-border/60 pt-3 text-base">
             <label
@@ -3072,6 +3192,73 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                   />
                   <span className="text-foreground">10 decimals</span>
                 </label>
+                <label
+                  className={`flex items-center gap-3 ${anim ? "cursor-not-allowed" : "cursor-pointer"}`}
+                  title="Show a Reverse button that steps back through Find Differences and Divide By Increment, one step at a time."
+                >
+                  <input
+                    type="checkbox"
+                    checked={showReverse}
+                    disabled={!!anim}
+                    onChange={(e) => setShowReverse(e.target.checked)}
+                    className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                  />
+                  <span className={anim ? "text-muted-foreground" : "text-foreground"}>Reverse</span>
+                </label>
+                <div className="flex flex-col gap-1">
+                  <label
+                    className={`flex items-center gap-3 ${stackAvailable ? "cursor-pointer" : "cursor-not-allowed"}`}
+                    title={
+                      stackAvailable
+                        ? "Pile the change-size stones from the chosen columns onto the From column."
+                        : "Find differences first (or divide by increment to stack rates × increment)."
+                    }
+                  >
+                    <input
+                      type="checkbox"
+                      checked={stackOne && stackAvailable}
+                      disabled={!stackAvailable}
+                      onChange={(e) => setStackOne(e.target.checked)}
+                      className="h-5 w-5 accent-[hsl(199_89%_70%)]"
+                    />
+                    <span className={stackAvailable ? "text-foreground" : "text-muted-foreground"}>Stack in one column</span>
+                  </label>
+                  <div className="flex items-center gap-2 pl-8 text-sm text-muted-foreground">
+                    <span>From</span>
+                    <input
+                      type="number"
+                      aria-label="First column of the stack"
+                      min={1}
+                      max={COLUMNS - 1}
+                      value={stackFrom}
+                      disabled={!!anim}
+                      onChange={(e) => setStackFrom(Number(e.target.value))}
+                      className="w-14 rounded border border-border bg-input px-1 py-0.5 text-foreground"
+                    />
+                    <span>To</span>
+                    <input
+                      type="number"
+                      aria-label="Last column of the stack"
+                      min={2}
+                      max={COLUMNS}
+                      value={stackTo}
+                      disabled={!!anim}
+                      onChange={(e) => setStackTo(Number(e.target.value))}
+                      className="w-14 rounded border border-border bg-input px-1 py-0.5 text-foreground"
+                    />
+                  </div>
+                  {stackDisplay && (
+                    <p className="pl-8 text-xs text-muted-foreground">
+                      {stackDisplay.rate ? "Rates × increment. " : ""}
+                      Sum of changes = {formatNum(stackDisplay.sum)} stones; f(To) − f(From) ={" "}
+                      {formatNum(stackDisplay.target)} stones.
+                      {stackDisplay.dual
+                        ? " Each stone here is a change over one second increment, so the sum need not match the rise between columns."
+                        : ""}
+                    </p>
+                  )}
+                </div>
+
 
                 <div className="flex items-center justify-between gap-2 pt-1">
                   <span className="text-base text-foreground">Stone colors</span>

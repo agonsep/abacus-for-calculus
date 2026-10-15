@@ -4,6 +4,7 @@
 - Connect calculus-abacus.com (GoDaddy) to this project: add the DNS records the connect card shows, add www too, then verify once the domain is live.
 
 ## Completed
+- Add a "Reverse" checkbox under More (shows a Reverse button that steps back through Find Differences and Divide By Increment) and "Stack in one column" with From/To boxes, which piles the change-size stones onto the From column so the sum of changes meets f(To) − f(From); after promotion it stacks rates × increment. Help panel updated.
 - Replace the stale "Exercise C" reference in “How the Abacus Works” with the exercise’s actual title, “From Differences to Rates”; no lettered exercise labels remain anywhere in the library.
 - Update “How the Abacus Works” with essential explanations of Dual Increments, w, repeated derivatives, and Leibniz differentials; correct promotion, floor, tangent, controls, colors, precision, and limits while preserving its hands-on approach and triangular-number example.
 - Rename the "Midpoint Tangent" checkbox to "Tangent" now that the line can move off the midpoint; the same box still draws the curve over the column tops and the tangent line, with a hover tip naming both, and the Help panel, the blocking messages, and the How the Abacus Works article use the new name.
