@@ -2,6 +2,7 @@
 
 ## Open
 - Connect calculus-abacus.com (GoDaddy) to this project: add the DNS records the connect card shows, add www too, then verify once the domain is live.
+- (Completed) Reverse checkbox + button under More steps back through Find Differences/Divide By Increment; "Stack in one column" piles change stones from From to To onto the From column (rates × increment after promotion).
 
 ## Completed
 - Replace the stale "Exercise C" reference in “How the Abacus Works” with the exercise’s actual title, “From Differences to Rates”; no lettered exercise labels remain anywhere in the library.
