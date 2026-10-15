@@ -509,6 +509,11 @@ function computeLeibnizLayout(
 
 
 export type AnimState = {
+  /** Reverse uses saved board geometry until the snapshot commits. */
+  reverse?: boolean;
+  defined?: boolean[];
+  companionCounts?: number[] | null;
+  sizeShift?: number[];
   /** Keep dual pairs visible until each column is cleared. */
   dual: boolean;
   companionVisible: boolean[];
@@ -560,13 +565,14 @@ function Stacks({
   return (
     <>
       {sizeArr.map((yVal, i) => {
-        if (defined[i] === false) return null;
+        if ((anim?.defined ?? defined)[i] === false) return null;
         const cx = (i - (COLUMNS - 1) / 2) * COL_SPACING;
-        const dual = companion !== null && (!anim || anim.dual);
+        const displayedCompanion = anim?.reverse ? anim.companionCounts ?? null : companion;
+        const dual = displayedCompanion !== null && (!anim || anim.dual);
         const x = dual ? cx + COL_SPACING / 4 : cx;
         const wScale = dual ? 0.5 : 1;
 
-        const off = anim ? 0 : (shift[i] ?? 0);
+        const off = anim ? (anim.sizeShift?.[i] ?? 0) : (shift[i] ?? 0);
         const gap = anim ? 0 : (changeGap[i] ?? 0);
         const pieces: ReactNode[] = [];
         const sizePieces: ReactNode[] = [];
@@ -635,8 +641,8 @@ function Stacks({
         // In dual mode the change stones sit on the companion (left) stack,
         // filling the gap between f(x-h2) and f(x).
         let compTopSlot = sizeTopSlot;
-        if (dual && companion) {
-          const cAbs2 = Math.abs(companion[i] ?? 0);
+        if (dual && displayedCompanion) {
+          const cAbs2 = Math.abs(displayedCompanion[i] ?? 0);
           const cFull2 = Math.floor(cAbs2);
           const cFrac2 = cAbs2 - cFull2;
           compTopSlot = cFull2 + (cFrac2 >= MIN_PARTIAL ? cFrac2 : 0);
@@ -647,9 +653,10 @@ function Stacks({
             ? anim.changeBase[i]
             : (dual ? compTopSlot : sizeTopSlot) + gap;
         const changeFrom = anim && !leibniz ? anim.changeFrom[i] : changeBase;
-        const changeOff = leibniz ? 0 : off;
+        const changeOff = leibniz || anim ? 0 : off;
         const expanded = anim?.dual && anim.expanded[i];
-        const expanding = expanded && !anim?.falling[i];
+        const expanding = expanded && !anim?.falling[i] && !anim?.reverse;
+        const narrowing = !!anim?.reverse && dual && !expanded;
         const changeX = expanded ? cx : dual ? cx - COL_SPACING / 4 : x;
         const changeWidth = expanded || !dual ? 1 : 0.5;
         for (let k = 0; k < rFull; k++) {
@@ -657,7 +664,7 @@ function Stacks({
             <Piece
               key={`r-${runId}-${i}-${k}-${changeBase}-${expanded ? 'wide' : 'narrow'}`}
               x={changeX}
-              fromX={expanding ? cx - COL_SPACING / 4 : changeX}
+              fromX={narrowing ? cx : expanding ? cx - COL_SPACING / 4 : changeX}
               fromY={anim && !leibniz ? slotY(changeFrom + k) : skyY + 2}
               targetY={slotY(changeBase + k + changeOff)}
               delay={anim ? 0 : i * 0.04 + (changeBase + k) * 0.02}
@@ -665,7 +672,7 @@ function Stacks({
               palette={palette}
               useGradient={useChangeGradient}
               widthScale={changeWidth}
-              fromWidthScale={expanding ? 0.5 : changeWidth}
+              fromWidthScale={narrowing ? 1 : expanding ? 0.5 : changeWidth}
               startAtFullScale={!!anim}
               dim={rDim}
               highlighted={rH}
@@ -679,7 +686,7 @@ function Stacks({
             <Piece
               key={`r-${runId}-${i}-partial-${changeBase}-${expanded ? 'wide' : 'narrow'}`}
               x={changeX}
-              fromX={expanding ? cx - COL_SPACING / 4 : changeX}
+              fromX={narrowing ? cx : expanding ? cx - COL_SPACING / 4 : changeX}
               fromY={anim && !leibniz ? slotY(changeFrom + rFull) : skyY + 2}
               targetY={partialY(changeBase + rFull + changeOff, rFrac)}
               delay={anim ? 0 : i * 0.04 + (changeBase + rFull) * 0.02}
@@ -687,7 +694,7 @@ function Stacks({
               palette={palette}
               useGradient={useChangeGradient}
               widthScale={changeWidth}
-              fromWidthScale={expanding ? 0.5 : changeWidth}
+              fromWidthScale={narrowing ? 1 : expanding ? 0.5 : changeWidth}
               startAtFullScale={!!anim}
               heightScale={rFrac}
               dim={rDim}
@@ -697,8 +704,8 @@ function Stacks({
           );
         }
 
-        if (dual && companion && (!anim || anim.companionVisible[i])) {
-          const cVal = companion[i] ?? 0;
+        if (dual && displayedCompanion && (!anim || anim.companionVisible[i])) {
+          const cVal = displayedCompanion[i] ?? 0;
           const cAbs = Math.abs(cVal);
           const cFull = Math.floor(cAbs);
           const cColor = cVal < 0 ? BLACK : palette.size;
@@ -1746,6 +1753,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   };
 
   const snapshot = (s: AnimState): AnimState => ({
+    reverse: s.reverse,
+    defined: s.defined?.slice(),
+    companionCounts: s.companionCounts?.slice(),
+    sizeShift: s.sizeShift?.slice(),
     dual: s.dual,
     companionVisible: s.companionVisible.slice(),
     expanded: s.expanded.slice(),
@@ -1931,7 +1942,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
   const demoteLevel = () => {
     if (levelStack.current.length === 0) return;
-    const snap = levelStack.current.pop()!;
+    const snap = levelStack.current.pop();
+    if (!snap) return;
     setYRaw(snap.yRaw);
     setYRawW(snap.yRawW);
     setSize(snap.size);
@@ -2324,20 +2336,114 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   };
 
   const reverseStep = () => {
-    setInstant(true);
-    const k = history.current.pop();
-    setHistoryLen(history.current.length);
-    setStackOne(false);
+    if (anim) return;
+    const k = history.current[history.current.length - 1];
     if (!k) return;
-    if (k === "promote") {
-      demoteLevel();
+    const saved = k === "promote" ? levelStack.current[levelStack.current.length - 1] : null;
+    if (k === "promote" && !saved) return;
+    setStackOne(false);
+    showPromotionNotice(null);
+    let committed = false;
+    const finish = () => {
+      if (committed) return;
+      committed = true;
+      if (animTimer.current) clearTimeout(animTimer.current);
+      animTimer.current = null;
+      finishRef.current = null;
+      setInstant(true);
+      setAnim(null);
+      history.current.pop();
+      setHistoryLen(history.current.length);
+      if (k === "promote") demoteLevel();
+      else {
+        setChange(Array(COLUMNS).fill(0));
+        setChangeGap(Array(COLUMNS).fill(0));
+        setError(null);
+        setNote(null);
+        // Keep size-stack reveal identities unchanged.
+      }
+    };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      finish();
       return;
     }
-    setChange(Array(COLUMNS).fill(0));
-    setChangeGap(Array(COLUMNS).fill(0));
+    const dual = saved ? saved.appliedDual && saved.companion !== null : dualActive;
+    const targets = saved?.change ?? change;
+    const targetSize = saved?.size ?? size;
+    const targetCompanion = saved ? saved.companion : companion;
+    const targetShift = saved?.shift ?? shift;
+    const targetGap = saved?.changeGap ?? changeGap;
+    const bases = targetSize.map((v, i) => {
+      if (leibniz) return LEIBNIZ_SHELF_SLOT;
+      const a = Math.abs(dual && targetCompanion ? targetCompanion[i] : v);
+      const whole = Math.floor(a);
+      const partial = a - whole;
+      return whole + (partial >= MIN_PARTIAL ? partial : 0) + targetShift[i] + targetGap[i];
+    });
+    const state: AnimState = {
+      reverse: true,
+      defined: saved ? defined.map((v, i) => v || saved.defined[i]) : defined.slice(),
+      companionCounts: targetCompanion,
+      sizeShift: targetShift.slice(),
+      dual,
+      companionVisible: Array(COLUMNS).fill(!saved && dual),
+      expanded: Array(COLUMNS).fill(!!saved && dual),
+      falling: Array(COLUMNS).fill(!!saved),
+      size: saved ? Array(COLUMNS).fill(0) : size.slice(),
+      change: saved ? size.slice() : change.slice(),
+      changeBase: saved ? Array(COLUMNS).fill(leibniz ? LEIBNIZ_SHELF_SLOT : 0) : bases.slice(),
+      changeFrom: saved ? Array(COLUMNS).fill(leibniz ? LEIBNIZ_SHELF_SLOT : 0) : bases.slice(),
+      asSize: Array(COLUMNS).fill(!!saved),
+    };
+    const steps: { run: () => void; duration: number }[] = [];
+    if (saved) {
+      for (let i = COLUMNS - 1; i >= 0; i--) {
+        steps.push({ run: () => { state.asSize[i] = false; }, duration: 180 });
+      }
+      for (let i = COLUMNS - 1; i >= 0; i--) {
+        if (state.change[i] === targets[i]) continue;
+        steps.push({ run: () => { state.change[i] = targets[i]; }, duration: 180 });
+      }
+      for (let i = COLUMNS - 1; i >= 0; i--) {
+        if (!targets[i]) continue;
+        steps.push({ run: () => {
+          state.changeFrom[i] = state.changeBase[i];
+          state.changeBase[i] = bases[i];
+        }, duration: 550 });
+      }
+      if (dual) {
+        for (let i = COLUMNS - 1; i >= 0; i--) {
+          steps.push({ run: () => {
+            state.changeFrom[i] = state.changeBase[i];
+            state.expanded[i] = false;
+          }, duration: targets[i] ? 550 : 180 });
+        }
+      }
+      for (let i = COLUMNS - 1; i >= 0; i--) {
+        steps.push({ run: () => {
+          state.size[i] = targetSize[i];
+          state.companionVisible[i] = dual;
+        }, duration: 180 });
+      }
+    } else {
+      for (let i = COLUMNS - 1; i >= 0; i--) {
+        steps.push({ run: () => { state.change[i] = 0; }, duration: 180 });
+      }
+    }
+    finishRef.current = finish;
     setError(null);
     setNote(null);
-    setRunId((r) => r + 1);
+    setInstant(false);
+    setAnim(snapshot(state));
+    let index = 0;
+    const advance = () => {
+      const step = steps[index++];
+      if (!step) { finish(); return; }
+      step.run();
+      setAnim(snapshot(state));
+      animTimer.current = setTimeout(advance, step.duration);
+    };
+    animTimer.current = setTimeout(advance, 180);
   };
 
 
@@ -2635,13 +2741,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           unit={unit}
           tangentSlope={tangentSlope}
           columnOffset={tangentOffset}
-          defined={defined}
+          defined={anim?.defined ?? defined}
           anim={anim}
           instant={instant}
           leibniz={leibniz}
-          companion={stackDisplay ? null : companion}
-          dualActive={dualActive}
-          h2={h2}
+          companion={stackDisplay ? null : anim?.reverse ? anim.companionCounts ?? null : companion}
+          dualActive={anim?.reverse ? anim.dual : dualActive}
+          h2={anim?.reverse ? levelStack.current[levelStack.current.length - 1]?.h2 ?? h2 : h2}
           palette={palette}
         />
         </Suspense>
@@ -2977,7 +3083,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Clicking <strong>"Divide By Increment"</strong> removes the size stones and drops the change-size stones to the board floor, turning them into a new size curve. The stack heights stay exactly the same; only the value represented by one stone is divided by the increment. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no change-size stones, the button instead restores the previous level.
               </p>
               <p>
-                Under <strong>"More"</strong>, checking <strong>"Reverse"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Keep pressing to return to the board from Fill Board.
+                Under <strong>"More"</strong>, checking <strong>"Reverse"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board.
               </p>
               <p>
                 <strong>"Stack in one column"</strong> hides the size stones and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. Then each stack slides horizontally, one at a time from left to right, into the board’s last column. From and To select the stretch to add, not the destination. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, rates are first multiplied by the increment. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
