@@ -6,7 +6,7 @@ Show both directions of the Fundamental Theorem on the board. **Reverse** steps 
 ## What the user sees
 
 ### Reverse
-- An **Reverse** checkbox is listed under More, and it is unchecked by default. Checking it shows an **Reverse** button below Divide By Increment. Each press reversees one step. Unchecking it hides the button and leaves the board as it is.
+- A **Reverse** checkbox is listed under More, and it is unchecked by default. Checking it shows a **Reverse** button below Divide By Increment. Each press reverses one step. Unchecking it hides the button and leaves the board as it is.
 - After Divide By Increment, it restores the previous board exactly: size stones, change-size stones, stone value, floor, companions, and table.
 - After Find Differences, it removes the change-size stones.
 - Repeated presses walk back to the original Fill Board.
