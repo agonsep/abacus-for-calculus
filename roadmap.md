@@ -1,9 +1,8 @@
 # Roadmap
 
-## Open
-- Connect calculus-abacus.com (GoDaddy) to this project: add the DNS records the connect card shows, add www too, then verify once the domain is live.
-
 ## Completed
+- Clarify Stack in one column with vertical alignment followed by individual horizontal slides to column 11, preserving signed totals and Reverse; visually verified the 18-stone partial span and restoration, with controls synchronized to actual movement completion.
+- Connect calculus-abacus.com and www.calculus-abacus.com through GoDaddy; both addresses are verified and live.
 - Add a "Reverse" checkbox under More (shows a Reverse button that steps back through Find Differences and Divide By Increment) and "Stack in one column" with From/To boxes, which piles the change-size stones onto the From column so the sum of changes meets f(To) − f(From); after promotion it stacks rates × increment. Help panel updated.
 - Replace the stale "Exercise C" reference in “How the Abacus Works” with the exercise’s actual title, “From Differences to Rates”; no lettered exercise labels remain anywhere in the library.
 - Update “How the Abacus Works” with essential explanations of Dual Increments, w, repeated derivatives, and Leibniz differentials; correct promotion, floor, tangent, controls, colors, precision, and limits while preserving its hands-on approach and triangular-number example.
