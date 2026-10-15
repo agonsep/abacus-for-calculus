@@ -1,9 +1,7 @@
 # Roadmap
 
-## Open
-- Animate Reverse in separate right-to-left stages; verify differences removal, promotion restoration, Dual Increments, skipping, and reduced motion.
-
 ## Completed
+- Animate Reverse in separate right-to-left stages; verified differences removal, exact ordinary and Dual Increments restoration, skipping, and signed/fractional reduced-motion restoration with no page errors.
 - Reveal initial change-size stacks column by column without falling; verified ordinary and paired differences, promotion, Reverse, Leibniz shelf, reduced motion, and signed/fractional stacking with no page errors.
 - Reveal complete size stacks from left to right without falling, including paired and fractional stacks; keep change-stone motion, promotion, and Reverse. Visually checked filling, differences, dual promotion, and reduced motion with no page errors.
 - Clarify Stack in one column with vertical alignment followed by individual horizontal slides to column 11, preserving signed totals and Reverse; visually verified the 18-stone partial span and restoration, with controls synchronized to actual movement completion.
