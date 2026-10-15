@@ -1,6 +1,6 @@
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Text, RoundedBox, Line } from "@react-three/drei";
-import { useEffect, useMemo, useRef, useState, type ReactNode, type MutableRefObject } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode, type MutableRefObject } from "react";
 import { evaluate } from "mathjs";
 import { dual, evalDual, formatDual, jetDivInf, jetDivReal, jetSub, parseIncrement, type Dual } from "@/lib/dual";
 import * as THREE from "three";
@@ -2594,6 +2594,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   return (
     <div data-stack-phase={stackDisplay ? stackPhase : "off"} data-stack-destination={stackDisplay ? COLUMNS : undefined} data-stack-sum={stackDisplay?.sum} className="relative h-screen w-full overflow-hidden bg-background">
       <Canvas shadows camera={{ position: [0, BOARD_CENTER_Y, 29.2], fov: 45 }} dpr={[1, 2]}>
+        <Suspense fallback={null}>
         <Scene
           size={size}
           change={change}
@@ -2627,6 +2628,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           h2={h2}
           palette={palette}
         />
+        </Suspense>
       </Canvas>
 
       {/* Mid-board notice: stone-value change, dual-mode hint, or the
