@@ -1,5 +1,8 @@
 # Roadmap
 
+## In progress
+- Add separate recoloring and conditional rescaling before promoted stacks align vertically and gather horizontally; preserve the promoted board and Reverse history.
+
 ## Completed
 - Correct white change-size stones during Reverse by refreshing solid/gradient materials; visually verified all palettes, paired stacks, signed/fractional stones, exact restoration, and unchanged lifting with no page errors.
 - Animate Reverse in separate right-to-left stages; verified differences removal, exact ordinary and Dual Increments restoration, skipping, and signed/fractional reduced-motion restoration with no page errors.
