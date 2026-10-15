@@ -1,9 +1,7 @@
 # Roadmap
 
-## Open
-- Reveal complete size stacks column by column without falling, preserving change-stone animations.
-
 ## Completed
+- Reveal complete size stacks from left to right without falling, including paired and fractional stacks; keep change-stone motion, promotion, and Reverse. Visually checked filling, differences, dual promotion, and reduced motion with no page errors.
 - Clarify Stack in one column with vertical alignment followed by individual horizontal slides to column 11, preserving signed totals and Reverse; visually verified the 18-stone partial span and restoration, with controls synchronized to actual movement completion.
 - Connect calculus-abacus.com and www.calculus-abacus.com through GoDaddy; both addresses are verified and live.
 - Add a "Reverse" checkbox under More (shows a Reverse button that steps back through Find Differences and Divide By Increment) and "Stack in one column" with From/To boxes, which piles the change-size stones onto the From column so the sum of changes meets f(To) − f(From); after promotion it stacks rates × increment. Help panel updated.
