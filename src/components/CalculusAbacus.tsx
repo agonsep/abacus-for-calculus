@@ -71,6 +71,8 @@ function getGradTex(palette: Palette): THREE.CanvasTexture {
   return gradTexCache[palette.id];
 }
 
+const ZEROS: number[] = Array(11).fill(0);
+
 function slotY(slot: number) {
   return PIECE_HEIGHT / 2 + slot * PIECE_HEIGHT + 0.05;
 }
@@ -1019,6 +1021,7 @@ function Scene({
   dualActive,
   h2,
   palette,
+  stackMarker = null,
 }: {
   size: number[];
   change: number[];
@@ -1048,6 +1051,7 @@ function Scene({
   dualActive: boolean;
   h2: { value: number; infinitesimal: boolean } | null;
   palette: Palette;
+  stackMarker?: { from: number; to: number; slot: number } | null;
 }) {
   return (
     <>
@@ -1101,7 +1105,19 @@ function Scene({
             />
           </>
         )}
-        {!anim && (
+        {stackMarker && !anim && (
+          <mesh
+            position={[
+              (((stackMarker.from + stackMarker.to) / 2) - (COLUMNS - 1) / 2) * COL_SPACING,
+              slotY(Math.abs(stackMarker.slot)) - PIECE_HEIGHT / 2,
+              0.9,
+            ]}
+          >
+            <boxGeometry args={[(stackMarker.to - stackMarker.from) * COL_SPACING + 1, 0.06, 0.06]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.85} />
+          </mesh>
+        )}
+        {!anim && !stackMarker && (
           <DragHandles
             size={size}
             change={change}
@@ -1198,6 +1214,14 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [showMore, setShowMore] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [brightness, setBrightness] = useState(1);
+  // Reverse: history of forward steps since the last Fill Board.
+  const [showReverse, setShowReverse] = useState(false);
+  const history = useRef<("diff" | "promote")[]>([]);
+  const [historyLen, setHistoryLen] = useState(0);
+  // Stack in one column (display-only overlay). Columns are 1-based.
+  const [stackOne, setStackOne] = useState(false);
+  const [stackFrom, setStackFrom] = useState(1);
+  const [stackTo, setStackTo] = useState(COLUMNS);
   
   const [panY, setPanY] = useState(0);
   const [uiHidden, setUiHidden] = useState(true);
@@ -1571,6 +1595,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       divisors: divisors.slice(),
       dualMode,
     });
+    history.current.push("promote");
+    setHistoryLen(history.current.length);
+    setStackOne(false);
     setYRaw(p.newYRaw);
     setYRawW(p.newYRawW);
     setDefined(p.newDefined);
@@ -2091,6 +2118,9 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       // Reset the difference-level machinery on every fresh fill.
       setLevel(0);
       levelStack.current = [];
+      history.current = [];
+      setHistoryLen(0);
+      setStackOne(false);
       if (lb && lay) {
         setChange(lay.dyCounts);
         setDyValues(dyVals.map((v) => v ?? 0));
@@ -2162,6 +2192,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
       });
       setChange(r);
+      pushHistory("diff");
       return;
     }
     const r = yRaw.map((y, i) => {
@@ -2178,7 +2209,31 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       return Math.max(-MAX_PIECES, Math.min(MAX_PIECES, v));
     });
     setChange(r);
+    pushHistory("diff");
   };
+
+  const pushHistory = (k: "diff" | "promote") => {
+    history.current.push(k);
+    setHistoryLen(history.current.length);
+    setStackOne(false);
+  };
+
+  const reverseStep = () => {
+    const k = history.current.pop();
+    setHistoryLen(history.current.length);
+    setStackOne(false);
+    if (!k) return;
+    if (k === "promote") {
+      demoteLevel();
+      return;
+    }
+    setChange(Array(COLUMNS).fill(0));
+    setChangeGap(Array(COLUMNS).fill(0));
+    setError(null);
+    setNote(null);
+    setRunId((r) => r + 1);
+  };
+
 
 
   useEffect(() => {
