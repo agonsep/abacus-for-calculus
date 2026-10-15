@@ -1019,8 +1019,11 @@ function DragHandles({
   );
 }
 
+type StackPhase = "recolor" | "rescale" | "align" | "slide" | "complete";
 type StackJourney = {
-  columns: { i: number; count: number; start: number; startX: number; base: number }[];
+  columns: { i: number; count: number; initialCount: number; selected: boolean; start: number; startX: number; base: number }[];
+  rate: boolean;
+  rescale: boolean;
   sum: number;
   anchor: number;
   offset: number;
@@ -1030,18 +1033,32 @@ type StackJourney = {
 
 const STACK_ALIGN_SECONDS = 1.2;
 const STACK_SLIDE_SECONDS = 0.8;
+const STACK_PASS_SECONDS = COLUMNS * 0.18;
+const STACK_STAGE_PAUSE = 0.5;
 
-function JourneyStack({ column, elapsed, palette }: {
+function stackTiming(journey: StackJourney) {
+  const recolorEnd = journey.rate ? STACK_PASS_SECONDS : 0;
+  const rescaleStart = journey.rate ? recolorEnd + STACK_STAGE_PAUSE : 0;
+  const alignStart = journey.rate ? rescaleStart + (journey.rescale ? STACK_PASS_SECONDS + STACK_STAGE_PAUSE : 0) : 0;
+  const slideStart = alignStart + STACK_ALIGN_SECONDS + STACK_STAGE_PAUSE;
+  const end = slideStart + journey.columns.filter((c) => c.selected).length * STACK_SLIDE_SECONDS + 0.2;
+  return { recolorEnd, rescaleStart, alignStart, slideStart, end };
+}
+
+function JourneyStack({ column, elapsed, palette, journey, clock }: {
   column: StackJourney["columns"][number] & { order: number };
   elapsed: MutableRefObject<number>;
   palette: Palette;
+  journey: StackJourney;
+  clock: number;
 }) {
   const group = useRef<THREE.Group>(null);
+  const timing = stackTiming(journey);
   useFrame(() => {
     if (!group.current) return;
     const ease = (t: number) => { const p = Math.max(0, Math.min(1, t)); return p * p * (3 - 2 * p); };
-    const vertical = ease(elapsed.current / STACK_ALIGN_SECONDS);
-    const horizontal = ease((elapsed.current - STACK_ALIGN_SECONDS - 0.5 - column.order * STACK_SLIDE_SECONDS) / STACK_SLIDE_SECONDS);
+    const vertical = ease((elapsed.current - timing.alignStart) / STACK_ALIGN_SECONDS);
+    const horizontal = ease((elapsed.current - timing.slideStart - column.order * STACK_SLIDE_SECONDS) / STACK_SLIDE_SECONDS);
     const destination = ((COLUMNS - 1) / 2) * COL_SPACING;
     group.current.position.set(
       column.startX + (destination - column.startX) * horizontal,
@@ -1049,55 +1066,65 @@ function JourneyStack({ column, elapsed, palette }: {
       0,
     );
   });
-  const count = Math.abs(column.count);
+  if (!column.selected && clock >= timing.alignStart) return null;
+  const recolored = !journey.rate || clock >= (column.i + 1) * 0.18;
+  const restored = !journey.rate || !journey.rescale || clock >= timing.rescaleStart + (column.i + 1) * 0.18;
+  const signedCount = restored ? column.count : column.initialCount;
+  const count = Math.abs(signedCount);
   const whole = Math.floor(count);
   const remainder = count - whole;
-  const negative = column.count < 0;
-  const color = negative ? DARK_GREY : palette.change;
+  const negative = signedCount < 0;
+  const color = negative ? (recolored ? DARK_GREY : BLACK) : (recolored ? palette.change : palette.size);
   return <group ref={group} position={[column.startX, column.start * PIECE_HEIGHT, 0]}>
     {Array.from({ length: whole }, (_, k) => {
       const slot = negative ? -k - 1 : k;
-      return <Piece key={k} x={0} fromY={slotY(slot)} targetY={slotY(slot)} delay={0} color={color} palette={palette} useGradient={!negative} instant />;
+      return <Piece key={k} x={0} fromY={slotY(slot)} targetY={slotY(slot)} delay={0} color={color} palette={palette} useGradient={recolored && !negative} instant />;
     })}
-    {remainder >= MIN_PARTIAL && <Piece x={0} fromY={0} targetY={partialY(negative ? -whole - remainder : whole, remainder)} delay={0} color={color} palette={palette} useGradient={!negative} heightScale={remainder} instant />}
+    {remainder >= MIN_PARTIAL && <Piece x={0} fromY={0} targetY={partialY(negative ? -whole - remainder : whole, remainder)} delay={0} color={color} palette={palette} useGradient={recolored && !negative} heightScale={remainder} instant />}
   </group>;
 }
 
 function StackJourneyView({ journey, palette, onPhase }: {
   journey: StackJourney;
   palette: Palette;
-  onPhase: (phase: "align" | "slide" | "complete") => void;
+  onPhase: (phase: StackPhase) => void;
 }) {
   const elapsed = useRef(0);
-  const phase = useRef("align");
+  const phase = useRef<StackPhase>(journey.rate ? "recolor" : "align");
+  const [clock, setClock] = useState(0);
   const [complete, setComplete] = useState(false);
   const { camera } = useThree();
   useEffect(() => {
     const oldZoom = camera.zoom;
     elapsed.current = 0;
-    phase.current = "align";
+    phase.current = journey.rate ? "recolor" : "align";
+    setClock(0);
     setComplete(false);
     const height = (journey.max - journey.min) * PIECE_HEIGHT;
     camera.zoom = oldZoom * Math.min(1, 17 / Math.max(17, height + 2 * Math.abs((journey.max + journey.min) * PIECE_HEIGHT / 2 - BOARD_CENTER_Y)));
     camera.updateProjectionMatrix();
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) { elapsed.current = Infinity; setComplete(true); phase.current = "complete"; onPhase("complete"); }
-    else onPhase("align");
+    if (reduced) { elapsed.current = Infinity; setClock(Infinity); setComplete(true); phase.current = "complete"; onPhase("complete"); }
+    else onPhase(phase.current);
     return () => { camera.zoom = oldZoom; camera.updateProjectionMatrix(); };
   }, [journey, camera, onPhase]);
   useFrame((_, delta) => {
     if (phase.current === "complete") return;
-    // A slow geometry upload must not consume an entire movement on its first frame.
+    // A slow geometry upload must not consume an entire stage on its first frame.
     elapsed.current += Math.min(delta, 0.1);
-    const end = STACK_ALIGN_SECONDS + 0.5 + journey.columns.length * STACK_SLIDE_SECONDS + 0.2;
-    if (elapsed.current >= end) { phase.current = "complete"; setComplete(true); onPhase("complete"); }
-    else if (elapsed.current >= STACK_ALIGN_SECONDS + 0.5 && phase.current !== "slide") { phase.current = "slide"; onPhase("slide"); }
+    const timing = stackTiming(journey);
+    const t = elapsed.current;
+    const next: StackPhase = t >= timing.end ? "complete" : t >= timing.slideStart ? "slide" : t >= timing.alignStart ? "align" : journey.rescale && t >= timing.rescaleStart ? "rescale" : "recolor";
+    setClock(t);
+    if (next !== phase.current) { phase.current = next; onPhase(next); }
+    if (next === "complete") setComplete(true);
   });
-  const mixed = journey.columns.some((c) => c.count < 0) && journey.columns.some((c) => c.count > 0);
+  const selected = journey.columns.filter((c) => c.selected);
+  const mixed = selected.some((c) => c.count < 0) && selected.some((c) => c.count > 0);
   const columns = complete && mixed
-    ? [{ i: COLUMNS - 1, count: journey.sum, start: journey.anchor + journey.offset, startX: ((COLUMNS - 1) / 2) * COL_SPACING, base: journey.anchor + journey.offset }]
+    ? [{ i: COLUMNS - 1, count: journey.sum, initialCount: journey.sum, selected: true, start: journey.anchor + journey.offset, startX: ((COLUMNS - 1) / 2) * COL_SPACING, base: journey.anchor + journey.offset }]
     : journey.columns;
-  return <>{columns.map((column, order) => <JourneyStack key={complete && mixed ? "net" : column.i} column={{ ...column, order }} elapsed={elapsed} palette={palette} />)}</>;
+  return <>{columns.map((column) => <JourneyStack key={complete && mixed ? "net" : column.i} column={{ ...column, order: Math.max(0, selected.findIndex((c) => c.i === column.i)) }} elapsed={elapsed} palette={palette} journey={journey} clock={clock} />)}</>;
 }
 
 function Scene({
@@ -1162,7 +1189,7 @@ function Scene({
   palette: Palette;
   stackMarker?: { from: number; to: number; slot: number } | null;
   stackJourney?: StackJourney | null;
-  onStackPhase: (phase: "align" | "slide" | "complete") => void;
+  onStackPhase: (phase: StackPhase) => void;
 }) {
   return (
     <>
@@ -1333,7 +1360,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [stackOne, setStackOne] = useState(false);
   const [stackFrom, setStackFrom] = useState(1);
   const [stackTo, setStackTo] = useState(COLUMNS);
-  const [stackPhase, setStackPhase] = useState<"align" | "slide" | "complete">("complete");
+  const [stackPhase, setStackPhase] = useState<StackPhase>("complete");
   const stackBusy = stackOne && stackPhase !== "complete";
   
   const [panY, setPanY] = useState(0);
@@ -2688,16 +2715,27 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     for (let i = lo; i <= hi; i++) {
       if (def[i] === false) continue;
       const count = diffs[i] ?? 0;
-      if (count === 0) continue;
-      const start = Math.abs((isDual ? pair?.[i] : base[i]) ?? 0) + (rateSnap ? 0 : (shift[i] ?? 0) + (changeGap[i] ?? 0));
-      columns.push({ i, count, start, base: cumulative, startX: (i - (COLUMNS - 1) / 2) * COL_SPACING - (isDual ? COL_SPACING / 4 : 0) });
+      if (count === 0 && (!rateSnap || (size[i] ?? 0) === 0)) continue;
+      const start = rateSnap ? (shift[i] ?? 0) : Math.abs((isDual ? pair?.[i] : base[i]) ?? 0) + (rateSnap ? 0 : (shift[i] ?? 0) + (changeGap[i] ?? 0));
+      columns.push({ i, count, initialCount: rateSnap ? (size[i] ?? 0) : count, selected: true, start, base: cumulative, startX: (i - (COLUMNS - 1) / 2) * COL_SPACING + (rateSnap ? (companion ? COL_SPACING / 4 : 0) : (isDual ? -COL_SPACING / 4 : 0)) });
+      if (rateSnap) { min = Math.min(min, start, start + (size[i] ?? 0)); max = Math.max(max, start, start + Math.abs(size[i] ?? 0)); }
       min = Math.min(min, cumulative, cumulative + count, start, start + count);
       max = Math.max(max, cumulative, cumulative + count, start, start + count);
       cumulative += count;
     }
-    // Shift the entire demonstration up when a descending cumulative path crosses the floor.
+    // Keep unselected promoted columns visible throughout the preparation passes.
+    if (rateSnap) {
+      for (let i = 0; i < COLUMNS; i++) {
+        if (columns.some((c) => c.i === i) || defined[i] === false || (size[i] ?? 0) === 0) continue;
+        const start = shift[i] ?? 0;
+        columns.push({ i, count: diffs[i] ?? 0, initialCount: size[i] ?? 0, selected: false, start, base: start, startX: (i - (COLUMNS - 1) / 2) * COL_SPACING + (companion ? COL_SPACING / 4 : 0) });
+        min = Math.min(min, start, start + (size[i] ?? 0), start + (diffs[i] ?? 0));
+        max = Math.max(max, start + Math.abs(size[i] ?? 0), start + Math.abs(diffs[i] ?? 0));
+      }
+    }
+    // Shift only alignment targets during rate preparation, keeping initial stones in place.
     const offset = Math.max(0, -min);
-    const journey: StackJourney = { columns: columns.map((c) => ({ ...c, start: c.start + offset, base: c.base + offset })), sum: cumulative - anchor, anchor, offset, min: min + offset, max: max + offset };
+    const journey: StackJourney = { rate: !!rateSnap, rescale: !!rateSnap && columns.some((c) => Math.abs(c.initialCount - c.count) > 1e-9), columns: columns.map((c) => ({ ...c, start: c.start + (rateSnap ? 0 : offset), base: c.base + offset })), sum: cumulative - anchor, anchor, offset, min: rateSnap ? min : min + offset, max: max + offset };
     return {
       journey, sum: journey.sum,
       target: (base[sTo] ?? 0) - (base[sFrom] ?? 0),
@@ -2711,7 +2749,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   useEffect(() => {
     if (!stackDisplay) { setStackPhase("complete"); return; }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setStackPhase("complete"); return; }
-    setStackPhase("align");
+    setStackPhase(stackDisplay.rate ? "recolor" : "align");
   }, [stackDisplay]);
 
   return (
@@ -3087,7 +3125,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Under <strong>"More"</strong>, checking <strong>"Reverse Button"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board.
               </p>
               <p>
-                <strong>"Stack in one column"</strong> hides the size stones and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. Then each stack slides horizontally, one at a time from left to right, into the board’s last column. From and To select the stretch to add, not the destination. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, rates are first multiplied by the increment. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
+                <strong>"Stack in one column"</strong> hides the size stones and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. Then each stack slides horizontally, one at a time from left to right, into the board’s last column. From and To select the stretch to add, not the destination. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, the visible stones first change to the change-size color, column by column. If rescaling changed their counts, a separate pass restores the difference counts, representing rates multiplied by the increment. They then move directly into vertical alignment before sliding horizontally. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the change-size stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of size stones. Because that derivative is constant, there is nothing further to difference.
@@ -3442,7 +3480,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                     className={`flex items-center gap-3 ${stackAvailable ? "cursor-pointer" : "cursor-not-allowed"}`}
                     title={
                       stackAvailable
-                        ? "Align the chosen change stacks bottom-to-top, then slide them one at a time into the board’s last column."
+                        ? "After division, recolor and restore difference counts if needed; then align bottom-to-top and slide one at a time into the board’s last column."
                         : "Find differences first (or divide by increment to stack rates × increment)."
                     }
                   >
