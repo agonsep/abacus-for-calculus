@@ -2806,6 +2806,12 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Clicking <strong>"Divide By Increment"</strong> removes the size stones and drops the change-size stones to the board floor, turning them into a new size curve. The stack heights stay exactly the same; only the value represented by one stone is divided by the increment. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no change-size stones, the button instead restores the previous level.
               </p>
               <p>
+                Under <strong>"More"</strong>, checking <strong>"Reverse"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Keep pressing to return to the board from Fill Board.
+              </p>
+              <p>
+                <strong>"Stack in one column"</strong> piles the change-size stones from the From column to the To column on top of the From column. The pile reaches the height of the To column: adding up the changes gives the total change. After Divide By Increment, the rates are first multiplied by the increment and stacked on the earlier curve. Black and dark grey stones subtract.
+              </p>
+              <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the change-size stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of size stones. Because that derivative is constant, there is nothing further to difference.
               </p>
               <p>
@@ -2985,6 +2991,17 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           >
             Divide By Increment
           </button>
+          {showReverse && (
+            <button
+              type="button"
+              onClick={reverseStep}
+              disabled={!!anim || historyLen === 0}
+              title={historyLen === 0 ? "Nothing to reverse." : "Step back one move."}
+              className="rounded-xl border border-border bg-muted px-4 py-2 font-medium text-foreground transition hover:opacity-90 disabled:opacity-50"
+            >
+              Reverse
+            </button>
+          )}
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex flex-col gap-3 border-t border-border/60 pt-3 text-base">
             <label
