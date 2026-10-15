@@ -1061,7 +1061,8 @@ function StackJourneyView({ journey, palette, onPhase }: {
   }, [journey, camera, onPhase]);
   useFrame((_, delta) => {
     if (phase.current === "complete") return;
-    elapsed.current += delta;
+    // A slow geometry upload must not consume an entire movement on its first frame.
+    elapsed.current += Math.min(delta, 0.1);
     const end = STACK_ALIGN_SECONDS + 0.5 + journey.columns.length * STACK_SLIDE_SECONDS + 0.2;
     if (elapsed.current >= end) { phase.current = "complete"; setComplete(true); onPhase("complete"); }
     else if (elapsed.current >= STACK_ALIGN_SECONDS + 0.5 && phase.current !== "slide") { phase.current = "slide"; onPhase("slide"); }
