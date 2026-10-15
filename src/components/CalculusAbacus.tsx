@@ -104,7 +104,7 @@ function niceUnit(raw: number) {
   return nice * base;
 }
 
-function Piece({
+function AnimatedPiece({
   x,
   fromX = x,
   fromY,
@@ -167,39 +167,51 @@ function Piece({
     ref.current.scale.set(s * (fromWidthScale + (widthScale - fromWidthScale) * ease), s * heightScale, s);
   });
 
-  const useGradientFinal = useGradient ?? false;
-  const c = useMemo(
-    () => (useGradientFinal ? new THREE.Color(1, 1, 1) : new THREE.Color(color)),
-    [color, useGradientFinal],
-  );
-  const emissive = useMemo(() => new THREE.Color(color), [color]);
-
   return (
     <group ref={ref}>
-      <RoundedBox
-        args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_DEPTH]}
-        radius={0.08}
-        smoothness={4}
-        castShadow
-        receiveShadow
-      >
-        <meshPhysicalMaterial
-          map={useGradientFinal ? getGradTex(palette) : undefined}
-          color={c}
-          roughness={0.45}
-          metalness={0}
-          clearcoat={0.2}
-          clearcoatRoughness={0.4}
-          emissive={emissive}
-          emissiveIntensity={highlighted ? 0.55 : useGradientFinal ? 0.4 : 0.25}
-          transparent
-          opacity={dim ? 0.25 : 1}
-          fog={!highlighted}
-        />
-      </RoundedBox>
+      <StoneAppearance color={color} palette={palette} useGradient={useGradient} dim={dim} highlighted={highlighted} />
     </group>
   );
 }
+
+function StoneAppearance({ color, palette, useGradient = false, dim = false, highlighted = false }: Pick<Parameters<typeof AnimatedPiece>[0], "color" | "palette" | "useGradient" | "dim" | "highlighted">) {
+  const c = useMemo(() => useGradient ? new THREE.Color(1, 1, 1) : new THREE.Color(color), [color, useGradient]);
+  const emissive = useMemo(() => new THREE.Color(color), [color]);
+  return (
+    <RoundedBox args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_DEPTH]} radius={0.08} smoothness={4} castShadow receiveShadow>
+      <meshPhysicalMaterial
+        map={useGradient ? getGradTex(palette) : undefined}
+        color={c} roughness={0.45} metalness={0} clearcoat={0.2} clearcoatRoughness={0.4}
+        emissive={emissive} emissiveIntensity={highlighted ? 0.55 : useGradient ? 0.4 : 0.25}
+        transparent opacity={dim ? 0.25 : 1} fog={!highlighted}
+      />
+    </RoundedBox>
+  );
+}
+
+function Piece(props: Parameters<typeof AnimatedPiece>[0]) {
+  if (!props.instant) return <AnimatedPiece {...props} />;
+  return (
+    <group position={[props.x, props.targetY, 0]} scale={[props.widthScale ?? 1, props.heightScale ?? 1, 1]}>
+      <StoneAppearance {...props} />
+    </group>
+  );
+}
+
+/** A single visibility update reveals every size stone in a column together. */
+function SizeColumnReveal({ column, immediate, children }: { column: number; immediate: boolean; children: ReactNode }) {
+  const [visible, setVisible] = useState(immediate || column === 0);
+  useEffect(() => {
+    if (immediate || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(true);
+      return;
+    }
+    const timer = setTimeout(() => setVisible(true), column * 120);
+    return () => clearTimeout(timer);
+  }, [column, immediate]);
+  return <group visible={visible || immediate}>{children}</group>;
+}
+
 
 function Board({
   xValues,
@@ -557,6 +569,7 @@ function Stacks({
         const off = anim ? 0 : (shift[i] ?? 0);
         const gap = anim ? 0 : (changeGap[i] ?? 0);
         const pieces: ReactNode[] = [];
+        const sizePieces: ReactNode[] = [];
         const oH = !anim && highlight?.i === i && highlight.color === "size";
         const rH = !anim && highlight?.i === i && highlight.color === "change";
         const oDim = !anim && highlight !== null && !oH;
@@ -567,7 +580,7 @@ function Stacks({
         const stoneColor = neg ? BLACK : palette.size;
         const yFull = Math.floor(absVal);
         for (let k = 0; k < yFull; k++) {
-          pieces.push(
+          sizePieces.push(
             <Piece
               key={`y-${runId}-${i}-${k}`}
               x={x}
@@ -579,13 +592,13 @@ function Stacks({
               widthScale={wScale}
               dim={oDim}
               highlighted={oH}
-              instant={instant}
+              instant
             />,
           );
         }
         const yFrac = absVal - yFull;
         if (yFrac >= MIN_PARTIAL) {
-          pieces.push(
+          sizePieces.push(
             <Piece
               key={`y-${runId}-${i}-partial`}
               x={x}
@@ -598,7 +611,7 @@ function Stacks({
               heightScale={yFrac}
               dim={oDim}
               highlighted={oH}
-              instant={instant}
+              instant
             />,
           );
         }
@@ -691,7 +704,7 @@ function Stacks({
           const cColor = cVal < 0 ? BLACK : palette.size;
           const cx2 = cx - COL_SPACING / 4;
           for (let k = 0; k < cFull; k++) {
-            pieces.push(
+            sizePieces.push(
               <Piece
                 key={`c-${runId}-${i}-${k}`}
                 x={cx2}
@@ -702,13 +715,13 @@ function Stacks({
                 palette={palette}
                 widthScale={0.5}
                 dim={oDim}
-                instant={instant}
+                instant
               />,
             );
           }
           const cFrac = cAbs - cFull;
           if (cFrac >= MIN_PARTIAL) {
-            pieces.push(
+            sizePieces.push(
               <Piece
                 key={`c-${runId}-${i}-partial`}
                 x={cx2}
@@ -720,13 +733,13 @@ function Stacks({
                 widthScale={0.5}
                 heightScale={cFrac}
                 dim={oDim}
-                instant={instant}
+                instant
               />,
             );
           }
         }
 
-        return <group key={i}>{pieces}</group>;
+        return <group key={i}><SizeColumnReveal key={`size-${runId}-${i}`} column={i} immediate={instant || !!anim}>{sizePieces}</SizeColumnReveal>{pieces}</group>;
       })}
     </>
   );
