@@ -1,5 +1,8 @@
 # Roadmap
 
+## Open
+- Reveal complete size stacks column by column without falling, preserving change-stone animations.
+
 ## Completed
 - Clarify Stack in one column with vertical alignment followed by individual horizontal slides to column 11, preserving signed totals and Reverse; visually verified the 18-stone partial span and restoration, with controls synchronized to actual movement completion.
 - Connect calculus-abacus.com and www.calculus-abacus.com through GoDaddy; both addresses are verified and live.
