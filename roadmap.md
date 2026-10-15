@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Completed
+- Add separate recoloring and conditional rescaling before promoted stacks align vertically and gather horizontally; visually verified ordinary and Dual Increments stages, Blue/Cyan colors, w, exact restoration, the 18-stone partial sum, and reduced-motion signed stacking with no page errors.
 - Correct white change-size stones during Reverse by refreshing solid/gradient materials; visually verified all palettes, paired stacks, signed/fractional stones, exact restoration, and unchanged lifting with no page errors.
 - Animate Reverse in separate right-to-left stages; verified differences removal, exact ordinary and Dual Increments restoration, skipping, and signed/fractional reduced-motion restoration with no page errors.
 - Reveal initial change-size stacks column by column without falling; verified ordinary and paired differences, promotion, Reverse, Leibniz shelf, reduced motion, and signed/fractional stacking with no page errors.
