@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Completed
+- Correct white change-size stones during Reverse by refreshing solid/gradient materials; visually verified all palettes, paired stacks, signed/fractional stones, exact restoration, and unchanged lifting with no page errors.
 - Animate Reverse in separate right-to-left stages; verified differences removal, exact ordinary and Dual Increments restoration, skipping, and signed/fractional reduced-motion restoration with no page errors.
 - Reveal initial change-size stacks column by column without falling; verified ordinary and paired differences, promotion, Reverse, Leibniz shelf, reduced motion, and signed/fractional stacking with no page errors.
 - Reveal complete size stacks from left to right without falling, including paired and fractional stacks; keep change-stone motion, promotion, and Reverse. Visually checked filling, differences, dual promotion, and reduced motion with no page errors.
