@@ -198,8 +198,8 @@ function Piece(props: Parameters<typeof AnimatedPiece>[0]) {
   );
 }
 
-/** A single visibility update reveals every size stone in a column together. */
-function SizeColumnReveal({ column, immediate, children }: { column: number; immediate: boolean; children: ReactNode }) {
+/** A single visibility update reveals every stone in a stack together. */
+function ColumnReveal({ column, immediate, children }: { column: number; immediate: boolean; children: ReactNode }) {
   const [visible, setVisible] = useState(immediate || column === 0);
   useEffect(() => {
     if (immediate || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -669,7 +669,7 @@ function Stacks({
               startAtFullScale={!!anim}
               dim={rDim}
               highlighted={rH}
-              instant={instant}
+              instant={instant || !anim}
             />,
           );
         }
@@ -692,7 +692,7 @@ function Stacks({
               heightScale={rFrac}
               dim={rDim}
               highlighted={rH}
-              instant={instant}
+              instant={instant || !anim}
             />,
           );
         }
@@ -739,7 +739,12 @@ function Stacks({
           }
         }
 
-        return <group key={i}><SizeColumnReveal key={`size-${runId}-${i}`} column={i} immediate={instant || !!anim}>{sizePieces}</SizeColumnReveal>{pieces}</group>;
+        return (
+          <group key={i}>
+            <ColumnReveal key={`size-${runId}-${i}`} column={i} immediate={instant || !!anim}>{sizePieces}</ColumnReveal>
+            <ColumnReveal key={`change-${runId}-${i}-${rAbs > 0 ? 'present' : 'empty'}`} column={i} immediate={instant || !!anim}>{pieces}</ColumnReveal>
+          </group>
+        );
       })}
     </>
   );
@@ -2943,7 +2948,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
               <p>Negative size values are represented by black stones.</p>
               <h3 className="font-serif text-lg text-foreground pt-2">How the Change-Size Stones Work</h3>
               <p>
-                When you click <strong>"Find Differences,"</strong> the app places change-size stones next to each column.
+                When you click <strong>"Find Differences,"</strong> the app places change-size stones next to each column. Each complete stack appears together, one column at a time from left to right, without falling from above.
               </p>
               <p>The number of change-size stones represents:</p>
               <p className="font-mono text-center">f(x + Δx) − f(x)</p>
