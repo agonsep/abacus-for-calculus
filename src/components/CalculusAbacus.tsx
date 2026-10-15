@@ -3084,7 +3084,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Clicking <strong>"Divide By Increment"</strong> removes the size stones and drops the change-size stones to the board floor, turning them into a new size curve. The stack heights stay exactly the same; only the value represented by one stone is divided by the increment. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no change-size stones, the button instead restores the previous level.
               </p>
               <p>
-                Under <strong>"More"</strong>, checking <strong>"Reverse"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board.
+                Under <strong>"More"</strong>, checking <strong>"Reverse Button"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board.
               </p>
               <p>
                 <strong>"Stack in one column"</strong> hides the size stones and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. Then each stack slides horizontally, one at a time from left to right, into the board’s last column. From and To select the stretch to add, not the destination. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, rates are first multiplied by the increment. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
@@ -3435,7 +3435,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                     onChange={(e) => setShowReverse(e.target.checked)}
                     className="h-5 w-5 accent-[hsl(199_89%_70%)]"
                   />
-                  <span className={anim ? "text-muted-foreground" : "text-foreground"}>Reverse</span>
+                  <span className={anim ? "text-muted-foreground" : "text-foreground"}>Reverse Button</span>
                 </label>
                 <div className="flex flex-col gap-1">
                   <label
