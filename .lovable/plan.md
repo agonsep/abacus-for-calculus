@@ -3,10 +3,12 @@
 ## Intended result
 - Choose the destination from the selected change-size stacks **before vertical alignment**, using the highest visible top. Do not send the stones automatically to the board’s last column.
 - Keep the existing vertical bottom-to-top alignment stage. During horizontal gathering, the chosen stack stays in its column while the other stacks slide there individually, retaining their aligned heights. For the increasing curve in your example, they gather underneath it.
-- Apply this destination rule to every From/To selection, including stacking after Divide By Increment. Preserve the separate recoloring and conditional count-restoration stages.
+- Apply this destination rule to every From/To selection, **including the default From 1 to 11**, and stacking after Divide By Increment. Preserve the separate recoloring and conditional count-restoration stages.
 
 ## Your example
 For **y = x², midpoint 5, increment 1, maximum 50**, run Fill Board → Find Differences and select **From 3 to 9**. With the default comparison direction, the included change stacks occupy columns 3–8; column 9 is the interval endpoint. The highest included stack is in **column 8**, so the other selected stacks gather beneath it there.
+
+With the same settings and the default **From 1 to 11**, the highest included change stack is in **column 10**. Gather beneath that stack in column 10, not in the empty change-stack position at column 11.
 
 ## Preserve
 - Keep the selected interval, sum, stone values, palettes, and mathematical board state unchanged.
@@ -22,5 +24,6 @@ For **y = x², midpoint 5, increment 1, maximum 50**, run Fill Board → Find Di
 
 ## Checks
 - Visually verify the exact From 3 to 9 example: vertical alignment finishes first, the column-8 stack does not move horizontally, and the others gather beneath it.
+- Verify the default From 1 to 11 example gathers beneath the column-10 stack instead of moving to column 11.
 - Check full and partial selections, equal-height ties, the opposite comparison direction, decreasing and mixed-sign curves, fractional stones, and stacking after ordinary and Dual Increments promotion.
 - Confirm restored board state after unchecking, Reverse availability, reduced motion, and no rendering or compilation errors.
