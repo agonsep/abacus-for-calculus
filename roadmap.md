@@ -1,5 +1,8 @@
 # Roadmap
 
+## Open
+- Reveal initial change-size stacks column by column without falling; preserve promotion, stacking, and Reverse, and verify the resulting flows.
+
 ## Completed
 - Reveal complete size stacks from left to right without falling, including paired and fractional stacks; keep change-stone motion, promotion, and Reverse. Visually checked filling, differences, dual promotion, and reduced motion with no page errors.
 - Clarify Stack in one column with vertical alignment followed by individual horizontal slides to column 11, preserving signed totals and Reverse; visually verified the 18-stone partial span and restoration, with controls synchronized to actual movement completion.
