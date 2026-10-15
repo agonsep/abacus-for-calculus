@@ -1074,13 +1074,14 @@ function JourneyStack({ column, elapsed, palette, journey, clock }: {
   const whole = Math.floor(count);
   const remainder = count - whole;
   const negative = signedCount < 0;
+  const downward = negative && restored;
   const color = negative ? (recolored ? DARK_GREY : BLACK) : (recolored ? palette.change : palette.size);
   return <group ref={group} position={[column.startX, column.start * PIECE_HEIGHT, 0]}>
     {Array.from({ length: whole }, (_, k) => {
-      const slot = negative ? -k - 1 : k;
+      const slot = downward ? -k - 1 : k;
       return <Piece key={k} x={0} fromY={slotY(slot)} targetY={slotY(slot)} delay={0} color={color} palette={palette} useGradient={recolored && !negative} instant />;
     })}
-    {remainder >= MIN_PARTIAL && <Piece x={0} fromY={0} targetY={partialY(negative ? -whole - remainder : whole, remainder)} delay={0} color={color} palette={palette} useGradient={recolored && !negative} heightScale={remainder} instant />}
+    {remainder >= MIN_PARTIAL && <Piece x={0} fromY={0} targetY={partialY(downward ? -whole - remainder : whole, remainder)} delay={0} color={color} palette={palette} useGradient={recolored && !negative} heightScale={remainder} instant />}
   </group>;
 }
 
@@ -1092,6 +1093,7 @@ function StackJourneyView({ journey, palette, onPhase }: {
   const elapsed = useRef(0);
   const phase = useRef<StackPhase>(journey.rate ? "recolor" : "align");
   const [clock, setClock] = useState(0);
+  const lastDisplayTick = useRef(-1);
   const [complete, setComplete] = useState(false);
   const { camera } = useThree();
   useEffect(() => {
@@ -1099,6 +1101,7 @@ function StackJourneyView({ journey, palette, onPhase }: {
     elapsed.current = 0;
     phase.current = journey.rate ? "recolor" : "align";
     setClock(0);
+    lastDisplayTick.current = -1;
     setComplete(false);
     const height = (journey.max - journey.min) * PIECE_HEIGHT;
     camera.zoom = oldZoom * Math.min(1, 17 / Math.max(17, height + 2 * Math.abs((journey.max + journey.min) * PIECE_HEIGHT / 2 - BOARD_CENTER_Y)));
@@ -1115,7 +1118,12 @@ function StackJourneyView({ journey, palette, onPhase }: {
     const timing = stackTiming(journey);
     const t = elapsed.current;
     const next: StackPhase = t >= timing.end ? "complete" : t >= timing.slideStart ? "slide" : t >= timing.alignStart ? "align" : journey.rescale && t >= timing.rescaleStart ? "rescale" : "recolor";
-    setClock(t);
+    // Only recolor/count events need a React render; movement stays frame-driven.
+    const displayTick = Math.floor(t / 0.18);
+    if ((t < timing.alignStart && displayTick !== lastDisplayTick.current) || next !== phase.current) {
+      lastDisplayTick.current = displayTick;
+      setClock(t);
+    }
     if (next !== phase.current) { phase.current = next; onPhase(next); }
     if (next === "complete") setComplete(true);
   });
