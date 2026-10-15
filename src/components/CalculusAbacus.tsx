@@ -2582,14 +2582,11 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     };
   }, [stackOne, stackAvailable, rateSnap, size, change, defined, companion, dualActive, leftCompare, sFrom, sTo, shift, changeGap]);
 
-  // Keep cancellation controls usable even if a graphics context is temporarily lost.
+  // Movement completion comes from the same frame clock that moves the stacks.
   useEffect(() => {
     if (!stackDisplay) { setStackPhase("complete"); return; }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setStackPhase("complete"); return; }
     setStackPhase("align");
-    const slide = setTimeout(() => setStackPhase("slide"), (STACK_ALIGN_SECONDS + 0.5) * 1000);
-    const done = setTimeout(() => setStackPhase("complete"), (STACK_ALIGN_SECONDS + 0.5 + stackDisplay.journey.columns.length * STACK_SLIDE_SECONDS + 0.2) * 1000);
-    return () => { clearTimeout(slide); clearTimeout(done); };
   }, [stackDisplay]);
 
   return (
