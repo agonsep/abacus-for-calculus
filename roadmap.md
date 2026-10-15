@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Open
+- Clarify Stack in one column with vertical alignment followed by individual horizontal slides to column 11, preserving signed totals and Reverse.
 - Connect calculus-abacus.com (GoDaddy) to this project: add the DNS records the connect card shows, add www too, then verify once the domain is live.
 
 ## Completed

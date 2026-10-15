@@ -1,6 +1,6 @@
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Text, RoundedBox, Line } from "@react-three/drei";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type MutableRefObject } from "react";
 import { evaluate } from "mathjs";
 import { dual, evalDual, formatDual, jetDivInf, jetDivReal, jetSub, parseIncrement, type Dual } from "@/lib/dual";
 import * as THREE from "three";
@@ -993,6 +993,86 @@ function DragHandles({
   );
 }
 
+type StackJourney = {
+  columns: { i: number; count: number; start: number; startX: number; base: number }[];
+  sum: number;
+  anchor: number;
+  offset: number;
+  min: number;
+  max: number;
+};
+
+const STACK_ALIGN_SECONDS = 1.2;
+const STACK_SLIDE_SECONDS = 0.8;
+
+function JourneyStack({ column, elapsed, palette }: {
+  column: StackJourney["columns"][number] & { order: number };
+  elapsed: MutableRefObject<number>;
+  palette: Palette;
+}) {
+  const group = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (!group.current) return;
+    const ease = (t: number) => { const p = Math.max(0, Math.min(1, t)); return p * p * (3 - 2 * p); };
+    const vertical = ease(elapsed.current / STACK_ALIGN_SECONDS);
+    const horizontal = ease((elapsed.current - STACK_ALIGN_SECONDS - 0.5 - column.order * STACK_SLIDE_SECONDS) / STACK_SLIDE_SECONDS);
+    const destination = ((COLUMNS - 1) / 2) * COL_SPACING;
+    group.current.position.set(
+      column.startX + (destination - column.startX) * horizontal,
+      (column.start + (column.base - column.start) * vertical) * PIECE_HEIGHT,
+      0,
+    );
+  });
+  const count = Math.abs(column.count);
+  const whole = Math.floor(count);
+  const remainder = count - whole;
+  const negative = column.count < 0;
+  const color = negative ? DARK_GREY : palette.change;
+  return <group ref={group} position={[column.startX, column.start * PIECE_HEIGHT, 0]}>
+    {Array.from({ length: whole }, (_, k) => {
+      const slot = negative ? -k - 1 : k;
+      return <Piece key={k} x={0} fromY={slotY(slot)} targetY={slotY(slot)} delay={0} color={color} palette={palette} useGradient={!negative} instant />;
+    })}
+    {remainder >= MIN_PARTIAL && <Piece x={0} fromY={0} targetY={partialY(negative ? -whole - remainder : whole, remainder)} delay={0} color={color} palette={palette} useGradient={!negative} heightScale={remainder} instant />}
+  </group>;
+}
+
+function StackJourneyView({ journey, palette, onPhase }: {
+  journey: StackJourney;
+  palette: Palette;
+  onPhase: (phase: "align" | "slide" | "complete") => void;
+}) {
+  const elapsed = useRef(0);
+  const phase = useRef("align");
+  const [complete, setComplete] = useState(false);
+  const { camera } = useThree();
+  useEffect(() => {
+    const oldZoom = camera.zoom;
+    elapsed.current = 0;
+    phase.current = "align";
+    setComplete(false);
+    const height = (journey.max - journey.min) * PIECE_HEIGHT;
+    camera.zoom = oldZoom * Math.min(1, 17 / Math.max(17, height + 2 * Math.abs((journey.max + journey.min) * PIECE_HEIGHT / 2 - BOARD_CENTER_Y)));
+    camera.updateProjectionMatrix();
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) { elapsed.current = Infinity; setComplete(true); phase.current = "complete"; onPhase("complete"); }
+    else onPhase("align");
+    return () => { camera.zoom = oldZoom; camera.updateProjectionMatrix(); };
+  }, [journey, camera, onPhase]);
+  useFrame((_, delta) => {
+    if (phase.current === "complete") return;
+    elapsed.current += delta;
+    const end = STACK_ALIGN_SECONDS + 0.5 + journey.columns.length * STACK_SLIDE_SECONDS + 0.2;
+    if (elapsed.current >= end) { phase.current = "complete"; setComplete(true); onPhase("complete"); }
+    else if (elapsed.current >= STACK_ALIGN_SECONDS + 0.5 && phase.current !== "slide") { phase.current = "slide"; onPhase("slide"); }
+  });
+  const mixed = journey.columns.some((c) => c.count < 0) && journey.columns.some((c) => c.count > 0);
+  const columns = complete && mixed
+    ? [{ i: COLUMNS - 1, count: journey.sum, start: journey.anchor + journey.offset, startX: ((COLUMNS - 1) / 2) * COL_SPACING, base: journey.anchor + journey.offset }]
+    : journey.columns;
+  return <>{columns.map((column, order) => <JourneyStack key={complete && mixed ? "net" : column.i} column={{ ...column, order }} elapsed={elapsed} palette={palette} />)}</>;
+}
+
 function Scene({
   size,
   change,
@@ -1022,6 +1102,8 @@ function Scene({
   h2,
   palette,
   stackMarker = null,
+  stackJourney = null,
+  onStackPhase,
 }: {
   size: number[];
   change: number[];
@@ -1052,6 +1134,8 @@ function Scene({
   h2: { value: number; infinitesimal: boolean } | null;
   palette: Palette;
   stackMarker?: { from: number; to: number; slot: number } | null;
+  stackJourney?: StackJourney | null;
+  onStackPhase: (phase: "align" | "slide" | "complete") => void;
 }) {
   return (
     <>
@@ -1076,7 +1160,7 @@ function Scene({
       <directionalLight position={[-6, 5, -4]} intensity={0.7 * brightness} color="#a8c0ff" />
       <group position={[0, -panY, 0]}>
         <Board xValues={xValues} xW={xW} defined={defined} leibniz={leibniz} dualActive={dualActive} h2={h2} />
-        <Stacks
+        {stackJourney ? <StackJourneyView key={runId} journey={stackJourney} palette={palette} onPhase={onStackPhase} /> : <Stacks
           size={size}
           change={change}
           shift={shift}
@@ -1089,7 +1173,7 @@ function Scene({
           leibniz={leibniz}
           companion={companion}
           palette={palette}
-        />
+        />}
         {showLine && !anim && (
           <>
             <ConnectingLine size={size} shift={shift} defined={defined} dualActive={dualActive} />
@@ -1109,7 +1193,7 @@ function Scene({
           <mesh
             position={[
               (((stackMarker.from + stackMarker.to) / 2) - (COLUMNS - 1) / 2) * COL_SPACING,
-              slotY(Math.abs(stackMarker.slot)) - PIECE_HEIGHT / 2,
+              slotY(stackMarker.slot) - PIECE_HEIGHT / 2,
               0.9,
             ]}
           >
@@ -1222,6 +1306,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [stackOne, setStackOne] = useState(false);
   const [stackFrom, setStackFrom] = useState(1);
   const [stackTo, setStackTo] = useState(COLUMNS);
+  const [stackPhase, setStackPhase] = useState<"align" | "slide" | "complete">("complete");
+  const stackBusy = stackOne && stackPhase !== "complete";
   
   const [panY, setPanY] = useState(0);
   const [uiHidden, setUiHidden] = useState(true);
@@ -2219,6 +2305,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   };
 
   const reverseStep = () => {
+    setInstant(true);
     const k = history.current.pop();
     setHistoryLen(history.current.length);
     setStackOne(false);
@@ -2452,61 +2539,72 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
 
 
 
-  // "Stack in one column": display-only overlay; never mutates board state.
+  // The demonstration retains source-stack identity and never edits board arrays.
   const sFrom = Math.max(0, Math.min(COLUMNS - 2, Math.round(stackFrom) - 1));
   const sTo = Math.max(sFrom + 1, Math.min(COLUMNS - 1, Math.round(stackTo) - 1));
   const hasChange = change.some((v) => v !== 0);
   const rateSnap = !hasChange && level > 0 ? levelStack.current[levelStack.current.length - 1] : null;
   const stackAvailable = !anim && !leibniz && (hasChange || (!!rateSnap && rateSnap.change.some((v) => v !== 0)));
-  let stackDisplay: {
-    size: number[];
-    change: number[];
-    defined: boolean[];
-    sum: number;
-    target: number;
-    rate: boolean;
-    dual: boolean;
-    key: number;
-    marker: { from: number; to: number; slot: number };
-  } | null = null;
-  if (stackOne && stackAvailable) {
+  const stackDisplay = useMemo(() => {
+    if (!stackOne || !stackAvailable) return null;
     const base = rateSnap ? rateSnap.size : size;
     const diffs = rateSnap ? rateSnap.change : change;
     const def = rateSnap ? rateSnap.defined : defined;
-    const isDual = rateSnap ? rateSnap.appliedDual && rateSnap.companion !== null : dualActive;
+    const pair = rateSnap ? rateSnap.companion : companion;
+    const isDual = rateSnap ? rateSnap.appliedDual && pair !== null : dualActive;
     const lo = leftCompare && !isDual ? sFrom + 1 : sFrom;
     const hi = leftCompare && !isDual ? sTo : sTo - 1;
-    let sum = 0;
-    for (let i = lo; i <= hi; i++) sum += diffs[i] ?? 0;
-    const room = MAX_PIECES - Math.abs(base[sFrom] ?? 0);
-    const pile = Math.max(-room, Math.min(room, sum));
-    const ch = Array(COLUMNS).fill(0);
-    ch[sFrom] = pile;
-    stackDisplay = {
-      size: base,
-      change: ch,
-      defined: def,
-      sum,
+    const anchor = Math.abs(base[sFrom] ?? 0);
+    let cumulative = anchor;
+    let min = anchor;
+    let max = anchor;
+    const columns: StackJourney["columns"] = [];
+    for (let i = lo; i <= hi; i++) {
+      if (def[i] === false) continue;
+      const count = diffs[i] ?? 0;
+      if (count === 0) continue;
+      const start = Math.abs((isDual ? pair?.[i] : base[i]) ?? 0) + (rateSnap ? 0 : (shift[i] ?? 0) + (changeGap[i] ?? 0));
+      columns.push({ i, count, start, base: cumulative, startX: (i - (COLUMNS - 1) / 2) * COL_SPACING - (isDual ? COL_SPACING / 4 : 0) });
+      min = Math.min(min, cumulative, cumulative + count, start, start + count);
+      max = Math.max(max, cumulative, cumulative + count, start, start + count);
+      cumulative += count;
+    }
+    // Shift the entire demonstration up when a descending cumulative path crosses the floor.
+    const offset = Math.max(0, -min);
+    const journey: StackJourney = { columns: columns.map((c) => ({ ...c, start: c.start + offset, base: c.base + offset })), sum: cumulative - anchor, anchor, offset, min: min + offset, max: max + offset };
+    return {
+      journey, sum: journey.sum,
       target: (base[sTo] ?? 0) - (base[sFrom] ?? 0),
-      rate: !!rateSnap,
-      dual: isDual,
+      rate: !!rateSnap, dual: isDual,
       key: sFrom * 20 + sTo + (rateSnap ? 500 : 0),
-      marker: { from: sFrom, to: sTo, slot: base[sTo] ?? 0 },
+      marker: { from: sFrom, to: COLUMNS - 1, slot: cumulative + offset },
     };
-  }
+  }, [stackOne, stackAvailable, rateSnap, size, change, defined, companion, dualActive, leftCompare, sFrom, sTo, shift, changeGap]);
+
+  // Keep cancellation controls usable even if a graphics context is temporarily lost.
+  useEffect(() => {
+    if (!stackDisplay) { setStackPhase("complete"); return; }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setStackPhase("complete"); return; }
+    setStackPhase("align");
+    const slide = setTimeout(() => setStackPhase("slide"), (STACK_ALIGN_SECONDS + 0.5) * 1000);
+    const done = setTimeout(() => setStackPhase("complete"), (STACK_ALIGN_SECONDS + 0.5 + stackDisplay.journey.columns.length * STACK_SLIDE_SECONDS + 0.2) * 1000);
+    return () => { clearTimeout(slide); clearTimeout(done); };
+  }, [stackDisplay]);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-background">
+    <div data-stack-phase={stackDisplay ? stackPhase : "off"} data-stack-destination={stackDisplay ? COLUMNS : undefined} data-stack-sum={stackDisplay?.sum} className="relative h-screen w-full overflow-hidden bg-background">
       <Canvas shadows camera={{ position: [0, BOARD_CENTER_Y, 29.2], fov: 45 }} dpr={[1, 2]}>
         <Scene
-          size={stackDisplay ? stackDisplay.size : size}
-          change={stackDisplay ? stackDisplay.change : change}
+          size={size}
+          change={change}
           shift={stackDisplay ? ZEROS : shift}
           changeGap={stackDisplay ? ZEROS : changeGap}
           xValues={xValues}
           xW={xW}
           runId={stackDisplay ? runId + 100000 + stackDisplay.key : runId}
           stackMarker={stackDisplay ? stackDisplay.marker : null}
+          stackJourney={stackDisplay?.journey ?? null}
+          onStackPhase={setStackPhase}
           showLine={showLine && !stackDisplay}
           onDrag={dragColor}
           setDragging={setDragging}
@@ -2520,7 +2618,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           unit={unit}
           tangentSlope={tangentSlope}
           columnOffset={tangentOffset}
-          defined={stackDisplay ? stackDisplay.defined : defined}
+          defined={defined}
           anim={anim}
           instant={instant}
           leibniz={leibniz}
@@ -2864,7 +2962,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Under <strong>"More"</strong>, checking <strong>"Reverse"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Keep pressing to return to the board from Fill Board.
               </p>
               <p>
-                <strong>"Stack in one column"</strong> piles the change-size stones from the From column to the To column on top of the From column. The pile reaches the height of the To column: adding up the changes gives the total change. After Divide By Increment, the rates are first multiplied by the increment and stacked on the earlier curve. Black and dark grey stones subtract.
+                <strong>"Stack in one column"</strong> hides the size stones and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. Then each stack slides horizontally, one at a time from left to right, into the board’s last column. From and To select the stretch to add, not the destination. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, rates are first multiplied by the increment. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the change-size stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of size stones. Because that derivative is constant, there is nothing further to difference.
@@ -2907,11 +3005,19 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
         <form
           onSubmit={(e) => {
             e.preventDefault();
+            setStackOne(false);
             setup({
               inputs: { formula, midpoint, increment, increment2, maxStones },
             });
           }}
           className="absolute right-4 top-1/2 z-10 flex w-64 -translate-y-1/2 flex-col gap-3 rounded-2xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur-md"
+          onChangeCapture={(e) => {
+            const target = e.target;
+            if (!(target instanceof HTMLInputElement)) return;
+            if (target.getAttribute("aria-label")?.includes("column of the stack")) return;
+            if (target.closest("label")?.textContent?.includes("Stack in one column")) return;
+            if (stackOne) { setStackOne(false); setInstant(true); }
+          }}
         >
           <button
             type="button"
@@ -3004,7 +3110,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           <button
             type="button"
             onClick={calcDiff}
-            disabled={!!anim || leibniz || (wMode && level > 0)}
+            disabled={!!anim || stackBusy || leibniz || (wMode && level > 0)}
             title={
               leibniz
                 ? "Not available in Leibniz Mode."
@@ -3020,6 +3126,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           <button
             type="button"
             onClick={() => {
+              setStackOne(false);
               if (change.some((v) => v !== 0)) {
                 promoteLevel();
               } else if (level > 0) {
@@ -3033,7 +3140,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 setNote(null);
               }
             }}
-            disabled={(level === 0 && !change.some((v) => v !== 0)) || !!anim || leibniz}
+            disabled={(level === 0 && !change.some((v) => v !== 0)) || !!anim || stackBusy || leibniz}
             title={
               level === 0 && !change.some((v) => v !== 0)
                 ? "Find differences first."
@@ -3210,7 +3317,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                     className={`flex items-center gap-3 ${stackAvailable ? "cursor-pointer" : "cursor-not-allowed"}`}
                     title={
                       stackAvailable
-                        ? "Pile the change-size stones from the chosen columns onto the From column."
+                        ? "Align the chosen change stacks bottom-to-top, then slide them one at a time into the board’s last column."
                         : "Find differences first (or divide by increment to stack rates × increment)."
                     }
                   >
@@ -3218,7 +3325,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                       type="checkbox"
                       checked={stackOne && stackAvailable}
                       disabled={!stackAvailable}
-                      onChange={(e) => setStackOne(e.target.checked)}
+                      onChange={(e) => { setStackPhase(e.target.checked ? "align" : "complete"); setStackOne(e.target.checked); setInstant(true); }}
                       className="h-5 w-5 accent-[hsl(199_89%_70%)]"
                     />
                     <span className={stackAvailable ? "text-foreground" : "text-muted-foreground"}>Stack in one column</span>
