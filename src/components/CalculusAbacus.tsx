@@ -1165,7 +1165,6 @@ function Scene({
   dualActive,
   h2,
   palette,
-  stackMarker = null,
   stackJourney = null,
   onStackPhase,
 }: {
@@ -1197,7 +1196,6 @@ function Scene({
   dualActive: boolean;
   h2: { value: number; infinitesimal: boolean } | null;
   palette: Palette;
-  stackMarker?: { from: number; to: number; slot: number } | null;
   stackJourney?: StackJourney | null;
   onStackPhase: (phase: StackPhase) => void;
 }) {
@@ -1253,19 +1251,7 @@ function Scene({
             />
           </>
         )}
-        {stackMarker && !anim && (
-          <mesh
-            position={[
-              (((stackMarker.from + stackMarker.to) / 2) - (COLUMNS - 1) / 2) * COL_SPACING,
-              slotY(stackMarker.slot) - PIECE_HEIGHT / 2,
-              0.9,
-            ]}
-          >
-            <boxGeometry args={[(stackMarker.to - stackMarker.from) * COL_SPACING + 1, 0.06, 0.06]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={0.85} />
-          </mesh>
-        )}
-        {!anim && !stackMarker && (
+        {!anim && !stackJourney && (
           <DragHandles
             size={size}
             change={change}
@@ -2785,7 +2771,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       endpointFrom: endpointFrom + 1, endpointTo: endpointTo + 1,
       rate: !!rateSnap, dual: isDual,
       key: sFrom * 20 + sTo + (rateSnap ? 500 : 0),
-      marker: { from: endpointFrom, to: destination.i, slot: cumulative + offset },
     };
   }, [stackOne, stackAvailable, rateSnap, size, change, defined, companion, dualActive, leftCompare, sFrom, sTo, shift, changeGap]);
 
@@ -2808,7 +2793,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           xValues={xValues}
           xW={xW}
           runId={stackDisplay ? runId + 100000 + stackDisplay.key : runId}
-          stackMarker={stackDisplay ? stackDisplay.marker : null}
           stackJourney={stackDisplay?.journey ?? null}
           onStackPhase={setStackPhase}
           showLine={showLine && !stackDisplay}
@@ -3169,7 +3153,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Under <strong>"More"</strong>, checking <strong>"Reverse Button"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board. Reverse is unavailable after Dual Increments or the infinitesimal increment w, because the omitted in-between columns would make the accumulated sum misleading.
               </p>
               <p>
-                <strong>"Stack in one column"</strong> hides only the size stones inside the selected range, keeping outside size stacks visible for comparison, and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. The destination is the selected stack whose top was highest before alignment (the rightmost in a tie). That stack stays in its column while the others slide horizontally there, one at a time from left to right. For increasing curves, they gather beneath it. From and To include the change stacks in both named columns. With right-hand comparison, changes in columns 3–9 add up to the size stones in column 10 minus those in column 3; with left-hand comparison, the endpoints are columns 9 and 2. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, the visible stones first change to the change-size color, column by column. If rescaling changed their counts, a separate pass restores the difference counts, representing rates multiplied by the increment. They then move directly into vertical alignment before sliding horizontally; outside size stacks return in the pre-division units for comparison. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
+                <strong>"Stack in one column"</strong> hides only the size stones inside the selected range, keeping outside size stacks visible for comparison, and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. The destination is the selected stack whose top was highest before alignment (the rightmost in a tie). That stack stays in its column while the others slide horizontally there, one at a time from left to right. For increasing curves, they gather beneath it. From and To include the change stacks in both named columns. With right-hand comparison, changes in columns 3–9 add up to the size stones in column 10 minus those in column 3; with left-hand comparison, the endpoints are columns 9 and 2. After Divide By Increment, the visible stones first change to the change-size color, column by column. If rescaling changed their counts, a separate pass restores the difference counts, representing rates multiplied by the increment. They then move directly into vertical alignment before sliding horizontally; outside size stacks return in the pre-division units for comparison. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the change-size stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of size stones. Because that derivative is constant, there is nothing further to difference.

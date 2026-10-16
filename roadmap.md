@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Completed
+- Remove the white reference line drawn over the board while "Stack in one column" is checked; the numeric endpoint comparison readout remains the only check. Drag handles stay hidden during the demonstration through the active journey instead of the line.
 - Disable Reverse after a Dual Increments or w promotion (omitted in-between columns make the accumulation misleading), with an explanatory tooltip and Help note; ordinary promotion keeps Reverse.
 - Default the Stack in one column span to columns 1 to 10; verified the From/To boxes open at 1 and 10, the default pile gathers 50 stones in column 10 with the comparison "column 11 − column 1 = 50", unchecking restores the difference stacks, and Reverse returns to the Fill Board stacks with no page errors.
 - Keep camera framing unchanged throughout stacking and unchecking; verified identical camera zoom, position, and projection for partial/default ranges, manually zoomed promoted stacking, and reduced-motion Dual Increments with no page errors.
