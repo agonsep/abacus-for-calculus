@@ -2708,6 +2708,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const hasChange = change.some((v) => v !== 0);
   const rateSnap = !hasChange && level > 0 ? levelStack.current[levelStack.current.length - 1] : null;
   const stackAvailable = !anim && !leibniz && (hasChange || (!!rateSnap && rateSnap.change.some((v) => v !== 0)));
+  // Reverse is blocked when the last move was a Dual Increments or w promotion:
+  // the omitted in-between columns make the accumulation story misleading.
+  const reverseSaved = historyLen > 0 && history.current[history.current.length - 1] === "promote" ? levelStack.current[levelStack.current.length - 1] : null;
+  const reverseBlocked = !!reverseSaved && (reverseSaved.appliedDual || reverseSaved.wMode);
   const stackDisplay = useMemo(() => {
     if (!stackOne || !stackAvailable) return null;
     const base = rateSnap ? rateSnap.size : size;
@@ -3359,8 +3363,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             <button
               type="button"
               onClick={reverseStep}
-              disabled={!!anim || historyLen === 0}
-              title={historyLen === 0 ? "Nothing to reverse." : "Step back one move."}
+              disabled={!!anim || historyLen === 0 || reverseBlocked}
+              title={reverseBlocked ? "Reverse is unavailable after Dual Increments — in-between columns are omitted." : historyLen === 0 ? "Nothing to reverse." : "Step back one move."}
               className="rounded-xl border border-border bg-muted px-4 py-2 font-medium text-foreground transition hover:opacity-90 disabled:opacity-50"
             >
               Reverse
