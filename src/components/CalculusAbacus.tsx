@@ -1352,7 +1352,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [showReverse, setShowReverse] = useState(false);
   const history = useRef<("diff" | "promote")[]>([]);
   const [historyLen, setHistoryLen] = useState(0);
-  // Stack in one column (display-only overlay). Columns are 1-based.
+  // Stack differences (display-only overlay). Columns are 1-based.
   const [stackOne, setStackOne] = useState(false);
   const [stackFrom, setStackFrom] = useState(1);
   const [stackTo, setStackTo] = useState(COLUMNS - 1);
@@ -3206,7 +3206,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             const target = e.target;
             if (!(target instanceof HTMLInputElement)) return;
             if (target.getAttribute("aria-label")?.includes("column of the stack")) return;
-            if (target.closest("label")?.textContent?.includes("Stack in one column")) return;
+            if (target.closest("label")?.textContent?.includes("Stack differences")) return;
             if (stackOne) { setStackOne(false); setInstant(true); }
           }}
         >
@@ -3519,7 +3519,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                       onChange={(e) => { setStackPhase(e.target.checked ? "align" : "complete"); setStackOne(e.target.checked); setInstant(true); }}
                       className="h-5 w-5 accent-[hsl(199_89%_70%)]"
                     />
-                    <span className={stackAvailable ? "text-foreground" : "text-muted-foreground"}>Stack in one column</span>
+                    <span className={stackAvailable ? "text-foreground" : "text-muted-foreground"}>Stack differences</span>
                   </label>
                   <div className="flex items-center gap-2 pl-8 text-sm text-muted-foreground">
                     <span>From</span>
