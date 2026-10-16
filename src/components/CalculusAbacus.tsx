@@ -2379,6 +2379,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (!k) return;
     const saved = k === "promote" ? levelStack.current[levelStack.current.length - 1] : null;
     if (k === "promote" && !saved) return;
+    if (saved && (saved.appliedDual || saved.wMode)) return;
     setStackOne(false);
     showPromotionNotice(null);
     let committed = false;
