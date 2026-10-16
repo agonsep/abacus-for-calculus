@@ -1097,22 +1097,16 @@ function StackJourneyView({ journey, palette, onPhase }: {
   const [clock, setClock] = useState(0);
   const lastDisplayTick = useRef(-1);
   const [complete, setComplete] = useState(false);
-  const { camera } = useThree();
   useEffect(() => {
-    const oldZoom = camera.zoom;
     elapsed.current = 0;
     phase.current = journey.rate ? "recolor" : "align";
     setClock(0);
     lastDisplayTick.current = -1;
     setComplete(false);
-    const height = (journey.max - journey.min) * PIECE_HEIGHT;
-    camera.zoom = oldZoom * Math.min(1, 17 / Math.max(17, height + 2 * Math.abs((journey.max + journey.min) * PIECE_HEIGHT / 2 - BOARD_CENTER_Y)));
-    camera.updateProjectionMatrix();
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) { elapsed.current = Infinity; setClock(Infinity); setComplete(true); phase.current = "complete"; onPhase("complete"); }
     else onPhase(phase.current);
-    return () => { camera.zoom = oldZoom; camera.updateProjectionMatrix(); };
-  }, [journey, camera, onPhase]);
+  }, [journey, onPhase]);
   useFrame((_, delta) => {
     if (phase.current === "complete") return;
     // A slow geometry upload must not consume an entire stage on its first frame.
