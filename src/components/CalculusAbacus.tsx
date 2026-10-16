@@ -2379,6 +2379,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     if (!k) return;
     const saved = k === "promote" ? levelStack.current[levelStack.current.length - 1] : null;
     if (k === "promote" && !saved) return;
+    if (saved && (saved.appliedDual || saved.wMode)) return;
     setStackOne(false);
     showPromotionNotice(null);
     let committed = false;
@@ -2708,6 +2709,10 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const hasChange = change.some((v) => v !== 0);
   const rateSnap = !hasChange && level > 0 ? levelStack.current[levelStack.current.length - 1] : null;
   const stackAvailable = !anim && !leibniz && (hasChange || (!!rateSnap && rateSnap.change.some((v) => v !== 0)));
+  // Reverse is blocked when the last move was a Dual Increments or w promotion:
+  // the omitted in-between columns make the accumulation story misleading.
+  const reverseSaved = historyLen > 0 && history.current[history.current.length - 1] === "promote" ? levelStack.current[levelStack.current.length - 1] : null;
+  const reverseBlocked = !!reverseSaved && (reverseSaved.appliedDual || reverseSaved.wMode);
   const stackDisplay = useMemo(() => {
     if (!stackOne || !stackAvailable) return null;
     const base = rateSnap ? rateSnap.size : size;
@@ -3161,7 +3166,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Clicking <strong>"Divide By Increment"</strong> removes the size stones and drops the change-size stones to the board floor, turning them into a new size curve. The stack heights stay exactly the same; only the value represented by one stone is divided by the increment. The board now shows the slope curve (Δy/Δx). Clicking <strong>"Find Differences"</strong> at this point produces second-order change-size stones (Δ²y/Δx²), and clicking <strong>"Divide By Increment"</strong> again promotes those in the same way, giving the curvature curve. You can keep going, taking differences of differences as far as the columns allow. When a level has no change-size stones, the button instead restores the previous level.
               </p>
               <p>
-                Under <strong>"More"</strong>, checking <strong>"Reverse Button"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board.
+                Under <strong>"More"</strong>, checking <strong>"Reverse Button"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board. Reverse is unavailable after Dual Increments or the infinitesimal increment w, because the omitted in-between columns would make the accumulated sum misleading.
               </p>
               <p>
                 <strong>"Stack in one column"</strong> hides only the size stones inside the selected range, keeping outside size stacks visible for comparison, and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. The destination is the selected stack whose top was highest before alignment (the rightmost in a tie). That stack stays in its column while the others slide horizontally there, one at a time from left to right. For increasing curves, they gather beneath it. From and To include the change stacks in both named columns. With right-hand comparison, changes in columns 3–9 add up to the size stones in column 10 minus those in column 3; with left-hand comparison, the endpoints are columns 9 and 2. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, the visible stones first change to the change-size color, column by column. If rescaling changed their counts, a separate pass restores the difference counts, representing rates multiplied by the increment. They then move directly into vertical alignment before sliding horizontally; outside size stacks return in the pre-division units for comparison. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
@@ -3359,8 +3364,8 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             <button
               type="button"
               onClick={reverseStep}
-              disabled={!!anim || historyLen === 0}
-              title={historyLen === 0 ? "Nothing to reverse." : "Step back one move."}
+              disabled={!!anim || historyLen === 0 || reverseBlocked}
+              title={reverseBlocked ? "Reverse is unavailable after Dual Increments — in-between columns are omitted." : historyLen === 0 ? "Nothing to reverse." : "Step back one move."}
               className="rounded-xl border border-border bg-muted px-4 py-2 font-medium text-foreground transition hover:opacity-90 disabled:opacity-50"
             >
               Reverse
