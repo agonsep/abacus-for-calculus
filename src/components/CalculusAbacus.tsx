@@ -1352,7 +1352,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   const [showReverse, setShowReverse] = useState(false);
   const history = useRef<("diff" | "promote")[]>([]);
   const [historyLen, setHistoryLen] = useState(0);
-  // Stack in one column (display-only overlay). Columns are 1-based.
+  // Stack differences (display-only overlay). Columns are 1-based.
   const [stackOne, setStackOne] = useState(false);
   const [stackFrom, setStackFrom] = useState(1);
   const [stackTo, setStackTo] = useState(COLUMNS - 1);
@@ -3153,7 +3153,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Under <strong>"More"</strong>, checking <strong>"Reverse Button"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board. Reverse is unavailable after Dual Increments or the infinitesimal increment w, because the omitted in-between columns would make the accumulated sum misleading.
               </p>
               <p>
-                <strong>"Stack in one column"</strong> hides only the size stones inside the selected range, keeping outside size stacks visible for comparison, and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. The destination is the selected stack whose top was highest before alignment (the rightmost in a tie). That stack stays in its column while the others slide horizontally there, one at a time from left to right. For increasing curves, they gather beneath it. From and To include the change stacks in both named columns. With right-hand comparison, changes in columns 3–9 add up to the size stones in column 10 minus those in column 3; with left-hand comparison, the endpoints are columns 9 and 2. After Divide By Increment, the visible stones first change to the change-size color, column by column. If rescaling changed their counts, a separate pass restores the difference counts, representing rates multiplied by the increment. They then move directly into vertical alignment before sliding horizontally; outside size stacks return in the pre-division units for comparison. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
+                <strong>"Stack differences"</strong> hides only the size stones inside the selected range, keeping outside size stacks visible for comparison, and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. The destination is the selected stack whose top was highest before alignment (the rightmost in a tie). That stack stays in its column while the others slide horizontally there, one at a time from left to right. For increasing curves, they gather beneath it. From and To include the change stacks in both named columns. With right-hand comparison, changes in columns 3–9 add up to the size stones in column 10 minus those in column 3; with left-hand comparison, the endpoints are columns 9 and 2. After Divide By Increment, the visible stones first change to the change-size color, column by column. If rescaling changed their counts, a separate pass restores the difference counts, representing rates multiplied by the increment. They then move directly into vertical alignment before sliding horizontally; outside size stacks return in the pre-division units for comparison. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the change-size stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of size stones. Because that derivative is constant, there is nothing further to difference.
@@ -3206,7 +3206,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
             const target = e.target;
             if (!(target instanceof HTMLInputElement)) return;
             if (target.getAttribute("aria-label")?.includes("column of the stack")) return;
-            if (target.closest("label")?.textContent?.includes("Stack in one column")) return;
+            if (target.closest("label")?.textContent?.includes("Stack differences")) return;
             if (stackOne) { setStackOne(false); setInstant(true); }
           }}
         >
@@ -3519,7 +3519,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                       onChange={(e) => { setStackPhase(e.target.checked ? "align" : "complete"); setStackOne(e.target.checked); setInstant(true); }}
                       className="h-5 w-5 accent-[hsl(199_89%_70%)]"
                     />
-                    <span className={stackAvailable ? "text-foreground" : "text-muted-foreground"}>Stack in one column</span>
+                    <span className={stackAvailable ? "text-foreground" : "text-muted-foreground"}>Stack differences</span>
                   </label>
                   <div className="flex items-center gap-2 pl-8 text-sm text-muted-foreground">
                     <span>From</span>
