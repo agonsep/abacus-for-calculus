@@ -1165,7 +1165,6 @@ function Scene({
   dualActive,
   h2,
   palette,
-  stackMarker = null,
   stackJourney = null,
   onStackPhase,
 }: {
@@ -1197,7 +1196,6 @@ function Scene({
   dualActive: boolean;
   h2: { value: number; infinitesimal: boolean } | null;
   palette: Palette;
-  stackMarker?: { from: number; to: number; slot: number } | null;
   stackJourney?: StackJourney | null;
   onStackPhase: (phase: StackPhase) => void;
 }) {
@@ -1253,19 +1251,7 @@ function Scene({
             />
           </>
         )}
-        {stackMarker && !anim && (
-          <mesh
-            position={[
-              (((stackMarker.from + stackMarker.to) / 2) - (COLUMNS - 1) / 2) * COL_SPACING,
-              slotY(stackMarker.slot) - PIECE_HEIGHT / 2,
-              0.9,
-            ]}
-          >
-            <boxGeometry args={[(stackMarker.to - stackMarker.from) * COL_SPACING + 1, 0.06, 0.06]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={0.85} />
-          </mesh>
-        )}
-        {!anim && !stackMarker && (
+        {!anim && !stackJourney && (
           <DragHandles
             size={size}
             change={change}
@@ -2785,7 +2771,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       endpointFrom: endpointFrom + 1, endpointTo: endpointTo + 1,
       rate: !!rateSnap, dual: isDual,
       key: sFrom * 20 + sTo + (rateSnap ? 500 : 0),
-      marker: { from: endpointFrom, to: destination.i, slot: cumulative + offset },
     };
   }, [stackOne, stackAvailable, rateSnap, size, change, defined, companion, dualActive, leftCompare, sFrom, sTo, shift, changeGap]);
 
@@ -2808,7 +2793,6 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
           xValues={xValues}
           xW={xW}
           runId={stackDisplay ? runId + 100000 + stackDisplay.key : runId}
-          stackMarker={stackDisplay ? stackDisplay.marker : null}
           stackJourney={stackDisplay?.journey ?? null}
           onStackPhase={setStackPhase}
           showLine={showLine && !stackDisplay}
