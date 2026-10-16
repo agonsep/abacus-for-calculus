@@ -1369,7 +1369,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   // Stack in one column (display-only overlay). Columns are 1-based.
   const [stackOne, setStackOne] = useState(false);
   const [stackFrom, setStackFrom] = useState(1);
-  const [stackTo, setStackTo] = useState(COLUMNS);
+  const [stackTo, setStackTo] = useState(COLUMNS - 1);
   const [stackPhase, setStackPhase] = useState<StackPhase>("complete");
   const stackBusy = stackOne && stackPhase !== "complete";
   
