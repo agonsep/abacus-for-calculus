@@ -1,9 +1,7 @@
 # Roadmap
 
-## In progress
-- Gather selected change stacks beneath the highest pre-alignment stack, including default 1–11 and partial selections; preserve promotion preparation, signs, restoration, and Reverse.
-
 ## Completed
+- Gather selected change stacks at the highest pre-alignment stack instead of column 11; verified y=x² From 3–9 gathers in column 8 and default 1–11 in column 10, ordinary and Dual promotion, ties, left comparison, signed/fractional stones, reduced motion, exact restoration, and Reverse with no page errors.
 - Add separate recoloring and conditional rescaling before promoted stacks align vertically and gather horizontally; visually verified ordinary and Dual Increments stages, Blue/Cyan colors, w, exact restoration, the 18-stone partial sum, and reduced-motion signed stacking with no page errors.
 - Correct white change-size stones during Reverse by refreshing solid/gradient materials; visually verified all palettes, paired stacks, signed/fractional stones, exact restoration, and unchanged lifting with no page errors.
 - Animate Reverse in separate right-to-left stages; verified differences removal, exact ordinary and Dual Increments restoration, skipping, and signed/fractional reduced-motion restoration with no page errors.
