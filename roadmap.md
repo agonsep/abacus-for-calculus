@@ -1,5 +1,8 @@
 # Roadmap
 
+## In progress
+- Keep outside size stacks visible, select change columns inclusively, and compare the actual endpoint counts; verify ordinary, promoted, signed/fractional, Dual, edge and restoration flows.
+
 ## Completed
 - Gather selected change stacks at the highest pre-alignment stack instead of column 11; verified y=x² From 3–9 gathers in column 8 and default 1–11 in column 10, ordinary and Dual promotion, ties, left comparison, signed/fractional stones, reduced motion, exact restoration, and Reverse with no page errors.
 - Add separate recoloring and conditional rescaling before promoted stacks align vertically and gather horizontally; visually verified ordinary and Dual Increments stages, Blue/Cyan colors, w, exact restoration, the 18-stone partial sum, and reduced-motion signed stacking with no page errors.
