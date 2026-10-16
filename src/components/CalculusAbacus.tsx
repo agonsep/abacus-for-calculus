@@ -1022,6 +1022,8 @@ function DragHandles({
 type StackPhase = "recolor" | "rescale" | "align" | "slide" | "complete";
 type StackJourney = {
   columns: { i: number; count: number; initialCount: number; selected: boolean; start: number; startX: number; base: number }[];
+  destination: number;
+  destinationX: number;
   rate: boolean;
   rescale: boolean;
   sum: number;
@@ -1041,7 +1043,7 @@ function stackTiming(journey: StackJourney) {
   const rescaleStart = journey.rate ? recolorEnd + STACK_STAGE_PAUSE : 0;
   const alignStart = journey.rate ? rescaleStart + (journey.rescale ? STACK_PASS_SECONDS + STACK_STAGE_PAUSE : 0) : 0;
   const slideStart = alignStart + STACK_ALIGN_SECONDS + STACK_STAGE_PAUSE;
-  const end = slideStart + journey.columns.filter((c) => c.selected).length * STACK_SLIDE_SECONDS + 0.2;
+  const end = slideStart + journey.columns.filter((c) => c.selected && c.i !== journey.destination).length * STACK_SLIDE_SECONDS + 0.2;
   return { recolorEnd, rescaleStart, alignStart, slideStart, end };
 }
 
@@ -1058,10 +1060,9 @@ function JourneyStack({ column, elapsed, palette, journey, clock }: {
     if (!group.current) return;
     const ease = (t: number) => { const p = Math.max(0, Math.min(1, t)); return p * p * (3 - 2 * p); };
     const vertical = ease((elapsed.current - timing.alignStart) / STACK_ALIGN_SECONDS);
-    const horizontal = ease((elapsed.current - timing.slideStart - column.order * STACK_SLIDE_SECONDS) / STACK_SLIDE_SECONDS);
-    const destination = ((COLUMNS - 1) / 2) * COL_SPACING;
+    const horizontal = column.i === journey.destination ? 0 : ease((elapsed.current - timing.slideStart - column.order * STACK_SLIDE_SECONDS) / STACK_SLIDE_SECONDS);
     group.current.position.set(
-      column.startX + (destination - column.startX) * horizontal,
+      column.startX + (journey.destinationX - column.startX) * horizontal,
       (column.start + (column.base - column.start) * vertical) * PIECE_HEIGHT,
       0,
     );
@@ -1128,11 +1129,12 @@ function StackJourneyView({ journey, palette, onPhase }: {
     if (next === "complete") setComplete(true);
   });
   const selected = journey.columns.filter((c) => c.selected);
+  const moving = selected.filter((c) => c.i !== journey.destination);
   const mixed = selected.some((c) => c.count < 0) && selected.some((c) => c.count > 0);
   const columns = complete && mixed
-    ? [{ i: COLUMNS - 1, count: journey.sum, initialCount: journey.sum, selected: true, start: journey.anchor + journey.offset, startX: ((COLUMNS - 1) / 2) * COL_SPACING, base: journey.anchor + journey.offset }]
+    ? [{ i: journey.destination, count: journey.sum, initialCount: journey.sum, selected: true, start: journey.anchor + journey.offset, startX: journey.destinationX, base: journey.anchor + journey.offset }]
     : journey.columns;
-  return <>{columns.map((column) => <JourneyStack key={complete && mixed ? "net" : column.i} column={{ ...column, order: Math.max(0, selected.findIndex((c) => c.i === column.i)) }} elapsed={elapsed} palette={palette} journey={journey} clock={clock} />)}</>;
+  return <>{columns.map((column) => <JourneyStack key={complete && mixed ? "net" : column.i} column={{ ...column, order: Math.max(0, moving.findIndex((c) => c.i === column.i)) }} elapsed={elapsed} palette={palette} journey={journey} clock={clock} />)}</>;
 }
 
 function Scene({
@@ -2731,6 +2733,15 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
       max = Math.max(max, cumulative, cumulative + count, start, start + count);
       cumulative += count;
     }
+    // Choose from visible selected stacks before preparation or alignment.
+    // Promoted stacks extend upward even when negative; restored changes extend downward.
+    const visibleTop = (c: StackJourney["columns"][number]) => c.start + (rateSnap ? Math.abs(c.initialCount) : Math.max(0, c.count));
+    const destination = columns.reduce<StackJourney["columns"][number] | undefined>((highest, column) => {
+      if (!highest) return column;
+      const difference = visibleTop(column) - visibleTop(highest);
+      return difference > 1e-9 || (Math.abs(difference) <= 1e-9 && column.i > highest.i) ? column : highest;
+    }, undefined);
+    if (!destination) return null;
     // Keep unselected promoted columns visible throughout the preparation passes.
     if (rateSnap) {
       for (let i = 0; i < COLUMNS; i++) {
@@ -2743,13 +2754,13 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
     }
     // Shift only alignment targets during rate preparation, keeping initial stones in place.
     const offset = Math.max(0, -min);
-    const journey: StackJourney = { rate: !!rateSnap, rescale: !!rateSnap && columns.some((c) => Math.abs(c.initialCount - c.count) > 1e-9), columns: columns.map((c) => ({ ...c, start: c.start + (rateSnap ? 0 : offset), base: c.base + offset })), sum: cumulative - anchor, anchor, offset, min: rateSnap ? min : min + offset, max: max + offset };
+    const journey: StackJourney = { destination: destination.i, destinationX: destination.startX, rate: !!rateSnap, rescale: !!rateSnap && columns.some((c) => Math.abs(c.initialCount - c.count) > 1e-9), columns: columns.map((c) => ({ ...c, start: c.start + (rateSnap ? 0 : offset), base: c.base + offset })), sum: cumulative - anchor, anchor, offset, min: rateSnap ? min : min + offset, max: max + offset };
     return {
       journey, sum: journey.sum,
       target: (base[sTo] ?? 0) - (base[sFrom] ?? 0),
       rate: !!rateSnap, dual: isDual,
       key: sFrom * 20 + sTo + (rateSnap ? 500 : 0),
-      marker: { from: sFrom, to: COLUMNS - 1, slot: cumulative + offset },
+      marker: { from: sFrom, to: destination.i, slot: cumulative + offset },
     };
   }, [stackOne, stackAvailable, rateSnap, size, change, defined, companion, dualActive, leftCompare, sFrom, sTo, shift, changeGap]);
 
@@ -2761,7 +2772,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
   }, [stackDisplay]);
 
   return (
-    <div data-stack-phase={stackDisplay ? stackPhase : "off"} data-stack-destination={stackDisplay ? COLUMNS : undefined} data-stack-sum={stackDisplay?.sum} className="relative h-screen w-full overflow-hidden bg-background">
+    <div data-stack-phase={stackDisplay ? stackPhase : "off"} data-stack-destination={stackDisplay ? stackDisplay.journey.destination + 1 : undefined} data-stack-sum={stackDisplay?.sum} className="relative h-screen w-full overflow-hidden bg-background">
       <Canvas shadows camera={{ position: [0, BOARD_CENTER_Y, 29.2], fov: 45 }} dpr={[1, 2]}>
         <Suspense fallback={null}>
         <Scene
@@ -3133,7 +3144,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                 Under <strong>"More"</strong>, checking <strong>"Reverse Button"</strong> shows a Reverse button. Each press steps back one move: after Divide By Increment it brings back the previous board with its change-size stones, and after Find Differences it removes the change-size stones. Reversing Find Differences removes complete change stacks from right to left. Reversing Divide By Increment uses separate right-to-left stages: recolor, restore counts if needed, lift the change stacks, then restore the size stacks (both stacks in Dual Increments). Keep pressing to return to the board from Fill Board.
               </p>
               <p>
-                <strong>"Stack in one column"</strong> hides the size stones and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. Then each stack slides horizontally, one at a time from left to right, into the board’s last column. From and To select the stretch to add, not the destination. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, the visible stones first change to the change-size color, column by column. If rescaling changed their counts, a separate pass restores the difference counts, representing rates multiplied by the increment. They then move directly into vertical alignment before sliding horizontally. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
+                <strong>"Stack in one column"</strong> hides the size stones and moves the selected change stacks vertically until neighboring stacks align bottom-to-top. The destination is the selected stack whose top was highest before alignment (the rightmost in a tie). That stack stays in its column while the others slide horizontally there, one at a time from left to right. For increasing curves, they gather beneath it. From and To select the stretch to add. The pile begins at the selected starting height; the white line marks its endpoint. After Divide By Increment, the visible stones first change to the change-size color, column by column. If rescaling changed their counts, a separate pass restores the difference counts, representing rates multiplied by the increment. They then move directly into vertical alignment before sliding horizontally. Dark grey stones step downward, and opposite signs cancel in the final pile. Unchecking restores the board.
               </p>
               <p>
                 When the increment is <span className="font-mono text-foreground">w</span>, promoting the change-size stones divides <span className="font-mono text-foreground">w</span> by <span className="font-mono text-foreground">w</span>, leaving the exact derivative as a flat row of size stones. Because that derivative is constant, there is nothing further to difference.
@@ -3488,7 +3499,7 @@ export default function CalculusAbacus({ initialDefaults }: { initialDefaults?: 
                     className={`flex items-center gap-3 ${stackAvailable ? "cursor-pointer" : "cursor-not-allowed"}`}
                     title={
                       stackAvailable
-                        ? "After division, recolor and restore difference counts if needed; then align bottom-to-top and slide one at a time into the board’s last column."
+                        ? "After division, recolor and restore difference counts if needed; then align bottom-to-top and gather at the selected stack whose top was highest before alignment. That stack stays in its column."
                         : "Find differences first (or divide by increment to stack rates × increment)."
                     }
                   >
