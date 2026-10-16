@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Completed
+- Default the Stack in one column span to columns 1 to 10; verified the From/To boxes open at 1 and 10, the default pile gathers 50 stones in column 10 with the comparison "column 11 − column 1 = 50", unchecking restores the difference stacks, and Reverse returns to the Fill Board stacks with no page errors.
 - Keep camera framing unchanged throughout stacking and unchecking; verified identical camera zoom, position, and projection for partial/default ranges, manually zoomed promoted stacking, and reduced-motion Dual Increments with no page errors.
 - Keep outside size stacks visible and select change columns inclusively; verified 3–9 sums to 39 and gathers in column 9, correct endpoint comparisons, ordinary/promoted outside counts, full-board ties, left comparison, signed/fractional and Dual stones, both board edges, reduced motion, exact restoration, and Reverse with no page errors.
 - Gather selected change stacks at the highest pre-alignment stack instead of column 11; verified y=x² From 3–9 gathers in column 8 and default 1–11 in column 10, ordinary and Dual promotion, ties, left comparison, signed/fractional stones, reduced motion, exact restoration, and Reverse with no page errors.
